@@ -20,6 +20,9 @@ package main
 import (
 	"context"
 	"flag"
+	"io"
+	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/google/subcommands"
@@ -36,4 +39,20 @@ func main() {
 	flag.Parse()
 	ctx := context.Background()
 	os.Exit(int(subcommands.Execute(ctx)))
+}
+
+var ilog *log.Logger
+var dlog *log.Logger
+
+const progName = "animanager"
+
+func setupLog(debug bool) {
+	ilog = log.New(os.Stderr, progName, log.LstdFlags)
+	var w io.Writer
+	if debug {
+		w = os.Stderr
+	} else {
+		w = ioutil.Discard
+	}
+	dlog = log.New(w, progName, log.LstdFlags)
 }

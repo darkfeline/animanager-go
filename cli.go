@@ -21,12 +21,15 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"os"
+	"path/filepath"
 
 	"github.com/google/subcommands"
+	"github.com/pkg/errors"
 )
 
 type cliCmd struct {
-	capitalize bool
+	debug bool
 }
 
 func (*cliCmd) Name() string     { return "cli" }
@@ -38,13 +41,31 @@ func (*cliCmd) Usage() string {
 }
 
 func (c *cliCmd) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.debug, "debug", false, "Debug mode")
 }
 
+var (
+	home       = os.Getenv("HOME")
+	dbPath     = filepath.Join(home, ".animanager/database.db")
+	anidbCache = filepath.Join(home, ".animanager/anidb")
+	watchDir   = filepath.Join(home, "anime")
+)
+
+const player = "mpv"
+
 func (c *cliCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	return subcommands.ExitSuccess
-
-	d, err := sql.Open("sqlite3", p)
-	if err != nil {
-
+	setupLog(c.debug)
+	if err := cliMain(); err != nil {
+		ilog.Printf("Error: %s", err)
+		return subcommands.ExitFailure
 	}
+	return subcommands.ExitSuccess
+}
+
+func cliMain() error {
+	d, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return errors.Wrap(err, "open database")
+	}
+	return nil
 }
