@@ -87,8 +87,11 @@ CREATE TABLE watching (
 	if err != nil {
 		return err
 	}
+	if err := t.Commit(); err != nil {
+		return err
+	}
 	if err := setUserVersion(d, 3); err != nil {
 		return err
 	}
-	return t.Commit()
+	return nil
 }
