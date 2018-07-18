@@ -25,11 +25,11 @@ import (
 	"path/filepath"
 
 	"github.com/google/subcommands"
-	"github.com/pkg/errors"
+	_ "github.com/mattn/go-sqlite3"
+	"go.felesatra.moe/animanager/internal/migrate"
 )
 
 type cliCmd struct {
-	debug bool
 }
 
 func (*cliCmd) Name() string     { return "cli" }
@@ -41,12 +41,12 @@ func (*cliCmd) Usage() string {
 }
 
 func (c *cliCmd) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&c.debug, "debug", false, "Debug mode")
 }
 
 var (
-	home       = os.Getenv("HOME")
-	dbPath     = filepath.Join(home, ".animanager/database.db")
+	home = os.Getenv("HOME")
+	// dbPath     = filepath.Join(home, ".animanager/database.db")
+	dbPath     = filepath.Join(home, ".animanager/tmp.db")
 	anidbCache = filepath.Join(home, ".animanager/anidb")
 	watchDir   = filepath.Join(home, "anime")
 )
@@ -54,18 +54,14 @@ var (
 const player = "mpv"
 
 func (c *cliCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	setupLog(c.debug)
-	if err := cliMain(); err != nil {
-		ilog.Printf("Error: %s", err)
+	d, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		ilog.Printf("Error opening database: %s", err)
+		return subcommands.ExitFailure
+	}
+	if err := migrate.Migrate(d); err != nil {
+		ilog.Printf("Error migrating database: %s", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
-}
-
-func cliMain() error {
-	d, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return errors.Wrap(err, "open database")
-	}
-	return nil
 }
