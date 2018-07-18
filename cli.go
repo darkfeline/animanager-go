@@ -19,14 +19,12 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"os"
 	"path/filepath"
 
 	"github.com/google/subcommands"
-	_ "github.com/mattn/go-sqlite3"
-	"go.felesatra.moe/animanager/internal/migrate"
+	"go.felesatra.moe/animanager/internal/database"
 )
 
 type cliCmd struct {
@@ -54,13 +52,9 @@ var (
 const player = "mpv"
 
 func (c *cliCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	d, err := sql.Open("sqlite3", dbPath)
+	_, err := database.Open(dbPath)
 	if err != nil {
 		eprintf("Error opening database: %s\n", err)
-		return subcommands.ExitFailure
-	}
-	if err := migrate.Migrate(d); err != nil {
-		eprintf("Error migrating database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
