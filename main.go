@@ -20,8 +20,7 @@ package main
 import (
 	"context"
 	"flag"
-	"io/ioutil"
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/google/subcommands"
@@ -42,14 +41,14 @@ func main() {
 	os.Exit(int(subcommands.Execute(ctx)))
 }
 
-var ilog = log.New(os.Stderr, "", log.LstdFlags)
-var dlog = log.New(ioutil.Discard, "", log.LstdFlags)
-
 func setupLog(debug bool) {
 	if !debug {
 		return
 	}
-	dlog.SetOutput(os.Stderr)
 	migrate.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetPrefix("migrate: ")
+}
+
+func eprintf(format string, a ...interface{}) (int, error) {
+	return fmt.Fprintf(os.Stderr, format, a...)
 }

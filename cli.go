@@ -56,11 +56,11 @@ const player = "mpv"
 func (c *cliCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	d, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
-		ilog.Printf("Error opening database: %s", err)
+		eprintf("Error opening database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	if err := migrate.Migrate(d); err != nil {
-		ilog.Printf("Error migrating database: %s", err)
+		eprintf("Error migrating database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
