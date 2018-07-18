@@ -2,9 +2,13 @@ package migrate
 
 import (
 	"database/sql"
+	"io/ioutil"
+	"log"
 
 	"github.com/pkg/errors"
 )
+
+var Logger = log.New(ioutil.Discard, "", log.LstdFlags)
 
 func Migrate(d *sql.DB) error {
 	for {
@@ -16,6 +20,7 @@ func Migrate(d *sql.DB) error {
 		if !ok {
 			return nil
 		}
+		Logger.Printf("Migrating from %d", v)
 		if err := m(d); err != nil {
 			return errors.Wrapf(err, "migrate from %d", v)
 		}

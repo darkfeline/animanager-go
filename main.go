@@ -20,13 +20,13 @@ package main
 import (
 	"context"
 	"flag"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
 
 	"github.com/google/subcommands"
 	_ "github.com/mattn/go-sqlite3"
+	"go.felesatra.moe/animanager/internal/migrate"
 )
 
 func main() {
@@ -42,18 +42,14 @@ func main() {
 	os.Exit(int(subcommands.Execute(ctx)))
 }
 
-var ilog *log.Logger
-var dlog *log.Logger
-
-const progName = "animanager"
+var ilog = log.New(os.Stderr, "", log.LstdFlags)
+var dlog = log.New(ioutil.Discard, "", log.LstdFlags)
 
 func setupLog(debug bool) {
-	ilog = log.New(os.Stderr, progName, log.LstdFlags)
-	var w io.Writer
-	if debug {
-		w = os.Stderr
-	} else {
-		w = ioutil.Discard
+	if !debug {
+		return
 	}
-	dlog = log.New(w, progName, log.LstdFlags)
+	dlog.SetOutput(os.Stderr)
+	migrate.Logger.SetOutput(os.Stderr)
+	migrate.Logger.SetPrefix("migrate: ")
 }

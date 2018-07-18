@@ -1,6 +1,9 @@
 package migrate
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 func getUserVersion(d *sql.DB) (int, error) {
 	r, err := d.Query("PRAGMA user_version")
@@ -24,7 +27,7 @@ func getUserVersion(d *sql.DB) (int, error) {
 }
 
 func setUserVersion(d *sql.DB, v int) error {
-	_, err := d.Exec("PRAGMA user_version=?", v)
+	_, err := d.Exec(fmt.Sprintf("PRAGMA user_version=%d", v))
 	if err != nil {
 		return err
 	}
