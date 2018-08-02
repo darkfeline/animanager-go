@@ -15,46 +15,39 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+// Package cmd implements subcommands.
+package cmd
 
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/google/subcommands"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 )
 
-type cliCmd struct {
+type Show struct {
 }
 
-func (*cliCmd) Name() string     { return "cli" }
-func (*cliCmd) Synopsis() string { return "Start CLI." }
-func (*cliCmd) Usage() string {
-	return `cli:
-  Start CLI.
+func (*Show) Name() string     { return "show" }
+func (*Show) Synopsis() string { return "Show information about a series." }
+func (*Show) Usage() string {
+	return `show AID:
+  Show information about a series.
 `
 }
 
-func (c *cliCmd) SetFlags(f *flag.FlagSet) {
+func (s *Show) SetFlags(f *flag.FlagSet) {
 }
 
-var (
-	home = os.Getenv("HOME")
-	// dbPath     = filepath.Join(home, ".animanager/database.db")
-	dbPath     = filepath.Join(home, ".animanager/tmp.db")
-	anidbCache = filepath.Join(home, ".animanager/anidb")
-	watchDir   = filepath.Join(home, "anime")
-)
-
-const player = "mpv"
-
-func (c *cliCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	_, err := database.Open(dbPath)
+func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	c := config.New()
+	_, err := database.Open(c.DBPath())
 	if err != nil {
-		eprintf("Error opening database: %s\n", err)
+		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess

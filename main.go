@@ -20,11 +20,11 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/google/subcommands"
 	_ "github.com/mattn/go-sqlite3"
+	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/migrate"
 )
 
@@ -34,7 +34,7 @@ func main() {
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
-	subcommands.Register(&cliCmd{}, "")
+	subcommands.Register(&cmd.Show{}, "")
 	flag.Parse()
 	setupLog(debug)
 	ctx := context.Background()
@@ -47,8 +47,4 @@ func setupLog(debug bool) {
 	}
 	migrate.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetPrefix("migrate: ")
-}
-
-func eprintf(format string, a ...interface{}) (int, error) {
-	return fmt.Fprintf(os.Stderr, format, a...)
 }
