@@ -15,11 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package models
+// Package date implements a date type.
+package date
 
 import "time"
 
 type Date int64
+
+func NewString(s string) (Date, error) {
+	t, err := time.Parse("2006-01-02", s)
+	return Date(t.Unix()), err
+}
 
 func (d Date) Time() time.Time {
 	return time.Unix(int64(d), 0).UTC()

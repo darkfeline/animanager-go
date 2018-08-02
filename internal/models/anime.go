@@ -17,13 +17,15 @@
 
 package models
 
+import "go.felesatra.moe/animanager/internal/date"
+
 type Anime struct {
 	AID          int
 	Title        string
 	Type         AnimeType
 	EpisodeCount int
-	StartDate    Date
-	EndDate      Date
+	StartDate    date.Date
+	EndDate      date.Date
 }
 
 type AnimeType string
