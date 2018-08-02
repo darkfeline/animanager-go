@@ -139,12 +139,15 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 
 func printEpisode(w io.Writer, e *models.Episode) error {
 	bw := bufio.NewWriter(w)
-	fmt.Fprintf(bw, "ID: %d\n", e.ID)
-	fmt.Fprintf(bw, "AID: %d\n", e.AID)
-	fmt.Fprintf(bw, "Type: %s\n", e.Type)
-	fmt.Fprintf(bw, "Number: %d\n", e.Number)
-	fmt.Fprintf(bw, "Title: %s\n", e.Title)
-	fmt.Fprintf(bw, "Length: %d\n", e.Length)
-	fmt.Fprintf(bw, "Watched: %t\n", e.UserWatched)
+	fmt.Fprintf(bw, "%d: ", e.ID)
+	fmt.Fprintf(bw, "%d ", e.AID)
+	fmt.Fprintf(bw, "%s ", e.Type)
+	fmt.Fprintf(bw, "%d ", e.Number)
+	fmt.Fprintf(bw, "%s ", e.Title)
+	fmt.Fprintf(bw, "(%d min)", e.Length)
+	if e.UserWatched {
+		fmt.Fprintf(bw, " (done)")
+	}
+	fmt.Fprintf(bw, "\n")
 	return bw.Flush()
 }
