@@ -49,7 +49,7 @@ func (*Show) SetFlags(f *flag.FlagSet) {
 
 func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if f.NArg() != 1 {
-		fmt.Fprintf(os.Stderr, "Usage: %s", s.Usage())
+		fmt.Fprint(os.Stderr, s.Usage())
 		return subcommands.ExitUsageError
 	}
 	aid, err := strconv.Atoi(f.Arg(0))
