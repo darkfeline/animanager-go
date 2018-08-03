@@ -21,7 +21,6 @@ package cmd
 import (
 	"bufio"
 	"context"
-	"database/sql"
 	"flag"
 	"fmt"
 	"io"
@@ -29,10 +28,10 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"github.com/pkg/errors"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/models"
+	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Show struct {
@@ -66,13 +65,13 @@ func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) sub
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	a, err := getAnime(db, aid)
+	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	printAnime(os.Stdout, a)
-	es, err := getEpisodes(db, aid)
+	es, err := query.GetEpisodes(db, aid)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
@@ -81,27 +80,6 @@ func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) sub
 		printEpisode(os.Stdout, &e)
 	}
 	return subcommands.ExitSuccess
-}
-
-func getAnime(db *sql.DB, aid int) (*models.Anime, error) {
-	t, err := db.Begin()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open transaction")
-	}
-	defer t.Rollback()
-	r, err := t.Query(`SELECT aid, title, type, episodecount, startdate, enddate FROM anime WHERE aid=?`, aid)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to query anime")
-	}
-	defer r.Close()
-	if !r.Next() {
-		return nil, r.Err()
-	}
-	a := models.Anime{}
-	if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount, &a.StartDate, &a.EndDate); err != nil {
-		return nil, errors.Wrap(err, "failed to scan anime")
-	}
-	return &a, nil
 }
 
 func printAnime(w io.Writer, a *models.Anime) error {
@@ -113,28 +91,6 @@ func printAnime(w io.Writer, a *models.Anime) error {
 	fmt.Fprintf(bw, "Start date: %s\n", a.StartDate)
 	fmt.Fprintf(bw, "End date: %s\n", a.EndDate)
 	return bw.Flush()
-}
-
-func getEpisodes(db *sql.DB, aid int) ([]models.Episode, error) {
-	r, err := db.Query(`
-SELECT id, aid, type, number, title, length, user_watched
-FROM episode WHERE aid=? ORDER BY type, number`, aid)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to query episode")
-	}
-	defer r.Close()
-	var es []models.Episode
-	for r.Next() {
-		e := models.Episode{}
-		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number, &e.Title, &e.Length, &e.UserWatched); err != nil {
-			return nil, errors.Wrap(err, "failed to scan episode")
-		}
-		es = append(es, e)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return es, nil
 }
 
 func printEpisode(w io.Writer, e *models.Episode) error {
