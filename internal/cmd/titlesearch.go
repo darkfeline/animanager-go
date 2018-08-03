@@ -37,8 +37,8 @@ type TitleSearch struct {
 func (*TitleSearch) Name() string     { return "titlesearch" }
 func (*TitleSearch) Synopsis() string { return "Search for an anime title." }
 func (*TitleSearch) Usage() string {
-	return `titlesearch TERM...:
-  Search for an anime title.
+	return `Usage: titlesearch terms...
+Search for an anime title.
 `
 }
 

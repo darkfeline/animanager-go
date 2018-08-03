@@ -39,8 +39,8 @@ type Show struct {
 func (*Show) Name() string     { return "show" }
 func (*Show) Synopsis() string { return "Show information about a series." }
 func (*Show) Usage() string {
-	return `show AID:
-  Show information about a series.
+	return `Usage: show aid
+Show information about a series.
 `
 }
 

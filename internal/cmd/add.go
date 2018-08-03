@@ -36,8 +36,8 @@ type Add struct {
 func (*Add) Name() string     { return "add" }
 func (*Add) Synopsis() string { return "Add an anime." }
 func (*Add) Usage() string {
-	return `add AID:
-  Add an anime.
+	return `Usage: add aids...
+Add an anime.
 `
 }
 
