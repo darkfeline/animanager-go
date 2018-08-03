@@ -27,7 +27,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var Logger = log.New(ioutil.Discard, "", log.LstdFlags)
+var Logger = log.New(ioutil.Discard, "migrate: ", log.LstdFlags)
 
 // Migrate migrates the database to the newest version.
 func Migrate(d *sql.DB) error {

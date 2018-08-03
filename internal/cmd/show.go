@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package cmd implements subcommands.
 package cmd
 
 import (
@@ -45,7 +44,7 @@ func (*Show) Usage() string {
 `
 }
 
-func (s *Show) SetFlags(f *flag.FlagSet) {
+func (*Show) SetFlags(f *flag.FlagSet) {
 }
 
 func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
