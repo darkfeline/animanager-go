@@ -88,6 +88,17 @@ CREATE TABLE episode_type (
 		return err
 	}
 	_, err = t.Exec(`
+INSERT INTO episode_type (id, name, prefix) VALUES
+(1, 'regular', ''),
+(2, 'special', 'S'),
+(3, 'credit', 'C'),
+(4, 'trailer', 'T'),
+(5, 'parody', 'P'),
+(6, 'other', 'O')`)
+	if err != nil {
+		return err
+	}
+	_, err = t.Exec(`
 CREATE TABLE "episode" (
     id INTEGER,
     aid INTEGER NOT NULL,
