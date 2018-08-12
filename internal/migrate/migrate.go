@@ -88,7 +88,7 @@ CREATE TABLE episode_type (
 		return err
 	}
 	_, err = t.Exec(`
-CREATE TABLE IF NOT EXISTS "episode" (
+CREATE TABLE "episode" (
     id INTEGER,
     aid INTEGER NOT NULL,
     type INTEGER NOT NULL,
