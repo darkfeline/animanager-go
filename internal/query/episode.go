@@ -17,6 +17,12 @@
 
 package query
 
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 type Episode struct {
 	ID          int
 	AID         int
@@ -40,3 +46,31 @@ const (
 )
 
 //go:generate stringer -type=EpisodeType
+
+type prefixPair struct {
+	Prefix string
+	Type   EpisodeType
+}
+
+var epnoPrefixes = []prefixPair{
+	{"S", EpSpecial},
+	{"C", EpCredit},
+	{"T", EpTrailer},
+	{"P", EpParody},
+	{"", EpRegular},
+}
+
+// parseEpNo parses episode number information from the AniDB format.
+// If parse fails, EpInvalid is returned for the episode type.
+func parseEpNo(epno string) (EpisodeType, int) {
+	for _, p := range epnoPrefixes {
+		if strings.HasPrefix(epno, p.Prefix) {
+			n, err := strconv.Atoi(epno[len(p.Prefix):])
+			if err != nil {
+				return EpInvalid, 0
+			}
+			return p.Type, n
+		}
+	}
+	panic(fmt.Sprintf("ParseEpNo %s unreachable code", epno))
+}
