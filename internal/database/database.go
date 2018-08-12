@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
@@ -35,6 +36,11 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 // migrated to the newest version.
 func Open(p string) (d *sql.DB, err error) {
 	logSQLiteVersion()
+	if strings.IndexByte(p, '?') == -1 {
+		p = p + "?_fk=1"
+	} else {
+		p = p + "&_fk=1"
+	}
 	d, err = sql.Open("sqlite3", p)
 	if err != nil {
 		return nil, err
