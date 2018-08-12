@@ -32,24 +32,32 @@ var Logger = log.New(ioutil.Discard, "migrate: ", log.LstdFlags)
 
 // Migrate migrates the database to the newest version.
 func Migrate(d *sql.DB) error {
-	for {
-		v, err := getUserVersion(d)
-		if err != nil {
-			return errors.Wrap(err, "get user version")
-		}
-		m, ok := migrations[v]
-		if !ok {
-			return nil
-		}
-		Logger.Printf("Migrating from %d", v)
-		if err := m(d); err != nil {
-			return errors.Wrapf(err, "migrate from %d", v)
-		}
+	v, err := getUserVersion(d)
+	if err != nil {
+		return errors.Wrap(err, "get user version")
 	}
+	for _, m := range migrations {
+		if v != m.From {
+			continue
+		}
+		Logger.Printf("Migrating from %d to %d", m.From, m.To)
+		if err := m.Func(d); err != nil {
+			return errors.Wrapf(err, "migrate from %d to %d", m.From, m.To)
+		}
+		if err := setUserVersion(d, m.To); err != nil {
+			return err
+		}
+		v = m.To
+	}
+	return nil
 }
 
-var migrations = map[int]migrateFunc{
-	0: migrate3,
+var migrations = []struct {
+	From int
+	To   int
+	Func migrateFunc
+}{
+	{0, 3, migrate3},
 }
 
 type migrateFunc func(*sql.DB) error
@@ -139,9 +147,6 @@ CREATE TABLE file_priority (
 		return err
 	}
 	if err := t.Commit(); err != nil {
-		return err
-	}
-	if err := setUserVersion(d, 3); err != nil {
 		return err
 	}
 	return nil
