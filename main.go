@@ -30,6 +30,7 @@ import (
 	"go.felesatra.moe/animanager/internal/anidb/titles"
 	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/config"
+	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/migrate"
 )
 
@@ -60,6 +61,7 @@ func setupLog(debug bool) {
 	if !debug {
 		return
 	}
+	database.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetOutput(os.Stderr)
 	titles.Logger.SetOutput(os.Stderr)
 }

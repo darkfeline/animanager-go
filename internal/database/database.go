@@ -20,15 +20,21 @@ package database
 
 import (
 	"database/sql"
+	"io/ioutil"
+	"log"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 	"go.felesatra.moe/animanager/internal/migrate"
 )
 
+// Logger is used by this package for logging.
+var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
+
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
 func Open(p string) (d *sql.DB, err error) {
+	logSQLiteVersion()
 	d, err = sql.Open("sqlite3", p)
 	if err != nil {
 		return nil, err
@@ -51,4 +57,9 @@ func Open(p string) (d *sql.DB, err error) {
 // between tests.
 func OpenMem() (*sql.DB, error) {
 	return Open("file::memory:?mode=memory&cache=shared")
+}
+
+func logSQLiteVersion() {
+	v, vn, id := sqlite3.Version()
+	Logger.Printf("SQLite version: %s %d %s", v, vn, id)
 }
