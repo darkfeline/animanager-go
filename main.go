@@ -24,7 +24,6 @@ import (
 	"os"
 
 	"github.com/google/subcommands"
-	_ "github.com/mattn/go-sqlite3"
 
 	"go.felesatra.moe/animanager/internal/anidb/titles"
 	"go.felesatra.moe/animanager/internal/cmd"
