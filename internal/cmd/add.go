@@ -26,7 +26,6 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"github.com/pkg/errors"
 
 	"go.felesatra.moe/animanager/internal/anidb"
 	"go.felesatra.moe/animanager/internal/database"
@@ -81,10 +80,10 @@ func (a *Add) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subc
 func addAnime(db *sql.DB, aid int) error {
 	a, err := anidb.RequestAnime(aid)
 	if err != nil {
-		return errors.Wrapf(err, "failed to get anime %d: %s", aid, err)
+		return err
 	}
 	if err := query.InsertAnime(db, a); err != nil {
-		return errors.Wrapf(err, "failed to insert anime %d: %s", aid, err)
+		return err
 	}
 	return nil
 }
