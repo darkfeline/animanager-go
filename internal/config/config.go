@@ -50,6 +50,7 @@ func New(p string) (Config, error) {
 	if err := toml.Unmarshal(d, &c); err != nil {
 		return c, errors.Wrapf(err, "load config %s", p)
 	}
+	c.DBPath = os.ExpandEnv(c.DBPath)
 	return c, nil
 }
 
