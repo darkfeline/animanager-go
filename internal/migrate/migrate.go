@@ -21,6 +21,7 @@ package migrate
 
 import (
 	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -96,7 +97,7 @@ CREATE TABLE episode_new (
 	ON DELETE CASCADE ON UPDATE CASCADE
 )`)
 	if err != nil {
-		return err
+		return fmt.Errorf("CREATE TABLE episode_new: %s", err)
 	}
 	_, err = t.Exec(`
 INSERT INTO episode_new
@@ -104,15 +105,15 @@ INSERT INTO episode_new
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode`)
 	if err != nil {
-		return err
+		return fmt.Errorf("INSERT INTO episode_new: %s", err)
 	}
 	_, err = t.Exec("DROP TABLE episode")
 	if err != nil {
-		return err
+		return fmt.Errorf("DROP TABLE episode: %s", err)
 	}
 	_, err = t.Exec("ALTER TABLE episode_new RENAME TO episode")
 	if err != nil {
-		return err
+		return fmt.Errorf("ALTER TABLE episode_new: %s", err)
 	}
 	return nil
 }
