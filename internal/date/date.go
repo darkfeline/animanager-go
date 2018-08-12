@@ -20,17 +20,23 @@ package date
 
 import "time"
 
+// Date represents a date as a Unix timestamp at 00:00 UTC of the
+// date.
 type Date int64
 
+// NewString parses and returns a Date from a string in YYYY-MM-DD
+// format.
 func NewString(s string) (Date, error) {
 	t, err := time.Parse("2006-01-02", s)
 	return Date(t.Unix()), err
 }
 
+// Time returns the Time representation of the date.
 func (d Date) Time() time.Time {
 	return time.Unix(int64(d), 0).UTC()
 }
 
+// String returns the date formatted as YYYY-MM-DD.
 func (d Date) String() string {
 	t := d.Time()
 	return t.Format("2006-01-02")

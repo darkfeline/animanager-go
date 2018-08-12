@@ -20,6 +20,7 @@ package anidb
 
 import "go.felesatra.moe/anidb"
 
+// Client is the AniDB client for Animanager.
 var Client = anidb.Client{
 	Name:    "kfanimanager",
 	Version: 1,

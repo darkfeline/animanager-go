@@ -27,6 +27,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Logger is used by this package for logging.
 var Logger = log.New(ioutil.Discard, "migrate: ", log.LstdFlags)
 
 // Migrate migrates the database to the newest version.

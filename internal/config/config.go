@@ -23,14 +23,17 @@ import (
 	"path/filepath"
 )
 
+// Config provides access to configuration.
 type Config struct {
 	configDir string
 }
 
+// DBPath returns the path to the database file.
 func (c *Config) DBPath() string {
 	return filepath.Join(c.configDir, "database.db")
 }
 
+// New loads the configuration for the user.
 func New() *Config {
 	home := os.Getenv("HOME")
 	return &Config{
