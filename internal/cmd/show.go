@@ -29,7 +29,6 @@ import (
 	"github.com/google/subcommands"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/models"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -81,7 +80,7 @@ func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) sub
 	return subcommands.ExitSuccess
 }
 
-func printAnime(w io.Writer, a *models.Anime) error {
+func printAnime(w io.Writer, a *query.Anime) error {
 	bw := bufio.NewWriter(w)
 	fmt.Fprintf(bw, "AID: %d\n", a.AID)
 	fmt.Fprintf(bw, "Title: %s\n", a.Title)
@@ -92,7 +91,7 @@ func printAnime(w io.Writer, a *models.Anime) error {
 	return bw.Flush()
 }
 
-func printEpisode(w io.Writer, e *models.Episode) error {
+func printEpisode(w io.Writer, e *query.Episode) error {
 	bw := bufio.NewWriter(w)
 	fmt.Fprintf(bw, "%d: ", e.ID)
 	fmt.Fprintf(bw, "%d ", e.AID)

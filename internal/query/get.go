@@ -21,10 +21,9 @@ import (
 	"database/sql"
 
 	"github.com/pkg/errors"
-	"go.felesatra.moe/animanager/internal/models"
 )
 
-func GetAnime(db *sql.DB, aid int) (*models.Anime, error) {
+func GetAnime(db *sql.DB, aid int) (*Anime, error) {
 	r, err := db.Query(`
 SELECT aid, title, type, episodecount, startdate, enddate
 FROM anime WHERE aid=?`, aid)
@@ -35,7 +34,7 @@ FROM anime WHERE aid=?`, aid)
 	if !r.Next() {
 		return nil, r.Err()
 	}
-	a := models.Anime{}
+	a := Anime{}
 	if err := r.Scan(&a.AID, &a.Title, &a.Type,
 		&a.EpisodeCount, &a.StartDate, &a.EndDate); err != nil {
 		return nil, errors.Wrap(err, "failed to scan anime")
@@ -43,7 +42,7 @@ FROM anime WHERE aid=?`, aid)
 	return &a, nil
 }
 
-func GetEpisodes(db *sql.DB, aid int) ([]models.Episode, error) {
+func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
@@ -51,9 +50,9 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 		return nil, errors.Wrap(err, "failed to query episode")
 	}
 	defer r.Close()
-	var es []models.Episode
+	var es []Episode
 	for r.Next() {
-		e := models.Episode{}
+		e := Episode{}
 		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
 			&e.Title, &e.Length, &e.UserWatched); err != nil {
 			return nil, errors.Wrap(err, "failed to scan episode")

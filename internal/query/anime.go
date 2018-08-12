@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package models
+package query
 
 import "go.felesatra.moe/animanager/internal/date"
 

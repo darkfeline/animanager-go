@@ -15,5 +15,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package models provides common database structures.
-package models
+package query
+
+type Episode struct {
+	ID          int
+	AID         int
+	Type        EpisodeType
+	Number      int
+	Title       string
+	Length      int
+	UserWatched bool
+}
+
+type EpisodeType int
+
+const (
+	EpInvalid EpisodeType = iota
+	EpRegular
+	EpSpecial
+	EpCredit
+	EpTrailer
+	EpParody
+	EpOther
+)
+
+//go:generate stringer -type=EpisodeType
