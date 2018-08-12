@@ -43,3 +43,12 @@ func Open(p string) (d *sql.DB, err error) {
 	}
 	return d, nil
 }
+
+// Open opens and returns a SQLite database from memory.  The database is
+// migrated to the newest version.
+//
+// The database is between all connections, so it must be closed out
+// between tests.
+func OpenMem() (*sql.DB, error) {
+	return Open("file::memory:?mode=memory&cache=shared")
+}
