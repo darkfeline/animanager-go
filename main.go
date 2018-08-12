@@ -27,6 +27,7 @@ import (
 
 	"go.felesatra.moe/animanager/internal/anidb/titles"
 	"go.felesatra.moe/animanager/internal/cmd"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/migrate"
 )
 
@@ -42,7 +43,8 @@ func main() {
 	flag.Parse()
 	setupLog(debug)
 	ctx := context.Background()
-	os.Exit(int(subcommands.Execute(ctx)))
+	c := config.New()
+	os.Exit(int(subcommands.Execute(ctx, c)))
 }
 
 func setupLog(debug bool) {

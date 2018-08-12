@@ -27,7 +27,7 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"go.felesatra.moe/animanager/internal/config"
+
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -46,7 +46,7 @@ Show information about a series.
 func (*Show) SetFlags(f *flag.FlagSet) {
 }
 
-func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (s *Show) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
 	if f.NArg() != 1 {
 		fmt.Fprint(os.Stderr, s.Usage())
 		return subcommands.ExitUsageError
@@ -56,7 +56,7 @@ func (s *Show) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) sub
 		fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
 		return subcommands.ExitUsageError
 	}
-	c := config.New()
+	c := getConfig(x)
 	db, err := database.Open(c.DBPath())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)

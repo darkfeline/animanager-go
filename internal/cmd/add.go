@@ -28,8 +28,8 @@ import (
 
 	"github.com/google/subcommands"
 	"github.com/pkg/errors"
+
 	"go.felesatra.moe/animanager/internal/anidb"
-	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -48,7 +48,7 @@ Add an anime.
 func (*Add) SetFlags(f *flag.FlagSet) {
 }
 
-func (a *Add) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (a *Add) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
 	if f.NArg() < 1 {
 		fmt.Fprint(os.Stderr, a.Usage())
 		return subcommands.ExitUsageError
@@ -63,7 +63,7 @@ func (a *Add) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subc
 		aids[i] = aid
 	}
 
-	c := config.New()
+	c := getConfig(x)
 	db, err := database.Open(c.DBPath())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
