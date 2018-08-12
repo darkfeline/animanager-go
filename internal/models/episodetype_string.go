@@ -4,9 +4,9 @@ package models
 
 import "strconv"
 
-const _EpisodeType_name = "RegularSpecialCreditTrailerParodyOther"
+const _EpisodeType_name = "EpRegularEpSpecialEpCreditEpTrailerEpParodyEpOther"
 
-var _EpisodeType_index = [...]uint8{0, 7, 14, 20, 27, 33, 38}
+var _EpisodeType_index = [...]uint8{0, 9, 18, 26, 35, 43, 50}
 
 func (i EpisodeType) String() string {
 	i -= 1

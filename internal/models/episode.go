@@ -31,12 +31,12 @@ type EpisodeType int
 
 const (
 	_ EpisodeType = iota
-	Regular
-	Special
-	Credit
-	Trailer
-	Parody
-	Other
+	EpRegular
+	EpSpecial
+	EpCredit
+	EpTrailer
+	EpParody
+	EpOther
 )
 
 //go:generate stringer -type=EpisodeType
