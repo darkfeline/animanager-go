@@ -25,3 +25,8 @@ var Client = anidb.Client{
 	Name:    "kfanimanager",
 	Version: 1,
 }
+
+// RequestAnime calls anidb.RequestAnime with the Animanager Client.
+func RequestAnime(aid int) (*anidb.Anime, error) {
+	return anidb.RequestAnime(Client, aid)
+}
