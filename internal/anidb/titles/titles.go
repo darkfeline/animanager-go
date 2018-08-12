@@ -29,7 +29,10 @@ import (
 	"go.felesatra.moe/anidb/cache/titles"
 )
 
+// ErrLogger is used by this package to log errors.
 var ErrLogger = log.New(os.Stderr, "titles: ", log.LstdFlags)
+
+// Logger is used by this package for informational logging.
 var Logger = log.New(ioutil.Discard, "titles: ", log.LstdFlags)
 
 // Get returns a slice of anime titles.  This function uses a cache if

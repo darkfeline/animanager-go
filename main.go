@@ -25,9 +25,10 @@ import (
 
 	"github.com/google/subcommands"
 	_ "github.com/mattn/go-sqlite3"
+
+	"go.felesatra.moe/animanager/internal/anidb/titles"
 	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/migrate"
-	"go.felesatra.moe/animanager/internal/titles"
 )
 
 func main() {
@@ -36,6 +37,7 @@ func main() {
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
+	subcommands.Register(&cmd.Add{}, "")
 	subcommands.Register(&cmd.Show{}, "")
 	subcommands.Register(&cmd.TitleSearch{}, "")
 	flag.Parse()

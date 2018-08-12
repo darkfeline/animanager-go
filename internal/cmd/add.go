@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -45,23 +46,37 @@ func (*Add) SetFlags(f *flag.FlagSet) {
 }
 
 func (a *Add) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	if f.NArg() != 1 {
+	if f.NArg() < 1 {
 		fmt.Fprint(os.Stderr, a.Usage())
 		return subcommands.ExitUsageError
 	}
-	aid, err := strconv.Atoi(f.Arg(0))
-	log.Print(aid)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
-		return subcommands.ExitUsageError
+	aids := make([]int, f.NArg())
+	for i, s := range f.Args() {
+		aid, err := strconv.Atoi(s)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
+			return subcommands.ExitUsageError
+		}
+		aids[i] = aid
 	}
-	c := config.New()
 
+	c := config.New()
 	db, err := database.Open(c.DBPath())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
+	for _, aid := range aids {
+		if err := addAnime(db, aid); err != nil {
+			fmt.Fprintf(os.Stderr, "Error adding anime: %s\n", err)
+			return subcommands.ExitFailure
+		}
+	}
 	return subcommands.ExitSuccess
+}
+
+func addAnime(db *sql.DB, aid int) error {
+	log.Print(aid)
+	return nil
 }

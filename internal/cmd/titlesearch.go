@@ -27,7 +27,8 @@ import (
 
 	"github.com/google/subcommands"
 	"go.felesatra.moe/anidb"
-	"go.felesatra.moe/animanager/internal/titles"
+
+	"go.felesatra.moe/animanager/internal/anidb/titles"
 )
 
 type TitleSearch struct {
