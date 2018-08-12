@@ -22,7 +22,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 
@@ -80,7 +79,6 @@ func (a *Add) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subc
 }
 
 func addAnime(db *sql.DB, aid int) error {
-	log.Print(aid)
 	a, err := anidb.RequestAnime(aid)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get anime %d: %s", aid, err)
