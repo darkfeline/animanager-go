@@ -27,8 +27,11 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
+	"github.com/pkg/errors"
+	"go.felesatra.moe/animanager/internal/anidb"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Add struct {
@@ -78,5 +81,12 @@ func (a *Add) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subc
 
 func addAnime(db *sql.DB, aid int) error {
 	log.Print(aid)
+	a, err := anidb.RequestAnime(aid)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get anime %d: %s", aid, err)
+	}
+	if err := query.InsertAnime(db, a); err != nil {
+		return errors.Wrapf(err, "failed to insert anime %d: %s", aid, err)
+	}
 	return nil
 }
