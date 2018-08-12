@@ -69,7 +69,7 @@ func migrate3(d *sql.DB) error {
 	}
 	defer t.Rollback()
 	_, err = t.Exec(`
-CREATE TABLE "anime" (
+CREATE TABLE anime (
     aid INTEGER,
     title TEXT NOT NULL UNIQUE,
     type TEXT NOT NULL,
@@ -107,7 +107,7 @@ INSERT INTO episode_type (id, name, prefix) VALUES
 		return err
 	}
 	_, err = t.Exec(`
-CREATE TABLE "episode" (
+CREATE TABLE episode (
     id INTEGER,
     aid INTEGER NOT NULL,
     type INTEGER NOT NULL,
