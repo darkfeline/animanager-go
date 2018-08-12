@@ -30,7 +30,7 @@ type Episode struct {
 type EpisodeType int
 
 const (
-	_ EpisodeType = iota
+	EpInvalid EpisodeType = iota
 	EpRegular
 	EpSpecial
 	EpCredit
