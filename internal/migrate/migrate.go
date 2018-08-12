@@ -80,6 +80,10 @@ func migrate4(d *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	_, err = t.Exec("DROP TABLE file_priority")
+	if err != nil {
+		return err
+	}
 	return t.Commit()
 }
 
