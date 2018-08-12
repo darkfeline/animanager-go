@@ -70,7 +70,10 @@ func migrate4(d *sql.DB) error {
 		return err
 	}
 	defer t.Rollback()
-	if err := migrate4episode(t); err != nil {
+	if err := migrate4Anime(t); err != nil {
+		return err
+	}
+	if err := migrate4Episode(t); err != nil {
 		return err
 	}
 	_, err = t.Exec("DROP TABLE episode_type")
@@ -80,7 +83,40 @@ func migrate4(d *sql.DB) error {
 	return t.Commit()
 }
 
-func migrate4episode(t *sql.Tx) error {
+func migrate4Anime(t *sql.Tx) error {
+	_, err := t.Exec(`
+CREATE TABLE anime_new (
+    aid INTEGER,
+    title TEXT NOT NULL,
+    type TEXT NOT NULL,
+    episodecount INTEGER NOT NULL,
+    startdate INTEGER,
+    enddate INTEGER,
+    PRIMARY KEY (aid)
+)`)
+	if err != nil {
+		return fmt.Errorf("CREATE TABLE anime_new: %s", err)
+	}
+	_, err = t.Exec(`
+INSERT INTO anime_new
+(aid, title, type, episodecount, startdate, enddate)
+SELECT aid, title, type, episodecount, startdate, enddate
+FROM anime`)
+	if err != nil {
+		return fmt.Errorf("INSERT INTO anime_new: %s", err)
+	}
+	_, err = t.Exec("DROP TABLE anime")
+	if err != nil {
+		return fmt.Errorf("DROP TABLE anime: %s", err)
+	}
+	_, err = t.Exec("ALTER TABLE anime_new RENAME TO anime")
+	if err != nil {
+		return fmt.Errorf("ALTER TABLE anime_new: %s", err)
+	}
+	return nil
+}
+
+func migrate4Episode(t *sql.Tx) error {
 	_, err := t.Exec(`
 CREATE TABLE episode_new (
     id INTEGER,
