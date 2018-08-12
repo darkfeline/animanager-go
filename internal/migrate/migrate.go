@@ -146,8 +146,5 @@ CREATE TABLE file_priority (
 	if err != nil {
 		return err
 	}
-	if err := t.Commit(); err != nil {
-		return err
-	}
-	return nil
+	return t.Commit()
 }
