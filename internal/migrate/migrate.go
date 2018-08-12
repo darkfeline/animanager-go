@@ -109,6 +109,7 @@ FROM anime`)
 	if err != nil {
 		return fmt.Errorf("INSERT INTO anime_new: %s", err)
 	}
+	// BUG(darkfeline): This deletes all foreign keys cascading
 	_, err = t.Exec("DROP TABLE anime")
 	if err != nil {
 		return fmt.Errorf("DROP TABLE anime: %s", err)
