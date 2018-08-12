@@ -38,10 +38,17 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed to insert anime %d", a.AID)
 	}
+	title := mainTitle(a.Titles)
 	_, err = t.Exec(`
 INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
-VALUES (?, ?, ?, ?, ?, ?)`, a.AID, mainTitle(a.Titles), a.Type, a.EpisodeCount,
-		startDate, endDate)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT (aid) DO UPDATE SET
+title=?, type=?, episodecount=?, startdate=?, enddate=?
+WHERE aid=?`,
+		a.AID, title, a.Type, a.EpisodeCount, startDate, endDate,
+		title, a.Type, a.EpisodeCount, startDate, endDate,
+		a.AID,
+	)
 	if err != nil {
 		return errors.Wrapf(err, "failed to insert anime %d", a.AID)
 	}
@@ -69,9 +76,17 @@ func insertEpisode(t *sql.Tx, aid int, e anidb.Episode) error {
 	if eptype == EpInvalid {
 		return fmt.Errorf("invalid epno %s", e.EpNo)
 	}
+	title := mainEpTitle(e.Titles)
 	_, err := t.Exec(`
 INSERT INTO episode (aid, type, number, title, length)
-VALUES (?, ?, ?, ?, ?)`, aid, eptype, n, mainEpTitle(e.Titles), e.Length)
+VALUES (?, ?, ?, ?, ?)
+ON CONFLICT (aid, type, number) DO UPDATE SET
+title=?, length=?
+WHERE aid=? AND type=? AND number=?`,
+		aid, eptype, n, title, e.Length,
+		title, e.Length,
+		aid, eptype, n,
+	)
 	if err != nil {
 		return err
 	}
