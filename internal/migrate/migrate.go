@@ -58,9 +58,64 @@ var migrations = []struct {
 	Func migrateFunc
 }{
 	{0, 3, migrate3},
+	{3, 4, migrate4},
 }
 
 type migrateFunc func(*sql.DB) error
+
+func migrate4(d *sql.DB) error {
+	t, err := d.Begin()
+	if err != nil {
+		return err
+	}
+	defer t.Rollback()
+	if err := migrate4episode(t); err != nil {
+		return err
+	}
+	_, err = t.Exec("DROP TABLE episode_type")
+	if err != nil {
+		return err
+	}
+	return t.Commit()
+}
+
+func migrate4episode(t *sql.Tx) error {
+	_, err := t.Exec(`
+CREATE TABLE episode_new (
+    id INTEGER,
+    aid INTEGER NOT NULL,
+    type INTEGER NOT NULL,
+    number INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    length INTEGER NOT NULL,
+    user_watched INTEGER NOT NULL CHECK (user_watched IN (0, 1))
+	DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE (aid, type, number),
+    FOREIGN KEY (aid) REFERENCES anime (aid)
+	ON DELETE CASCADE ON UPDATE CASCADE
+)`)
+	if err != nil {
+		return err
+	}
+	_, err = t.Exec(`
+INSERT INTO episode_new
+(id, aid, type, number, title, length, user_watched)
+SELECT id, aid, type, number, title, length, user_watched
+FROM episode`)
+	if err != nil {
+		return err
+	}
+	_, err = t.Exec("DROP TABLE episode")
+	if err != nil {
+		return err
+	}
+	_, err = t.Exec("ALTER TABLE episode_new RENAME TO episode")
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func migrate3(d *sql.DB) error {
 	t, err := d.Begin()
