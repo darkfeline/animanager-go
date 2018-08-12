@@ -64,7 +64,7 @@ func (a *Add) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subc
 	}
 
 	c := getConfig(x)
-	db, err := database.Open(c.DBPath())
+	db, err := database.Open(c.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure

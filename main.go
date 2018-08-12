@@ -21,7 +21,9 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/google/subcommands"
 
@@ -31,9 +33,13 @@ import (
 	"go.felesatra.moe/animanager/internal/migrate"
 )
 
+var defaultConfig = filepath.Join(os.Getenv("HOME"), ".animanager", "config.toml")
+
 func main() {
 	var debug bool
+	var configPath string
 	flag.BoolVar(&debug, "debug", false, "Debug mode")
+	flag.StringVar(&configPath, "config", defaultConfig, "Config file")
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
@@ -43,7 +49,10 @@ func main() {
 	flag.Parse()
 	setupLog(debug)
 	ctx := context.Background()
-	c := config.New()
+	c, err := config.New(configPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading config: %s\n", err)
+	}
 	os.Exit(int(subcommands.Execute(ctx, c)))
 }
 

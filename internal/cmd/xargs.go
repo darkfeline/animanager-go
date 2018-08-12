@@ -20,6 +20,6 @@ package cmd
 import "go.felesatra.moe/animanager/internal/config"
 
 // getConfig gets the Config passed into a subcommand.
-func getConfig(x []interface{}) *config.Config {
-	return x[0].(*config.Config)
+func getConfig(x []interface{}) config.Config {
+	return x[0].(config.Config)
 }

@@ -19,24 +19,43 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/BurntSushi/toml"
+	"github.com/pkg/errors"
 )
 
 // Config provides access to configuration.
 type Config struct {
-	configDir string
+	DBPath string `toml:"database"`
 }
 
-// DBPath returns the path to the database file.
-func (c *Config) DBPath() string {
-	return filepath.Join(c.configDir, "database.db")
+var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
+
+// New loads the configuration for the user.  If an error occurs, an
+// error is returned along with the default configuration.
+func New(p string) (Config, error) {
+	c := Default()
+	f, err := os.Open(p)
+	if err != nil {
+		return c, errors.Wrap(err, "load config")
+	}
+	defer f.Close()
+	d, err := ioutil.ReadAll(f)
+	if err != nil {
+		return c, errors.Wrapf(err, "load config %s", p)
+	}
+	if err := toml.Unmarshal(d, &c); err != nil {
+		return c, errors.Wrapf(err, "load config %s", p)
+	}
+	return c, nil
 }
 
-// New loads the configuration for the user.
-func New() *Config {
-	home := os.Getenv("HOME")
-	return &Config{
-		configDir: filepath.Join(home, ".animanager"),
+// Default returns the default configuration.
+func Default() Config {
+	return Config{
+		DBPath: filepath.Join(defaultDir, "database.db"),
 	}
 }
