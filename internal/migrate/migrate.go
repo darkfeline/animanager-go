@@ -78,6 +78,16 @@ CREATE TABLE "anime" (
 		return err
 	}
 	_, err = t.Exec(`
+CREATE TABLE episode_type (
+    id INTEGER,
+    name TEXT NOT NULL UNIQUE,
+    prefix TEXT NOT NULL UNIQUE,
+    PRIMARY KEY(id)
+)`)
+	if err != nil {
+		return err
+	}
+	_, err = t.Exec(`
 CREATE TABLE IF NOT EXISTS "episode" (
     id INTEGER,
     aid INTEGER NOT NULL,
