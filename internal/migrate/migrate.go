@@ -118,6 +118,15 @@ CREATE TABLE watching (
 	if err != nil {
 		return err
 	}
+	_, err = t.Exec(`
+CREATE TABLE file_priority (
+     id INTEGER PRIMARY KEY,
+     regexp TEXT NOT NULL,
+     priority INTEGER NOT NULL
+)`)
+	if err != nil {
+		return err
+	}
 	if err := t.Commit(); err != nil {
 		return err
 	}
