@@ -64,6 +64,7 @@ func setupLog(debug bool) {
 	if !debug {
 		return
 	}
+	cmd.Logger.SetOutput(os.Stderr)
 	database.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetOutput(os.Stderr)
 	titles.Logger.SetOutput(os.Stderr)
