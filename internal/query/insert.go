@@ -102,3 +102,19 @@ func mainEpTitle(ts []anidb.EpTitle) string {
 	}
 	return ts[0].Title
 }
+
+// InsertWatching inserts or updates a watching entry into the database.
+func InsertWatching(db *sql.DB, aid int, regexp string) error {
+	t, err := db.Begin()
+	defer t.Rollback()
+	_, err = t.Exec(`
+INSERT INTO watching (aid, regexp) VALUES (?, ?)
+ON CONFLICT (aid) DO UPDATE SET regexp=? WHERE aid=?`,
+		aid, regexp,
+		regexp, aid,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "failed to insert watching %d", aid)
+	}
+	return t.Commit()
+}

@@ -110,3 +110,38 @@ func TestInsertAndGetAnime(t *testing.T) {
 		}
 	})
 }
+
+func TestInsertAndGetWatching(t *testing.T) {
+	db, err := database.OpenMem(context.Background())
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	defer db.Close()
+	aid := 22
+	a := &anidb.Anime{
+		AID:          aid,
+		Type:         "TV Series",
+		EpisodeCount: 26,
+		StartDate:    "1995-10-04",
+		EndDate:      "1996-03-27",
+		Titles: []anidb.Title{
+			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
+			{Name: "Neon Genesis Evangelion", Type: "official", Lang: "en"},
+		},
+		Episodes: []anidb.Episode{},
+	}
+	if err := InsertAnime(db, a); err != nil {
+		t.Fatalf("Error inserting anime: %s", err)
+	}
+	p := "foobar"
+	if err := InsertWatching(db, aid, p); err != nil {
+		t.Fatalf("Error inserting watching: %s", err)
+	}
+	got, err := GetWatching(db, aid)
+	if err != nil {
+		t.Fatalf("Error getting anime: %s", err)
+	}
+	if got != p {
+		t.Errorf("GetWatching(db, %d) = %#v (expected %#v)", aid, got, p)
+	}
+}

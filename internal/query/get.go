@@ -19,10 +19,12 @@ package query
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/pkg/errors"
 )
 
+// GetAnime gets the anime from the database.
 func GetAnime(db *sql.DB, aid int) (*Anime, error) {
 	r, err := db.Query(`
 SELECT aid, title, type, episodecount, startdate, enddate
@@ -42,6 +44,7 @@ FROM anime WHERE aid=?`, aid)
 	return &a, nil
 }
 
+// GetAnime gets the episodes for an anime from the database.
 func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT id, aid, type, number, title, length, user_watched
@@ -63,4 +66,20 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 		return nil, err
 	}
 	return es, nil
+}
+
+// GetWatching gets the watching entry for an anime from the database.
+func GetWatching(db *sql.DB, aid int) (regexp string, err error) {
+	r, err := db.Query(`SELECT regexp FROM watching WHERE aid=?`, aid)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to query watching")
+	}
+	defer r.Close()
+	for r.Next() {
+		if err := r.Scan(&regexp); err != nil {
+			return "", errors.Wrap(err, "failed to scan episode")
+		}
+		return regexp, nil
+	}
+	return "", fmt.Errorf("no watching entry for %d", aid)
 }
