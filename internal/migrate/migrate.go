@@ -66,7 +66,19 @@ var migrations = []struct {
 type migrateFunc func(context.Context, *sql.DB) error
 
 func migrate4(ctx context.Context, d *sql.DB) error {
-	t, err := d.Begin()
+	c, err := d.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+
+	_, err = c.ExecContext(ctx, "PRAGMA foreign_keys = 0")
+	if err != nil {
+		return err
+	}
+	defer c.ExecContext(ctx, "PRAGMA foreign_keys = 1")
+
+	t, err := c.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -110,7 +122,6 @@ FROM anime`)
 	if err != nil {
 		return fmt.Errorf("INSERT INTO anime_new: %s", err)
 	}
-	// BUG(darkfeline): This deletes all foreign keys cascading
 	_, err = t.Exec("DROP TABLE anime")
 	if err != nil {
 		return fmt.Errorf("DROP TABLE anime: %s", err)
