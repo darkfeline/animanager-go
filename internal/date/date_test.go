@@ -50,3 +50,10 @@ func TestNewString_invalid(t *testing.T) {
 		t.Errorf("Got no error")
 	}
 }
+
+func TestZero(t *testing.T) {
+	t.Parallel()
+	if Zero.String() != "0000-01-01" {
+		t.Errorf("Zero is not 0000-01-01")
+	}
+}
