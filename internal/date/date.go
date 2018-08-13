@@ -24,7 +24,7 @@ import "time"
 // date.
 type Date int64
 
-// Zero is 0000-01-01
+// Zero is 0000-01-01.
 const Zero Date = -62167219200
 
 // NewString parses and returns a Date from a string in YYYY-MM-DD
