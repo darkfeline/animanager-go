@@ -95,3 +95,24 @@ func GetWatching(db *sql.DB, aid int) (Watching, error) {
 	}
 	return w, nil
 }
+
+// GetAllWatching gets all watching entries.
+func GetAllWatching(db *sql.DB) ([]Watching, error) {
+	r, err := db.Query(`SELECT aid, regexp FROM watching`)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	var result []Watching
+	for r.Next() {
+		var w Watching
+		if err := r.Scan(&w.AID, &w.Regexp); err != nil {
+			return nil, err
+		}
+		result = append(result, w)
+	}
+	if r.Err() != nil {
+		return nil, r.Err()
+	}
+	return result, nil
+}

@@ -144,3 +144,38 @@ func TestInsertAndGetWatching(t *testing.T) {
 		t.Errorf("GetWatching(db, %d) = %#v; want %#v", aid, got, want)
 	}
 }
+
+func TestInsertAndGetAllWatching(t *testing.T) {
+	db, err := database.OpenMem(context.Background())
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	defer db.Close()
+	aid := 22
+	a := &anidb.Anime{
+		AID:          aid,
+		Type:         "TV Series",
+		EpisodeCount: 26,
+		StartDate:    "1995-10-04",
+		EndDate:      "1996-03-27",
+		Titles: []anidb.Title{
+			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
+		},
+		Episodes: []anidb.Episode{},
+	}
+	if err := InsertAnime(db, a); err != nil {
+		t.Fatalf("Error inserting anime: %s", err)
+	}
+	p := "foobar"
+	if err := InsertWatching(db, aid, p); err != nil {
+		t.Fatalf("Error inserting watching: %s", err)
+	}
+	got, err := GetAllWatching(db)
+	if err != nil {
+		t.Fatalf("Error getting anime: %s", err)
+	}
+	want := []Watching{{AID: aid, Regexp: p}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetAllWatching(db) = %#v; want %#v", got, want)
+	}
+}
