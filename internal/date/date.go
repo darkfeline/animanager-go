@@ -28,7 +28,10 @@ type Date int64
 // format.
 func NewString(s string) (Date, error) {
 	t, err := time.Parse("2006-01-02", s)
-	return Date(t.Unix()), err
+	if err != nil {
+		return 0, err
+	}
+	return Date(t.Unix()), nil
 }
 
 // Time returns the Time representation of the date.

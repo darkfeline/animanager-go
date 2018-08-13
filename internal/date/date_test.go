@@ -41,3 +41,12 @@ func TestNewString(t *testing.T) {
 		t.Errorf("Expected %#v, got %#v", exp, d)
 	}
 }
+
+func TestNewString_invalid(t *testing.T) {
+	t.Parallel()
+	s := "foobar"
+	_, err := NewString(s)
+	if err == nil {
+		t.Errorf("Got no error")
+	}
+}
