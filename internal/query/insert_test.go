@@ -69,7 +69,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error getting anime: %s", err)
 		}
-		exp := &Anime{
+		want := &Anime{
 			AID:          22,
 			Title:        "Shinseiki Evangelion",
 			Type:         "TV Series",
@@ -77,8 +77,8 @@ func TestInsertAndGetAnime(t *testing.T) {
 			StartDate:    812764800,
 			EndDate:      827884800,
 		}
-		if !reflect.DeepEqual(got, exp) {
-			t.Errorf("GetAnime(db, 22) = %#v (expected %#v)", got, exp)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("GetAnime(db, 22) = %#v; want %#v", got, want)
 		}
 	})
 	t.Run("get episodes", func(t *testing.T) {
@@ -86,7 +86,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error getting episodes: %s", err)
 		}
-		exp := []Episode{
+		want := []Episode{
 			{
 				ID:     1,
 				AID:    22,
@@ -104,8 +104,8 @@ func TestInsertAndGetAnime(t *testing.T) {
 				Length: 75,
 			},
 		}
-		if !reflect.DeepEqual(got, exp) {
-			t.Errorf("GetEpisodes(db, 22) = %#v (expected %#v)", got, exp)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("GetEpisodes(db, 22) = %#v; want %#v", got, want)
 		}
 	})
 }
