@@ -47,6 +47,7 @@ func main() {
 	subcommands.Register(&cmd.Add{}, "")
 	subcommands.Register(&cmd.Register{}, "")
 	subcommands.Register(&cmd.Show{}, "")
+	subcommands.Register(&cmd.SetDone{}, "")
 	subcommands.Register(&cmd.TitleSearch{}, "")
 	subcommands.Register(&cmd.Unregister{}, "")
 	flag.Parse()
