@@ -22,7 +22,6 @@ import (
 	"reflect"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/animanager/internal/database"
 )
