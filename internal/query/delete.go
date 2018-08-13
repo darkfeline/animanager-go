@@ -40,3 +40,17 @@ func DeleteWatching(db *sql.DB, aid int) error {
 	}
 	return t.Commit()
 }
+
+// DeleteEpisodeFiles deletes all episode files for an anime.
+func DeleteEpisodeFiles(db *sql.DB, aid int) error {
+	t, err := db.Begin()
+	defer t.Rollback()
+	_, err = t.Exec(`
+DELETE FROM episode_file WHERE episode_id IN (
+    SELECT id FROM episode WHERE aid=?
+)`, aid)
+	if err != nil {
+		return err
+	}
+	return t.Commit()
+}
