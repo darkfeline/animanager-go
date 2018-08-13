@@ -118,3 +118,14 @@ ON CONFLICT (aid) DO UPDATE SET regexp=? WHERE aid=?`,
 	}
 	return t.Commit()
 }
+
+// InsertEpisodeFile inserts a file for an episode into the database.
+func InsertEpisodeFile(db *sql.DB, id int, path string) error {
+	t, err := db.Begin()
+	defer t.Rollback()
+	_, err = t.Exec(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`, id, path)
+	if err != nil {
+		return fmt.Errorf("insert episode %d file: %s", id, err)
+	}
+	return t.Commit()
+}
