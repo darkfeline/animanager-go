@@ -46,7 +46,7 @@ Add an anime.
 func (*Add) SetFlags(f *flag.FlagSet) {
 }
 
-func (a *Add) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
 	if f.NArg() < 1 {
 		fmt.Fprint(os.Stderr, a.Usage())
 		return subcommands.ExitUsageError
@@ -62,7 +62,7 @@ func (a *Add) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subc
 	}
 
 	c := getConfig(x)
-	db, err := database.Open(c.DBPath)
+	db, err := database.Open(ctx, c.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure

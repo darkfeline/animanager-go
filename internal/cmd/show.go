@@ -46,7 +46,7 @@ Show information about a series.
 func (*Show) SetFlags(f *flag.FlagSet) {
 }
 
-func (s *Show) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
 	if f.NArg() != 1 {
 		fmt.Fprint(os.Stderr, s.Usage())
 		return subcommands.ExitUsageError
@@ -57,7 +57,7 @@ func (s *Show) Execute(_ context.Context, f *flag.FlagSet, x ...interface{}) sub
 		return subcommands.ExitUsageError
 	}
 	c := getConfig(x)
-	db, err := database.Open(c.DBPath)
+	db, err := database.Open(ctx, c.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure

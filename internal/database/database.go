@@ -19,6 +19,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"io/ioutil"
 	"log"
@@ -34,7 +35,7 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
-func Open(p string) (d *sql.DB, err error) {
+func Open(ctx context.Context, p string) (d *sql.DB, err error) {
 	logSQLiteVersion()
 	if strings.IndexByte(p, '?') == -1 {
 		p = p + "?_fk=1"
@@ -50,7 +51,7 @@ func Open(p string) (d *sql.DB, err error) {
 			d.Close()
 		}
 	}(d)
-	if err := migrate.Migrate(d); err != nil {
+	if err := migrate.Migrate(ctx, d); err != nil {
 		return nil, errors.Wrap(err, "migrate database")
 	}
 	return d, nil
@@ -61,8 +62,8 @@ func Open(p string) (d *sql.DB, err error) {
 //
 // The database is between all connections, so it must be closed out
 // between tests.
-func OpenMem() (*sql.DB, error) {
-	return Open("file::memory:?mode=memory&cache=shared")
+func OpenMem(ctx context.Context) (*sql.DB, error) {
+	return Open(ctx, "file::memory:?mode=memory&cache=shared")
 }
 
 func logSQLiteVersion() {

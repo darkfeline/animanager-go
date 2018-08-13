@@ -20,6 +20,7 @@
 package migrate
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
@@ -32,7 +33,7 @@ import (
 var Logger = log.New(ioutil.Discard, "migrate: ", log.LstdFlags)
 
 // Migrate migrates the database to the newest version.
-func Migrate(d *sql.DB) error {
+func Migrate(ctx context.Context, d *sql.DB) error {
 	v, err := getUserVersion(d)
 	if err != nil {
 		return errors.Wrap(err, "get user version")
@@ -42,7 +43,7 @@ func Migrate(d *sql.DB) error {
 			continue
 		}
 		Logger.Printf("Migrating from %d to %d", m.From, m.To)
-		if err := m.Func(d); err != nil {
+		if err := m.Func(ctx, d); err != nil {
 			return errors.Wrapf(err, "migrate from %d to %d", m.From, m.To)
 		}
 		if err := setUserVersion(d, m.To); err != nil {
@@ -62,9 +63,9 @@ var migrations = []struct {
 	{3, 4, migrate4},
 }
 
-type migrateFunc func(*sql.DB) error
+type migrateFunc func(context.Context, *sql.DB) error
 
-func migrate4(d *sql.DB) error {
+func migrate4(ctx context.Context, d *sql.DB) error {
 	t, err := d.Begin()
 	if err != nil {
 		return err
@@ -159,7 +160,7 @@ FROM episode`)
 	return nil
 }
 
-func migrate3(d *sql.DB) error {
+func migrate3(ctx context.Context, d *sql.DB) error {
 	t, err := d.Begin()
 	if err != nil {
 		return err

@@ -18,6 +18,7 @@
 package migrate
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 
@@ -30,7 +31,7 @@ func TestMigrate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
-	if err := Migrate(d); err != nil {
+	if err := Migrate(context.Background(), d); err != nil {
 		t.Errorf("Error migrating database: %s", err)
 	}
 }

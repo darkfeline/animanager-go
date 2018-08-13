@@ -18,13 +18,12 @@
 package database
 
 import (
+	"context"
 	"testing"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestOpen(t *testing.T) {
-	d, err := Open("file::memory:?mode=memory&cache=shared")
+func TestOpenMem(t *testing.T) {
+	d, err := OpenMem(context.Background())
 	defer d.Close()
 	if err != nil {
 		t.Errorf("Error opening database: %s", err)
