@@ -58,7 +58,6 @@ func TestInsertAndGetAnime(t *testing.T) {
 		EndDate:      "1996-03-27",
 		Titles: []anidb.Title{
 			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
-			{Name: "Neon Genesis Evangelion", Type: "official", Lang: "en"},
 		},
 		Episodes: e,
 	}
@@ -126,7 +125,6 @@ func TestInsertAndGetWatching(t *testing.T) {
 		EndDate:      "1996-03-27",
 		Titles: []anidb.Title{
 			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
-			{Name: "Neon Genesis Evangelion", Type: "official", Lang: "en"},
 		},
 		Episodes: []anidb.Episode{},
 	}
