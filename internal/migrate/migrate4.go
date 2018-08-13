@@ -47,6 +47,18 @@ func migrate4(ctx context.Context, d *sql.DB) error {
 	if err := migrate4Episode(t); err != nil {
 		return err
 	}
+	_, err = t.Exec(`
+CREATE TABLE episode_file (
+    id INTEGER,
+    episode_id INTEGER NOT NULL,
+    path TEXT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (episode_id) REFERENCES episode (id)
+	ON DELETE CASCADE ON UPDATE CASCADE
+)`)
+	if err != nil {
+		return err
+	}
 	_, err = t.Exec("DROP TABLE episode_type")
 	if err != nil {
 		return err
