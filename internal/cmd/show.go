@@ -70,11 +70,11 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 	}
 	bw := bufio.NewWriter(os.Stdout)
 	printAnime(bw, a)
-	switch p, err := query.GetWatching(db, aid); err {
+	switch w, err := query.GetWatching(db, aid); err {
 	case query.ErrMissing:
 		io.WriteString(bw, "Not registered\n")
 	case nil:
-		fmt.Fprintf(bw, "Registered: %#v\n", p)
+		fmt.Fprintf(bw, "Registered: %#v\n", w.Regexp)
 	default:
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure

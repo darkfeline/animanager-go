@@ -141,7 +141,8 @@ func TestInsertAndGetWatching(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error getting anime: %s", err)
 	}
-	if got != p {
-		t.Errorf("GetWatching(db, %d) = %#v (expected %#v)", aid, got, p)
+	want := Watching{AID: aid, Regexp: p}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetWatching(db, %d) = %#v; want %#v", aid, got, want)
 	}
 }

@@ -77,20 +77,21 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 
 // GetWatching gets the watching entry for an anime from the
 // database. ErrMissing is returned if the anime doesn't exist.
-func GetWatching(db *sql.DB, aid int) (regexp string, err error) {
-	r, err := db.Query(`SELECT regexp FROM watching WHERE aid=?`, aid)
+func GetWatching(db *sql.DB, aid int) (Watching, error) {
+	var w Watching
+	r, err := db.Query(`SELECT aid, regexp FROM watching WHERE aid=?`, aid)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to query watching")
+		return w, errors.Wrap(err, "failed to query watching")
 	}
 	defer r.Close()
 	if !r.Next() {
 		if r.Err() != nil {
-			return "", r.Err()
+			return w, r.Err()
 		}
-		return "", ErrMissing
+		return w, ErrMissing
 	}
-	if err := r.Scan(&regexp); err != nil {
-		return "", errors.Wrap(err, "failed to scan episode")
+	if err := r.Scan(&w.AID, &w.Regexp); err != nil {
+		return w, errors.Wrap(err, "failed to scan episode")
 	}
-	return regexp, nil
+	return w, nil
 }
