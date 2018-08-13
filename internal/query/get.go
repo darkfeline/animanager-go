@@ -45,7 +45,7 @@ FROM anime WHERE aid=?`, aid)
 	}
 	a := Anime{}
 	if err := r.Scan(&a.AID, &a.Title, &a.Type,
-		&a.EpisodeCount, &a.StartDate, &a.EndDate); err != nil {
+		&a.EpisodeCount, &a.NStartDate, &a.NEndDate); err != nil {
 		return nil, errors.Wrap(err, "failed to scan anime")
 	}
 	return &a, nil

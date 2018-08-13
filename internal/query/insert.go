@@ -30,13 +30,15 @@ import (
 func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 	t, err := db.Begin()
 	defer t.Rollback()
-	startDate, err := date.NewString(a.StartDate)
+	var startDate interface{}
+	var endDate interface{}
+	startDate, err = date.NewString(a.StartDate)
 	if err != nil {
-		return errors.Wrapf(err, "failed to insert anime %d", a.AID)
+		startDate = nil
 	}
-	endDate, err := date.NewString(a.EndDate)
+	endDate, err = date.NewString(a.EndDate)
 	if err != nil {
-		return errors.Wrapf(err, "failed to insert anime %d", a.AID)
+		endDate = nil
 	}
 	title := mainTitle(a.Titles)
 	_, err = t.Exec(`

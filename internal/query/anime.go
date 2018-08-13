@@ -17,15 +17,47 @@
 
 package query
 
-import "go.felesatra.moe/animanager/internal/date"
+import (
+	"fmt"
+
+	"go.felesatra.moe/animanager/internal/date"
+)
 
 type Anime struct {
 	AID          int
 	Title        string
 	Type         AnimeType
 	EpisodeCount int
-	StartDate    date.Date
-	EndDate      date.Date
+	// The following fields are nullable.  In most cases, use the
+	// getter methods instead.
+	NStartDate interface{}
+	NEndDate   interface{}
+}
+
+// StartDate returns the nullable NStartDate field as a Date.  If the
+// field is null, returns date.Zero.
+func (a Anime) StartDate() date.Date {
+	switch d := a.NStartDate.(type) {
+	case int64:
+		return date.Date(d)
+	case nil:
+		return date.Zero
+	default:
+		panic(fmt.Sprintf("bad field type %T %#v", d, d))
+	}
+}
+
+// EndDate returns the nullable NEndDate field as a Date.  If the
+// field is null, return the zero value.
+func (a Anime) EndDate() date.Date {
+	switch d := a.NEndDate.(type) {
+	case int64:
+		return date.Date(d)
+	case nil:
+		return date.Zero
+	default:
+		panic(fmt.Sprintf("bad field type %T %#v", d, d))
+	}
 }
 
 type AnimeType string

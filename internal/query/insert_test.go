@@ -74,8 +74,8 @@ func TestInsertAndGetAnime(t *testing.T) {
 			Title:        "Shinseiki Evangelion",
 			Type:         "TV Series",
 			EpisodeCount: 26,
-			StartDate:    812764800,
-			EndDate:      827884800,
+			NStartDate:   int64(812764800),
+			NEndDate:     int64(827884800),
 		}
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("GetAnime(db, 22) = %#v; want %#v", got, want)
@@ -177,5 +177,37 @@ func TestInsertAndGetAllWatching(t *testing.T) {
 	want := []Watching{{AID: aid, Regexp: p}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("GetAllWatching(db) = %#v; want %#v", got, want)
+	}
+}
+
+func TestInsertAndGetAnime_nullFields(t *testing.T) {
+	db, err := database.OpenMem(context.Background())
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	defer db.Close()
+	a := &anidb.Anime{
+		AID:          22,
+		Type:         "TV Series",
+		EpisodeCount: 26,
+		Titles: []anidb.Title{
+			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
+		},
+	}
+	if err := InsertAnime(db, a); err != nil {
+		t.Fatalf("Error inserting anime: %s", err)
+	}
+	got, err := GetAnime(db, 22)
+	if err != nil {
+		t.Fatalf("Error getting anime: %s", err)
+	}
+	want := &Anime{
+		AID:          22,
+		Title:        "Shinseiki Evangelion",
+		Type:         "TV Series",
+		EpisodeCount: 26,
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetAnime(db, 22) = %#v; want %#v", got, want)
 	}
 }

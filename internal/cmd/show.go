@@ -96,8 +96,8 @@ func printAnime(w io.Writer, a *query.Anime) {
 	fmt.Fprintf(w, "Title: %s\n", a.Title)
 	fmt.Fprintf(w, "Type: %s\n", a.Type)
 	fmt.Fprintf(w, "Episodes: %d\n", a.EpisodeCount)
-	fmt.Fprintf(w, "Start date: %s\n", a.StartDate)
-	fmt.Fprintf(w, "End date: %s\n", a.EndDate)
+	fmt.Fprintf(w, "Start date: %s\n", a.StartDate())
+	fmt.Fprintf(w, "End date: %s\n", a.EndDate())
 }
 
 func printEpisode(w io.Writer, e *query.Episode) {
