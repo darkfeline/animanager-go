@@ -29,7 +29,8 @@ import (
 
 // Config provides access to configuration.
 type Config struct {
-	DBPath string `toml:"database"`
+	DBPath    string   `toml:"database"`
+	WatchDirs []string `toml:"watch_dirs"`
 }
 
 var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
