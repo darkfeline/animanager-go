@@ -60,8 +60,8 @@ func Open(ctx context.Context, p string) (d *sql.DB, err error) {
 // Open opens and returns a SQLite database from memory.  The database is
 // migrated to the newest version.
 //
-// The database is between all connections, so it must be closed out
-// between tests.
+// The database is shared between all concurrent connections, so it
+// must be closed out between tests.
 func OpenMem(ctx context.Context) (*sql.DB, error) {
 	return Open(ctx, "file::memory:?mode=memory&cache=shared")
 }
