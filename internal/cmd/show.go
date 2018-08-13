@@ -68,40 +68,38 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
-	printAnime(os.Stdout, a)
+	bw := bufio.NewWriter(os.Stdout)
+	printAnime(bw, a)
 	es, err := query.GetEpisodes(db, aid)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	for _, e := range es {
-		printEpisode(os.Stdout, &e)
+		printEpisode(bw, &e)
 	}
+	bw.Flush()
 	return subcommands.ExitSuccess
 }
 
-func printAnime(w io.Writer, a *query.Anime) error {
-	bw := bufio.NewWriter(w)
-	fmt.Fprintf(bw, "AID: %d\n", a.AID)
-	fmt.Fprintf(bw, "Title: %s\n", a.Title)
-	fmt.Fprintf(bw, "Type: %s\n", a.Type)
-	fmt.Fprintf(bw, "Episodes: %d\n", a.EpisodeCount)
-	fmt.Fprintf(bw, "Start date: %s\n", a.StartDate)
-	fmt.Fprintf(bw, "End date: %s\n", a.EndDate)
-	return bw.Flush()
+func printAnime(w io.Writer, a *query.Anime) {
+	fmt.Fprintf(w, "AID: %d\n", a.AID)
+	fmt.Fprintf(w, "Title: %s\n", a.Title)
+	fmt.Fprintf(w, "Type: %s\n", a.Type)
+	fmt.Fprintf(w, "Episodes: %d\n", a.EpisodeCount)
+	fmt.Fprintf(w, "Start date: %s\n", a.StartDate)
+	fmt.Fprintf(w, "End date: %s\n", a.EndDate)
 }
 
-func printEpisode(w io.Writer, e *query.Episode) error {
-	bw := bufio.NewWriter(w)
-	fmt.Fprintf(bw, "%d: ", e.ID)
-	fmt.Fprintf(bw, "%d ", e.AID)
-	fmt.Fprintf(bw, "%s ", e.Type)
-	fmt.Fprintf(bw, "%d ", e.Number)
-	fmt.Fprintf(bw, "%s ", e.Title)
-	fmt.Fprintf(bw, "(%d min)", e.Length)
+func printEpisode(w io.Writer, e *query.Episode) {
+	fmt.Fprintf(w, "%d: ", e.ID)
+	fmt.Fprintf(w, "%d ", e.AID)
+	fmt.Fprintf(w, "%s ", e.Type)
+	fmt.Fprintf(w, "%d ", e.Number)
+	fmt.Fprintf(w, "%s ", e.Title)
+	fmt.Fprintf(w, "(%d min)", e.Length)
 	if e.UserWatched {
-		fmt.Fprintf(bw, " (done)")
+		fmt.Fprintf(w, " (done)")
 	}
-	fmt.Fprintf(bw, "\n")
-	return bw.Flush()
+	fmt.Fprintf(w, "\n")
 }
