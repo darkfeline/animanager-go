@@ -27,7 +27,8 @@ import (
 // keyed item is missing.
 var ErrMissing = errors.New("row missing")
 
-// GetAnime gets the anime from the database.
+// GetAnime gets the anime from the database.  ErrMissing is returned
+// if the anime doesn't exist.
 func GetAnime(db *sql.DB, aid int) (*Anime, error) {
 	r, err := db.Query(`
 SELECT aid, title, type, episodecount, startdate, enddate
@@ -74,7 +75,8 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 	return es, nil
 }
 
-// GetWatching gets the watching entry for an anime from the database.
+// GetWatching gets the watching entry for an anime from the
+// database. ErrMissing is returned if the anime doesn't exist.
 func GetWatching(db *sql.DB, aid int) (regexp string, err error) {
 	r, err := db.Query(`SELECT regexp FROM watching WHERE aid=?`, aid)
 	if err != nil {
