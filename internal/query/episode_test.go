@@ -44,3 +44,24 @@ func TestParseEpNo(t *testing.T) {
 		})
 	}
 }
+
+func TestEpisodeType_Prefix(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		Type   EpisodeType
+		Prefix string
+	}{
+		{EpRegular, ""},
+		{EpSpecial, "S"},
+		{EpTrailer, "T"},
+	}
+	for _, c := range cases {
+		t.Run(c.Type.String(), func(t *testing.T) {
+			t.Parallel()
+			got := c.Type.Prefix()
+			if got != c.Prefix {
+				t.Errorf("%s.Prefix() = %#v (expected %#v)", c.Type, got, c.Prefix)
+			}
+		})
+	}
+}

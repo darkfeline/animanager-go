@@ -45,6 +45,15 @@ const (
 	EpOther
 )
 
+func (t EpisodeType) Prefix() string {
+	for _, p := range epnoPrefixes {
+		if t == p.Type {
+			return p.Prefix
+		}
+	}
+	panic(fmt.Sprintf("Unknown EpisodeType %d", t))
+}
+
 //go:generate stringer -type=EpisodeType
 
 type prefixPair struct {
