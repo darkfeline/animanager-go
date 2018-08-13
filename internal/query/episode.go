@@ -66,6 +66,7 @@ var epnoPrefixes = []prefixPair{
 	{"C", EpCredit},
 	{"T", EpTrailer},
 	{"P", EpParody},
+	{"O", EpOther},
 	{"", EpRegular},
 }
 
