@@ -25,7 +25,9 @@ import (
 // database.  This function returns ErrMissing if no such entry
 // exists.
 func DeleteWatching(db *sql.DB, aid int) error {
-	r, err := db.Exec(`DELETE FROM watching WHERE aid=?`, aid)
+	t, err := db.Begin()
+	defer t.Rollback()
+	r, err := t.Exec(`DELETE FROM watching WHERE aid=?`, aid)
 	if err != nil {
 		return err
 	}
@@ -36,5 +38,5 @@ func DeleteWatching(db *sql.DB, aid int) error {
 	if n == 0 {
 		return ErrMissing
 	}
-	return nil
+	return t.Commit()
 }
