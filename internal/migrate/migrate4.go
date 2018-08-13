@@ -55,6 +55,10 @@ func migrate4(ctx context.Context, d *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	_, err = t.Exec("DROP TABLE IF EXISTS cache_anime")
+	if err != nil {
+		return err
+	}
 	return t.Commit()
 }
 
