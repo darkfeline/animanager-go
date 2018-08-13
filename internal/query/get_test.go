@@ -44,6 +44,6 @@ func TestGetWatching_missing(t *testing.T) {
 	defer db.Close()
 	_, err = GetWatching(db, 22)
 	if err != ErrMissing {
-		t.Errorf("GetAnime() = %#v (expected %#v)", err, ErrMissing)
+		t.Errorf("GetWatching() = %#v (expected %#v)", err, ErrMissing)
 	}
 }
