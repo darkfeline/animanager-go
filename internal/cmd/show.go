@@ -101,13 +101,14 @@ func printAnime(w io.Writer, a *query.Anime) {
 }
 
 func printEpisode(w io.Writer, e *query.Episode) {
-	fmt.Fprintf(w, "%d: ", e.ID)
-	fmt.Fprintf(w, "%s ", e.Type)
-	fmt.Fprintf(w, "%d ", e.Number)
-	fmt.Fprintf(w, "%s ", e.Title)
-	fmt.Fprintf(w, "(%d min)", e.Length)
+	fmt.Fprintf(w, "%d\t", e.ID)
+	fmt.Fprintf(w, "%s%d\t", e.Type.Prefix(), e.Number)
 	if e.UserWatched {
-		fmt.Fprintf(w, " (done)")
+		fmt.Fprintf(w, "D ")
+	} else {
+		fmt.Fprintf(w, ". ")
 	}
+	fmt.Fprintf(w, "%s\t", e.Title)
+	fmt.Fprintf(w, "(%d min)", e.Length)
 	fmt.Fprintf(w, "\n")
 }
