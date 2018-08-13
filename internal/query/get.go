@@ -19,10 +19,13 @@ package query
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/pkg/errors"
 )
+
+// ErrMissing is returned from queries that fetch a unique item of the
+// keyed item is missing.
+var ErrMissing = errors.New("row missing")
 
 // GetAnime gets the anime from the database.
 func GetAnime(db *sql.DB, aid int) (*Anime, error) {
@@ -34,7 +37,10 @@ FROM anime WHERE aid=?`, aid)
 	}
 	defer r.Close()
 	if !r.Next() {
-		return nil, r.Err()
+		if r.Err() != nil {
+			return nil, r.Err()
+		}
+		return nil, ErrMissing
 	}
 	a := Anime{}
 	if err := r.Scan(&a.AID, &a.Title, &a.Type,
@@ -75,11 +81,14 @@ func GetWatching(db *sql.DB, aid int) (regexp string, err error) {
 		return "", errors.Wrap(err, "failed to query watching")
 	}
 	defer r.Close()
-	for r.Next() {
-		if err := r.Scan(&regexp); err != nil {
-			return "", errors.Wrap(err, "failed to scan episode")
+	if !r.Next() {
+		if r.Err() != nil {
+			return "", r.Err()
 		}
-		return regexp, nil
+		return "", ErrMissing
 	}
-	return "", fmt.Errorf("no watching entry for %d", aid)
+	if err := r.Scan(&regexp); err != nil {
+		return "", errors.Wrap(err, "failed to scan episode")
+	}
+	return regexp, nil
 }
