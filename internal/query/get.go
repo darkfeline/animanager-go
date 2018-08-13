@@ -50,7 +50,7 @@ FROM anime WHERE aid=?`, aid)
 	return &a, nil
 }
 
-// GetAnime gets the episodes for an anime from the database.
+// GetEpisodes gets the episodes for an anime from the database.
 func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT id, aid, type, number, title, length, user_watched
