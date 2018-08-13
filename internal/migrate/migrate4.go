@@ -92,6 +92,10 @@ FROM anime`)
 	if err != nil {
 		return fmt.Errorf("ALTER TABLE anime_new: %s", err)
 	}
+	_, err = t.Exec("CREATE INDEX anime_titles ON anime (title)")
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
