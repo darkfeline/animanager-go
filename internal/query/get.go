@@ -144,31 +144,3 @@ FROM episode_file WHERE episode_id=?`, episodeID)
 	}
 	return es, nil
 }
-
-// GetAnimeFiles returns the EpisodeFiles for the episodes of the anime.
-func GetAnimeFiles(db *sql.DB, aid int) (es []EpisodeFile, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("get anime %d files: %s", aid, err)
-		}
-	}()
-	r, err := db.Query(`
-SELECT episode_id, path FROM episode_file
-JOIN episode ON episode_id = episode.id
-WHERE aid=?`, aid)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
-	for r.Next() {
-		var e EpisodeFile
-		if err := r.Scan(&e.EpisodeID, &e.Path); err != nil {
-			return nil, err
-		}
-		es = append(es, e)
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	return es, nil
-}
