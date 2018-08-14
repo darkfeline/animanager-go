@@ -2,6 +2,8 @@
 
 ## 0.13.0
 
+This is the first version of the Go version of Animanager.
+
 ### Changed
 
 * Schema changes (version 4):
@@ -10,6 +12,15 @@
   * Dropped `episode_type` table.
   * Dropped `file_priority` table.
   * Dropped `cache_anime` table if it exists.
+* Animanager UI has been greatly changed:
+  * Animanager now presents a command interface instead of a CLI.
+  * Animanager is now aware of individual episodes, instead of simply
+    tracking anime episodes by count.
+  * Animanager now has a separate command `findfiles` for associating
+    files with episodes.
+  * File matching patterns now use Go regular expressions.
+  * File matching patterns now use the first capturing group as the
+    episode number, rather than the group named `ep`.
 
 ## 0.12.0
 
