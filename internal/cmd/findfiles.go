@@ -88,11 +88,11 @@ func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 			return subcommands.ExitFailure
 		}
 		wg.Add(1)
-		go func() {
+		go func(w query.Watching) {
 			findRegisteredFiles(w, eps, files, epChan, errChan)
 			Logger.Printf("Finished finding registered files for %d", w.AID)
 			wg.Done()
-		}()
+		}(w)
 	}
 	go func() {
 		wg.Wait()
