@@ -165,7 +165,7 @@ type epFile struct {
 // epFiles to the output channel.  Errors are sent to the error
 // channel.
 func findRegisteredFiles(w query.Watching, eps []query.Episode, files []string, c chan<- epFile, e chan<- error) {
-	r, err := regexp.Compile(w.Regexp)
+	r, err := regexp.Compile("(?i)" + w.Regexp)
 	if err != nil {
 		e <- err
 		return
