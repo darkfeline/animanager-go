@@ -23,35 +23,29 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
 )
 
-type Watch struct {
+type Watchable struct {
 }
 
-func (*Watch) Name() string     { return "watch" }
-func (*Watch) Synopsis() string { return "Watch anime." }
-func (*Watch) Usage() string {
-	return `Usage: watch episodeID
-Watch anime.
+func (*Watchable) Name() string     { return "watchable" }
+func (*Watchable) Synopsis() string { return "Show watchable anime." }
+func (*Watchable) Usage() string {
+	return `Usage: watchable
+Show watchable anime.
 `
 }
 
-func (*Watch) SetFlags(f *flag.FlagSet) {
+func (*Watchable) SetFlags(f *flag.FlagSet) {
 }
 
-func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	if f.NArg() != 1 {
+func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+	if f.NArg() != 0 {
 		fmt.Fprint(os.Stderr, w.Usage())
-		return subcommands.ExitUsageError
-	}
-	id, err := strconv.Atoi(f.Arg(0))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid ID: %s\n", err)
 		return subcommands.ExitUsageError
 	}
 
@@ -62,7 +56,7 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	err = watchEpisode(db, id)
+	err = showWatchableable(db)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
@@ -70,6 +64,14 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 	return subcommands.ExitSuccess
 }
 
-func watchEpisode(db *sql.DB, id int) error {
+//  All episodes
+//    Not watching anime
+//    watching anime
+//      not done, files
+//      not done, no files
+//      done, files
+//      done, no files
+
+func showWatchableable(db *sql.DB) error {
 	return nil
 }
