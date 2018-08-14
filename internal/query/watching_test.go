@@ -26,32 +26,15 @@ import (
 	"go.felesatra.moe/animanager/internal/database"
 )
 
-func TestInsertAndGetAnime(t *testing.T) {
+func TestInsertAndGetWatching(t *testing.T) {
 	db, err := database.OpenMem(context.Background())
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
 	defer db.Close()
-	e := []anidb.Episode{
-		{
-			EpNo:   "1",
-			Length: 25,
-			Titles: []anidb.EpTitle{
-				{Title: "使徒, 襲来", Lang: "ja"},
-				{Title: "Angel Attack!", Lang: "en"},
-				{Title: "Shito, Shuurai", Lang: "x-jat"},
-			},
-		},
-		{
-			EpNo:   "S1",
-			Length: 75,
-			Titles: []anidb.EpTitle{
-				{Title: "Revival of Evangelion Extras Disc", Lang: "en"},
-			},
-		},
-	}
+	aid := 22
 	a := &anidb.Anime{
-		AID:          22,
+		AID:          aid,
 		Type:         "TV Series",
 		EpisodeCount: 26,
 		StartDate:    "1995-10-04",
@@ -59,85 +42,67 @@ func TestInsertAndGetAnime(t *testing.T) {
 		Titles: []anidb.Title{
 			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
 		},
-		Episodes: e,
+		Episodes: []anidb.Episode{},
 	}
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	t.Run("get anime", func(t *testing.T) {
-		got, err := GetAnime(db, 22)
-		if err != nil {
-			t.Fatalf("Error getting anime: %s", err)
-		}
-		want := &Anime{
-			AID:          22,
-			Title:        "Shinseiki Evangelion",
-			Type:         "TV Series",
-			EpisodeCount: 26,
-			NStartDate:   int64(812764800),
-			NEndDate:     int64(827884800),
-		}
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("GetAnime(db, 22) = %#v; want %#v", got, want)
-		}
-	})
-	t.Run("get episodes", func(t *testing.T) {
-		got, err := GetEpisodes(db, 22)
-		if err != nil {
-			t.Fatalf("Error getting episodes: %s", err)
-		}
-		want := []Episode{
-			{
-				ID:     1,
-				AID:    22,
-				Type:   EpRegular,
-				Number: 1,
-				Title:  "使徒, 襲来",
-				Length: 25,
-			},
-			{
-				ID:     2,
-				AID:    22,
-				Type:   EpSpecial,
-				Number: 1,
-				Title:  "Revival of Evangelion Extras Disc",
-				Length: 75,
-			},
-		}
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("GetEpisodes(db, 22) = %#v; want %#v", got, want)
-		}
-	})
+	p := "foobar"
+	if err := InsertWatching(db, aid, p); err != nil {
+		t.Fatalf("Error inserting watching: %s", err)
+	}
+	got, err := GetWatching(db, aid)
+	if err != nil {
+		t.Fatalf("Error getting anime: %s", err)
+	}
+	want := Watching{AID: aid, Regexp: p}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetWatching(db, %d) = %#v; want %#v", aid, got, want)
+	}
 }
 
-func TestInsertAndGetAnime_nullFields(t *testing.T) {
+func TestInsertAndGetAllWatching(t *testing.T) {
 	db, err := database.OpenMem(context.Background())
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
 	defer db.Close()
+	aid := 22
 	a := &anidb.Anime{
-		AID:          22,
+		AID:          aid,
 		Type:         "TV Series",
 		EpisodeCount: 26,
+		StartDate:    "1995-10-04",
+		EndDate:      "1996-03-27",
 		Titles: []anidb.Title{
 			{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"},
 		},
+		Episodes: []anidb.Episode{},
 	}
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	got, err := GetAnime(db, 22)
+	p := "foobar"
+	if err := InsertWatching(db, aid, p); err != nil {
+		t.Fatalf("Error inserting watching: %s", err)
+	}
+	got, err := GetAllWatching(db)
 	if err != nil {
 		t.Fatalf("Error getting anime: %s", err)
 	}
-	want := &Anime{
-		AID:          22,
-		Title:        "Shinseiki Evangelion",
-		Type:         "TV Series",
-		EpisodeCount: 26,
-	}
+	want := []Watching{{AID: aid, Regexp: p}}
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("GetAnime(db, 22) = %#v; want %#v", got, want)
+		t.Errorf("GetAllWatching(db) = %#v; want %#v", got, want)
+	}
+}
+
+func TestDeleteWatching_missing(t *testing.T) {
+	db, err := database.OpenMem(context.Background())
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	defer db.Close()
+	if err := DeleteWatching(db, 22); err != ErrMissing {
+		t.Errorf("DeleteWatching() = %#v (expected %#v)", err, ErrMissing)
 	}
 }
