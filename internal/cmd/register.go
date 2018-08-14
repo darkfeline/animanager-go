@@ -88,6 +88,7 @@ var nonAlphaNum = regexp.MustCompile("[^a-zA-Z0-9]+")
 // anime.
 func animeDefaultRegexp(a *query.Anime) (re string) {
 	var b bytes.Buffer
+	io.WriteString(&b, "(?i)")
 	fragments := nonAlphaNum.Split(a.Title, -1)
 	for _, s := range fragments {
 		io.WriteString(&b, regexp.QuoteMeta(s))
