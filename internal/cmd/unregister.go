@@ -36,7 +36,7 @@ type Unregister struct {
 func (*Unregister) Name() string     { return "unregister" }
 func (*Unregister) Synopsis() string { return "Unregister an anime." }
 func (*Unregister) Usage() string {
-	return `Usage: register [-pattern pattern] aid
+	return `Usage: unregister aid
 Unregister an anime.
 `
 }
