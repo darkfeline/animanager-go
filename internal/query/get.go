@@ -23,10 +23,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ErrMissing is returned from queries that fetch a unique item of the
-// keyed item is missing.
-var ErrMissing = errors.New("row missing")
-
 // GetAnime gets the anime from the database.  ErrMissing is returned
 // if the anime doesn't exist.
 func GetAnime(db *sql.DB, aid int) (*Anime, error) {
