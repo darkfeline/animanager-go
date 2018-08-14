@@ -19,7 +19,6 @@ package query
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/pkg/errors"
 )
@@ -116,31 +115,4 @@ func GetAllWatching(db *sql.DB) ([]Watching, error) {
 		return nil, r.Err()
 	}
 	return result, nil
-}
-
-// GetEpisodeFiles returns the EpisodeFiles for the episode.
-func GetEpisodeFiles(db *sql.DB, episodeID int) (es []EpisodeFile, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("get episode %d files: %s", episodeID, err)
-		}
-	}()
-	r, err := db.Query(`
-SELECT episode_id, path
-FROM episode_file WHERE episode_id=?`, episodeID)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
-	for r.Next() {
-		var e EpisodeFile
-		if err := r.Scan(&e.EpisodeID, &e.Path); err != nil {
-			return nil, err
-		}
-		es = append(es, e)
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	return es, nil
 }
