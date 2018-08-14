@@ -62,8 +62,7 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	err = watchEpisode(db, id)
-	if err != nil {
+	if err := watchEpisode(db, id); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
