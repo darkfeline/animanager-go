@@ -85,7 +85,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	for _, e := range es {
-		printEpisode(bw, &e)
+		printEpisode(bw, e)
 	}
 	bw.Flush()
 	return subcommands.ExitSuccess
@@ -100,7 +100,7 @@ func printAnime(w io.Writer, a *query.Anime) {
 	fmt.Fprintf(w, "End date: %s\n", a.EndDate())
 }
 
-func printEpisode(w io.Writer, e *query.Episode) {
+func printEpisode(w io.Writer, e query.Episode) {
 	fmt.Fprintf(w, "%d\t", e.ID)
 	fmt.Fprintf(w, "%s%d\t", e.Type.Prefix(), e.Number)
 	if e.UserWatched {

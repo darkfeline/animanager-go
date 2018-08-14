@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"database/sql"
 	"flag"
@@ -77,14 +78,67 @@ func showWatchable(db *sql.DB, done, nofile bool) error {
 	if err != nil {
 		return err
 	}
+	var b bytes.Buffer
 	for _, w := range ws {
+		afs, err := getAnimeFiles(db, w.AID)
+		if err != nil {
+			return err
+		}
+		b.Reset()
+		for i, e := range afs.Episodes {
+			// Skip if done.
+			if e.UserWatched && !done {
+				continue
+			}
+			fs := afs.Files[i]
+			// Skip if no files.
+			if len(fs) == 0 && !nofile {
+				continue
+			}
+			printEpisode(&b, e)
+			for _, f := range fs {
+				fmt.Fprintf(&b, "\t\t  %s\n", f.Path)
+			}
+		}
+		// Skip anime if no episodes to show.
+		if b.Len() == 0 {
+			continue
+		}
 		a, err := query.GetAnime(db, w.AID)
 		if err != nil {
 			return err
 		}
 		printAnimeShort(bw, a)
+		b.WriteTo(bw)
+		fmt.Fprintln(bw)
 	}
 	return nil
+}
+
+func getAnimeFiles(db *sql.DB, aid int) (afs animeFiles, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("get anime %d files: %s", aid, err)
+		}
+	}()
+	eps, err := query.GetEpisodes(db, aid)
+	if err != nil {
+		return afs, err
+	}
+	for _, e := range eps {
+		afs.Episodes = append(afs.Episodes, e)
+		fs, err := query.GetEpisodeFiles(db, e.ID)
+		if err != nil {
+			return afs, err
+		}
+		afs.Files = append(afs.Files, fs)
+	}
+	return afs, nil
+}
+
+type animeFiles struct {
+	Episodes []query.Episode
+	Files    [][]query.EpisodeFile
 }
 
 func printAnimeShort(w io.Writer, a *query.Anime) {

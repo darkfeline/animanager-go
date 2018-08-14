@@ -87,13 +87,13 @@ func showAnimeFiles(w io.Writer, db *sql.DB, aid int) error {
 		return err
 	}
 	for _, e := range eps {
-		printEpisode(w, &e)
+		printEpisode(w, e)
 		efs, err := query.GetEpisodeFiles(db, e.ID)
 		if err != nil {
 			return err
 		}
 		for _, ef := range efs {
-			fmt.Fprintf(w, "\t\t%s\n", ef.Path)
+			fmt.Fprintf(w, "\t\t  %s\n", ef.Path)
 		}
 	}
 	return nil
