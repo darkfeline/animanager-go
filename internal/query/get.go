@@ -127,7 +127,7 @@ func GetEpisodeFiles(db *sql.DB, episodeID int) (es []EpisodeFile, err error) {
 	}()
 	r, err := db.Query(`
 SELECT episode_id, path
-FROM episode_files WHERE episode_id=?`, episodeID)
+FROM episode_file WHERE episode_id=?`, episodeID)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func GetAnimeFiles(db *sql.DB, aid int) (es []EpisodeFile, err error) {
 		}
 	}()
 	r, err := db.Query(`
-SELECT episode_id, path FROM episode_files
+SELECT episode_id, path FROM episode_file
 JOIN episode ON episode_id = episode.id
 WHERE aid=?`, aid)
 	if err != nil {
