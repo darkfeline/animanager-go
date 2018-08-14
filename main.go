@@ -52,6 +52,7 @@ func main() {
 	subcommands.Register(&cmd.SetDone{}, "")
 	subcommands.Register(&cmd.TitleSearch{}, "")
 	subcommands.Register(&cmd.Unregister{}, "")
+	subcommands.Register(&cmd.Watch{}, "")
 	flag.Parse()
 	setupLog(debug)
 	ctx := context.Background()
