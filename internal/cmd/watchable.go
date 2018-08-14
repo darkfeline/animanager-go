@@ -18,18 +18,23 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Watchable struct {
+	showDone   bool
+	showNoFile bool
 }
 
 func (*Watchable) Name() string     { return "watchable" }
@@ -40,7 +45,9 @@ Show watchable anime.
 `
 }
 
-func (*Watchable) SetFlags(f *flag.FlagSet) {
+func (w *Watchable) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&w.showDone, "done", false, "Show done episodes")
+	f.BoolVar(&w.showNoFile, "nofile", false, "Show episodes without files")
 }
 
 func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
@@ -56,22 +63,30 @@ func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	err = showWatchableable(db)
-	if err != nil {
+	if err := showWatchable(db, w.showDone, w.showNoFile); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
 }
 
-//  All episodes
-//    Not watching anime
-//    watching anime
-//      not done, files
-//      not done, no files
-//      done, files
-//      done, no files
-
-func showWatchableable(db *sql.DB) error {
+func showWatchable(db *sql.DB, done, nofile bool) error {
+	bw := bufio.NewWriter(os.Stdout)
+	defer bw.Flush()
+	ws, err := query.GetAllWatching(db)
+	if err != nil {
+		return err
+	}
+	for _, w := range ws {
+		a, err := query.GetAnime(db, w.AID)
+		if err != nil {
+			return err
+		}
+		printAnimeShort(bw, a)
+	}
 	return nil
+}
+
+func printAnimeShort(w io.Writer, a *query.Anime) {
+	fmt.Fprintf(w, "%d\t%s\n", a.AID, a.Title)
 }
