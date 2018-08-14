@@ -17,6 +17,12 @@
 
 package query
 
+import (
+	"database/sql"
+
+	"github.com/pkg/errors"
+)
+
 type Episode struct {
 	ID          int
 	AID         int
@@ -25,4 +31,28 @@ type Episode struct {
 	Title       string
 	Length      int
 	UserWatched bool
+}
+
+// GetEpisodes gets the episodes for an anime from the database.
+func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
+	r, err := db.Query(`
+SELECT id, aid, type, number, title, length, user_watched
+FROM episode WHERE aid=? ORDER BY type, number`, aid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query episode")
+	}
+	defer r.Close()
+	var es []Episode
+	for r.Next() {
+		e := Episode{}
+		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+			&e.Title, &e.Length, &e.UserWatched); err != nil {
+			return nil, errors.Wrap(err, "failed to scan episode")
+		}
+		es = append(es, e)
+	}
+	if err := r.Err(); err != nil {
+		return nil, err
+	}
+	return es, nil
 }

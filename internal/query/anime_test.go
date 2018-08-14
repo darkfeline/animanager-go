@@ -26,6 +26,18 @@ import (
 	"go.felesatra.moe/animanager/internal/database"
 )
 
+func TestGetAnime_missing(t *testing.T) {
+	db, err := database.OpenMem(context.Background())
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	defer db.Close()
+	_, err = GetAnime(db, 22)
+	if err != ErrMissing {
+		t.Errorf("GetAnime() = %#v (expected %#v)", err, ErrMissing)
+	}
+}
+
 func TestInsertAndGetAnime(t *testing.T) {
 	db, err := database.OpenMem(context.Background())
 	if err != nil {

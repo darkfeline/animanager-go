@@ -18,8 +18,11 @@
 package query
 
 import (
+	"database/sql"
 	"fmt"
 
+	"github.com/pkg/errors"
+	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/animanager/internal/date"
 )
 
@@ -61,3 +64,106 @@ func (a Anime) EndDate() date.Date {
 }
 
 type AnimeType string
+
+// GetAnime gets the anime from the database.  ErrMissing is returned
+// if the anime doesn't exist.
+func GetAnime(db *sql.DB, aid int) (*Anime, error) {
+	r, err := db.Query(`
+SELECT aid, title, type, episodecount, startdate, enddate
+FROM anime WHERE aid=?`, aid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to query anime")
+	}
+	defer r.Close()
+	if !r.Next() {
+		if r.Err() != nil {
+			return nil, r.Err()
+		}
+		return nil, ErrMissing
+	}
+	a := Anime{}
+	if err := r.Scan(&a.AID, &a.Title, &a.Type,
+		&a.EpisodeCount, &a.NStartDate, &a.NEndDate); err != nil {
+		return nil, errors.Wrap(err, "failed to scan anime")
+	}
+	return &a, nil
+}
+
+// InsertAnime inserts or updates an anime into the database.
+func InsertAnime(db *sql.DB, a *anidb.Anime) error {
+	t, err := db.Begin()
+	defer t.Rollback()
+	var startDate interface{}
+	var endDate interface{}
+	startDate, err = date.NewString(a.StartDate)
+	if err != nil {
+		startDate = nil
+	}
+	endDate, err = date.NewString(a.EndDate)
+	if err != nil {
+		endDate = nil
+	}
+	title := mainTitle(a.Titles)
+	_, err = t.Exec(`
+INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT (aid) DO UPDATE SET
+title=?, type=?, episodecount=?, startdate=?, enddate=?
+WHERE aid=?`,
+		a.AID, title, a.Type, a.EpisodeCount, startDate, endDate,
+		title, a.Type, a.EpisodeCount, startDate, endDate,
+		a.AID,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "failed to insert anime %d", a.AID)
+	}
+	for _, e := range a.Episodes {
+		if err := insertEpisode(t, a.AID, e); err != nil {
+			return errors.Wrapf(err, "failed to insert episode %s for anime %d",
+				e.EpNo, a.AID)
+		}
+	}
+	return t.Commit()
+}
+
+// mainTitle returns the main title from a slice of titles.
+func mainTitle(ts []anidb.Title) string {
+	for _, t := range ts {
+		if t.Type == "main" {
+			return t.Name
+		}
+	}
+	return ts[0].Name
+}
+
+func insertEpisode(t *sql.Tx, aid int, e anidb.Episode) error {
+	eptype, n := parseEpNo(e.EpNo)
+	if eptype == EpInvalid {
+		return fmt.Errorf("invalid epno %s", e.EpNo)
+	}
+	title := mainEpTitle(e.Titles)
+	_, err := t.Exec(`
+INSERT INTO episode (aid, type, number, title, length)
+VALUES (?, ?, ?, ?, ?)
+ON CONFLICT (aid, type, number) DO UPDATE SET
+title=?, length=?
+WHERE aid=? AND type=? AND number=?`,
+		aid, eptype, n, title, e.Length,
+		title, e.Length,
+		aid, eptype, n,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// mainEpTitle returns the title to use from a slice of episode titles.
+func mainEpTitle(ts []anidb.EpTitle) string {
+	for _, t := range ts {
+		if t.Lang == "ja" {
+			return t.Title
+		}
+	}
+	return ts[0].Title
+}

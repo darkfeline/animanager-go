@@ -106,3 +106,15 @@ func TestDeleteWatching_missing(t *testing.T) {
 		t.Errorf("DeleteWatching() = %#v (expected %#v)", err, ErrMissing)
 	}
 }
+
+func TestGetWatching_missing(t *testing.T) {
+	db, err := database.OpenMem(context.Background())
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	defer db.Close()
+	_, err = GetWatching(db, 22)
+	if err != ErrMissing {
+		t.Errorf("GetWatching() = %#v (expected %#v)", err, ErrMissing)
+	}
+}
