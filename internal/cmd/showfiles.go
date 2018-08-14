@@ -20,8 +20,10 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
@@ -65,24 +67,45 @@ func (sf *ShowFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	var efs []query.EpisodeFile
+	bw := bufio.NewWriter(os.Stdout)
 	if sf.anime {
-		efs, err = query.GetAnimeFiles(db, id)
+		err = showAnimeFiles(bw, db, id)
 	} else {
-		efs, err = query.GetEpisodeFiles(db, id)
+		err = showEpisodeFiles(bw, db, id)
 	}
+	bw.Flush()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
-	bw := bufio.NewWriter(os.Stdout)
-	if sf.anime {
+	return subcommands.ExitSuccess
+}
 
-	} else {
+func showAnimeFiles(w io.Writer, db *sql.DB, aid int) error {
+	eps, err := query.GetEpisodes(db, aid)
+	if err != nil {
+		return err
+	}
+	for _, e := range eps {
+		printEpisode(w, &e)
+		efs, err := query.GetEpisodeFiles(db, e.ID)
+		if err != nil {
+			return err
+		}
 		for _, ef := range efs {
-			fmt.Fprintf(bw, "%s\n", ef.Path)
+			fmt.Fprintf(w, "\t\t%s\n", ef.Path)
 		}
 	}
-	bw.Flush()
-	return subcommands.ExitSuccess
+	return nil
+}
+
+func showEpisodeFiles(w io.Writer, db *sql.DB, id int) error {
+	efs, err := query.GetEpisodeFiles(db, id)
+	if err != nil {
+		return err
+	}
+	for _, ef := range efs {
+		fmt.Fprintf(w, "%s\n", ef.Path)
+	}
+	return nil
 }
