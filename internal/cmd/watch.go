@@ -18,25 +18,32 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"strconv"
 
 	"github.com/google/subcommands"
+	"github.com/pkg/errors"
 
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Watch struct {
+	episode bool
 }
 
 func (*Watch) Name() string     { return "watch" }
 func (*Watch) Synopsis() string { return "Watch anime." }
 func (*Watch) Usage() string {
-	return `Usage: watch episodeID
+	return `Usage: watch [-episode] AID|episodeID
 Watch anime.
 `
 }
@@ -62,13 +69,82 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	if err := watchEpisode(db, id); err != nil {
+	if w.episode {
+		err = watchEpisode(c, db, id)
+	} else {
+		err = watchAnime(c, db, id)
+	}
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
 }
 
-func watchEpisode(db *sql.DB, id int) error {
+func watchEpisode(c config.Config, db *sql.DB, id int) error {
+	e, err := query.GetEpisode(db, id)
+	if err != nil {
+		return err
+	}
+	printEpisode(os.Stdout, *e)
+	fs, err := query.GetEpisodeFiles(db, id)
+	if err != nil {
+		return err
+	}
+	if len(fs) == 0 {
+		return fmt.Errorf("no files for episode %d", id)
+	}
+	f := fs[0]
+	fmt.Println(f.Path)
+	if err := playFile(c, f.Path); err != nil {
+		return err
+	}
+	fmt.Print("Set done? [Y/n]")
+	br := bufio.NewReader(os.Stdin)
+	s, err := br.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return err
+	}
+	if s == "\n" || s == "y\n" {
+		if err := query.UpdateEpisodeDone(db, id, true); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+func playFile(c config.Config, p string) error {
+	cmd := exec.Command(c.Player, p)
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func watchAnime(c config.Config, db *sql.DB, aid int) error {
+	a, err := query.GetAnime(db, aid)
+	if err != nil {
+		return err
+	}
+	printAnimeShort(os.Stdout, a)
+	eps, err := query.GetEpisodes(db, aid)
+	if err != nil {
+		return err
+	}
+	for _, e := range eps {
+		if e.UserWatched {
+			continue
+		}
+		return watchEpisode(c, db, e.ID)
+	}
+	return errors.Errorf("no unwatched episodes for %d", aid)
+}
+
+func readLine(r *bufio.Reader) (string, error) {
+	s, err := r.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+	if s[len(s)-1] == '\n' {
+		s = s[:len(s)-1]
+	}
+	return s, nil
 }
