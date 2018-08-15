@@ -31,6 +31,7 @@ import (
 type Config struct {
 	DBPath    string   `toml:"database"`
 	WatchDirs []string `toml:"watch_dirs"`
+	Player    string   `toml:"player"`
 }
 
 var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
@@ -62,5 +63,6 @@ func New(p string) (Config, error) {
 func Default() Config {
 	return Config{
 		DBPath: filepath.Join(defaultDir, "database.db"),
+		Player: "mpv",
 	}
 }
