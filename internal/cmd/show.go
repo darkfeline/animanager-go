@@ -104,7 +104,7 @@ func printEpisode(w io.Writer, e query.Episode) {
 	fmt.Fprintf(w, "%d\t", e.ID)
 	fmt.Fprintf(w, "%s%d\t", e.Type.Prefix(), e.Number)
 	if e.UserWatched {
-		fmt.Fprintf(w, "D ")
+		fmt.Fprintf(w, "W ")
 	} else {
 		fmt.Fprintf(w, ". ")
 	}
