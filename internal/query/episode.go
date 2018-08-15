@@ -19,6 +19,7 @@ package query
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/pkg/errors"
 )
@@ -78,4 +79,25 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 		return nil, err
 	}
 	return es, nil
+}
+
+// UpdateEpisodeDone updates the episode's done status.
+func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
+	var watched uint8
+	if done {
+		watched = 1
+	} else {
+		watched = 0
+	}
+	t, err := db.Begin()
+	defer t.Rollback()
+	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE id=?`,
+		watched, id)
+	if err != nil {
+		return fmt.Errorf("update episode %d done: %s", id, err)
+	}
+	if err := t.Commit(); err != nil {
+		return fmt.Errorf("update episode %d done: %s", id, err)
+	}
+	return nil
 }
