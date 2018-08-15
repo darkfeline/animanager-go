@@ -44,7 +44,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 	defer r.Close()
 	var es []Episode
 	for r.Next() {
-		e := Episode{}
+		var e Episode
 		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
 			&e.Title, &e.Length, &e.UserWatched); err != nil {
 			return nil, errors.Wrap(err, "failed to scan episodes")
