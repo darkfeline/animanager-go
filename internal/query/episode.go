@@ -39,7 +39,7 @@ func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to query episode")
+		return nil, errors.Wrap(err, "failed to query episodes")
 	}
 	defer r.Close()
 	var es []Episode
@@ -47,7 +47,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 		e := Episode{}
 		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
 			&e.Title, &e.Length, &e.UserWatched); err != nil {
-			return nil, errors.Wrap(err, "failed to scan episode")
+			return nil, errors.Wrap(err, "failed to scan episodes")
 		}
 		es = append(es, e)
 	}
