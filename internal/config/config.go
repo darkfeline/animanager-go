@@ -52,6 +52,9 @@ func New(p string) (Config, error) {
 		return c, errors.Wrapf(err, "load config %s", p)
 	}
 	c.DBPath = os.ExpandEnv(c.DBPath)
+	for i, d := range c.WatchDirs {
+		c.WatchDirs[i] = os.ExpandEnv(d)
+	}
 	return c, nil
 }
 
