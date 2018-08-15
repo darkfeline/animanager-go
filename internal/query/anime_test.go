@@ -19,6 +19,7 @@ package query
 
 import (
 	"context"
+	"database/sql"
 	"reflect"
 	"testing"
 
@@ -82,12 +83,12 @@ func TestInsertAndGetAnime(t *testing.T) {
 			t.Fatalf("Error getting anime: %s", err)
 		}
 		want := &Anime{
-			AID:          22,
-			Title:        "Shinseiki Evangelion",
-			Type:         "TV Series",
-			EpisodeCount: 26,
-			NStartDate:   int64(812764800),
-			NEndDate:     int64(827884800),
+			AID:           22,
+			Title:         "Shinseiki Evangelion",
+			Type:          "TV Series",
+			EpisodeCount:  26,
+			NullStartDate: sql.NullInt64{Int64: 812764800, Valid: true},
+			NullEndDate:   sql.NullInt64{Int64: 827884800, Valid: true},
 		}
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("GetAnime(db, 22) = %#v; want %#v", got, want)

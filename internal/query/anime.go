@@ -33,33 +33,29 @@ type Anime struct {
 	EpisodeCount int
 	// The following fields are nullable.  In most cases, use the
 	// getter methods instead.
-	NStartDate interface{}
-	NEndDate   interface{}
+	NullStartDate sql.NullInt64
+	NullEndDate   sql.NullInt64
 }
 
-// StartDate returns the nullable NStartDate field as a Date.  If the
-// field is null, returns date.Zero.
+// StartDate returns the NullStartDate field as a Date.  If the
+// field is invalid, returns date.Zero.
 func (a Anime) StartDate() date.Date {
-	switch d := a.NStartDate.(type) {
-	case int64:
-		return date.Date(d)
-	case nil:
+	v := a.NullStartDate
+	if v.Valid {
+		return date.Date(v.Int64)
+	} else {
 		return date.Zero
-	default:
-		panic(fmt.Sprintf("bad field type %T %#v", d, d))
 	}
 }
 
-// EndDate returns the nullable NEndDate field as a Date.  If the
-// field is null, return the zero value.
+// EndDate returns the NullEndDate field as a Date.  If the
+// field is invalid, returns date.Zero.
 func (a Anime) EndDate() date.Date {
-	switch d := a.NEndDate.(type) {
-	case int64:
-		return date.Date(d)
-	case nil:
+	v := a.NullEndDate
+	if v.Valid {
+		return date.Date(v.Int64)
+	} else {
 		return date.Zero
-	default:
-		panic(fmt.Sprintf("bad field type %T %#v", d, d))
 	}
 }
 
@@ -83,7 +79,7 @@ FROM anime WHERE aid=?`, aid)
 	}
 	a := Anime{}
 	if err := r.Scan(&a.AID, &a.Title, &a.Type,
-		&a.EpisodeCount, &a.NStartDate, &a.NEndDate); err != nil {
+		&a.EpisodeCount, &a.NullStartDate, &a.NullEndDate); err != nil {
 		return nil, errors.Wrap(err, "failed to scan anime")
 	}
 	return &a, nil
