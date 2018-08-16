@@ -84,7 +84,7 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "get episode")
 	}
 	printEpisode(os.Stdout, *e)
 	fs, err := query.GetEpisodeFiles(db, id)
@@ -122,7 +122,7 @@ func playFile(c config.Config, p string) error {
 func watchAnime(c config.Config, db *sql.DB, aid int) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "get anime")
 	}
 	printAnimeShort(os.Stdout, a)
 	eps, err := query.GetEpisodes(db, aid)
