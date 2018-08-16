@@ -142,5 +142,5 @@ type animeFiles struct {
 }
 
 func printAnimeShort(w io.Writer, a *query.Anime) {
-	fmt.Fprintf(w, "%d\t%s\n", a.AID, a.Title)
+	fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
 }
