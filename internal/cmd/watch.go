@@ -33,6 +33,7 @@ import (
 
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/input"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -99,13 +100,13 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	if err := playFile(c, f.Path); err != nil {
 		return err
 	}
-	fmt.Print("Set done? [Y/n]")
+	fmt.Print("Set done? [Y/n] ")
 	br := bufio.NewReader(os.Stdin)
-	s, err := br.ReadString('\n')
-	if err != nil && err != io.EOF {
+	ans, err := input.ReadYN(br, true)
+	if err != nil {
 		return err
 	}
-	if s == "\n" || s == "y\n" {
+	if ans {
 		if err := query.UpdateEpisodeDone(db, id, true); err != nil {
 			return err
 		}
