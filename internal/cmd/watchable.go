@@ -19,7 +19,6 @@ package cmd
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"database/sql"
 	"flag"
@@ -78,13 +77,12 @@ func showWatchable(db *sql.DB, done, nofile bool) error {
 	if err != nil {
 		return err
 	}
-	var b bytes.Buffer
 	for _, w := range ws {
+		var printed bool
 		afs, err := getAnimeFiles(db, w.AID)
 		if err != nil {
 			return err
 		}
-		b.Reset()
 		for i, e := range afs.Episodes {
 			// Skip if done.
 			if e.UserWatched && !done {
@@ -95,22 +93,28 @@ func showWatchable(db *sql.DB, done, nofile bool) error {
 			if len(fs) == 0 && !nofile {
 				continue
 			}
-			printEpisode(&b, e)
+			// Print anime and previous episode if we are
+			// printing the first episode for an anime.
+			if !printed {
+				a, err := query.GetAnime(db, w.AID)
+				if err != nil {
+					return err
+				}
+				printAnimeShort(bw, a)
+				if i > 0 {
+					e := afs.Episodes[i-1]
+					printEpisode(bw, e)
+				}
+				printed = true
+			}
+			printEpisode(bw, e)
 			for _, f := range fs {
-				fmt.Fprintf(&b, "\t\t  %s\n", f.Path)
+				fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
 			}
 		}
-		// Skip anime if no episodes to show.
-		if b.Len() == 0 {
-			continue
+		if printed {
+			fmt.Fprintln(bw)
 		}
-		a, err := query.GetAnime(db, w.AID)
-		if err != nil {
-			return err
-		}
-		printAnimeShort(bw, a)
-		b.WriteTo(bw)
-		fmt.Fprintln(bw)
 	}
 	return nil
 }
