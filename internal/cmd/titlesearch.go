@@ -79,7 +79,7 @@ func printAnimeT(w io.Writer, ts []anidb.AnimeT) error {
 				continue
 			}
 			if !first {
-				fmt.Fprint(bw, ", ")
+				fmt.Fprint(bw, " | ")
 			}
 			fmt.Fprint(bw, t.Name)
 			first = false
