@@ -16,7 +16,7 @@ func InsertEpisodeFile(db *sql.DB, id int, path string) error {
 	defer t.Rollback()
 	_, err = t.Exec(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`, id, path)
 	if err != nil {
-		return fmt.Errorf("insert episode %d file: %s", id, err)
+		return fmt.Errorf("insert episode %d file for %s: %s", id, path, err)
 	}
 	return t.Commit()
 }
