@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.13.0
+## 0.13.0 - 2018-08-20
 
 This is the first version of the Go version of Animanager.
 
@@ -22,7 +22,7 @@ This is the first version of the Go version of Animanager.
   * File matching patterns now use the first capturing group as the
     episode number, rather than the group named `ep`.
 
-## 0.12.0
+## 0.12.0 - 2018-08-20
 
 See [PyPI Animanager](https://pypi.org/project/animanager/) for
 previous versions, which are for the Python version of Animanager.
