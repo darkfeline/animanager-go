@@ -6,6 +6,7 @@
 
 * `player` configuration option is now a list.
 * File pattern now matches only against the base filename.
+* `showfiles` now works on AIDs by default.
 
 ## 0.13.0 - 2018-08-20
 

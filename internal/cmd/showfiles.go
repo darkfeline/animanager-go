@@ -34,19 +34,19 @@ import (
 )
 
 type ShowFiles struct {
-	anime bool
+	episode bool
 }
 
 func (*ShowFiles) Name() string     { return "showfiles" }
 func (*ShowFiles) Synopsis() string { return "Show episode files." }
 func (*ShowFiles) Usage() string {
-	return `Usage: findfiles [-anime] id|aid
+	return `Usage: showfiles [-episode] AID|episodeID
 Show episode files.
 `
 }
 
 func (sf *ShowFiles) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&sf.anime, "anime", false, "Show files for anime")
+	f.BoolVar(&sf.episode, "episode", false, "Show files for episode")
 }
 
 func (sf *ShowFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
@@ -68,10 +68,10 @@ func (sf *ShowFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 	}
 	defer db.Close()
 	bw := bufio.NewWriter(os.Stdout)
-	if sf.anime {
-		err = showAnimeFiles(bw, db, id)
-	} else {
+	if sf.episode {
 		err = showEpisodeFiles(bw, db, id)
+	} else {
+		err = showAnimeFiles(bw, db, id)
 	}
 	bw.Flush()
 	if err != nil {
