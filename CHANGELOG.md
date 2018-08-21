@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.0
+
+### Changed
+
+* `player` configuration option is now a list.
+
 ## 0.13.0 - 2018-08-20
 
 This is the first version of the Go version of Animanager.
