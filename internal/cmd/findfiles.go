@@ -177,7 +177,7 @@ func findRegisteredFiles(w query.Watching, eps []query.Episode, files []string, 
 		}
 	}
 	for _, f := range files {
-		ms := r.FindStringSubmatch(f)
+		ms := r.FindStringSubmatch(filepath.Base(f))
 		if ms == nil {
 			continue
 		}
