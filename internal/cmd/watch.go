@@ -115,7 +115,7 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 }
 
 func playFile(c config.Config, p string) error {
-	cmd := exec.Command(c.Player, p)
+	cmd := exec.Command(c.Player[0], append(c.Player[1:], p)...)
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
