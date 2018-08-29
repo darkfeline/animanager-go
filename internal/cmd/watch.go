@@ -49,7 +49,8 @@ Watch anime.
 `
 }
 
-func (*Watch) SetFlags(f *flag.FlagSet) {
+func (w *Watch) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&w.episode, "episode", false, "Treat argument as episode ID")
 }
 
 func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {

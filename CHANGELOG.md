@@ -2,6 +2,10 @@
 
 ## 0.14.0
 
+### Fixed
+
+* `watch` `-episode` flag now works.
+
 ### Changed
 
 * `player` configuration option is now a list.
