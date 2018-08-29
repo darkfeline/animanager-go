@@ -101,6 +101,10 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	if err := playFile(c, f.Path); err != nil {
 		return err
 	}
+	if e.UserWatched {
+		fmt.Println("Already watched")
+		return nil
+	}
 	fmt.Print("Set done? [Y/n] ")
 	br := bufio.NewReader(os.Stdin)
 	ans, err := input.ReadYN(br, true)

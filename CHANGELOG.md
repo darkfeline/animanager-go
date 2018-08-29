@@ -11,6 +11,7 @@
 * `player` configuration option is now a list.
 * File pattern now matches only against the base filename.
 * `showfiles` now works on AIDs by default.
+* `watch` doesn't prompt to mark done if already done.
 
 ## 0.13.0 - 2018-08-20
 
