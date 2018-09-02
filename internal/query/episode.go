@@ -36,23 +36,13 @@ type Episode struct {
 
 // GetEpisode gets the episode from the database.
 func GetEpisode(db *sql.DB, id int) (*Episode, error) {
-	r, err := db.Query(`
+	r := db.QueryRow(`
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode WHERE id=?`, id)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to query episode %d", id)
-	}
-	defer r.Close()
-	if !r.Next() {
-		if r.Err() != nil {
-			return nil, r.Err()
-		}
-		return nil, ErrMissing
-	}
 	var e Episode
 	if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
 		&e.Title, &e.Length, &e.UserWatched); err != nil {
-		return nil, errors.Wrapf(err, "failed to scan episode %d", id)
+		return nil, err
 	}
 	return &e, nil
 }

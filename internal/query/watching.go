@@ -31,22 +31,12 @@ ON CONFLICT (aid) DO UPDATE SET regexp=? WHERE aid=?`,
 }
 
 // GetWatching gets the watching entry for an anime from the
-// database. ErrMissing is returned if the anime doesn't exist.
+// database.
 func GetWatching(db *sql.DB, aid int) (Watching, error) {
+	r := db.QueryRow(`SELECT aid, regexp FROM watching WHERE aid=?`, aid)
 	var w Watching
-	r, err := db.Query(`SELECT aid, regexp FROM watching WHERE aid=?`, aid)
-	if err != nil {
-		return w, errors.Wrap(err, "failed to query watching")
-	}
-	defer r.Close()
-	if !r.Next() {
-		if r.Err() != nil {
-			return w, r.Err()
-		}
-		return w, ErrMissing
-	}
 	if err := r.Scan(&w.AID, &w.Regexp); err != nil {
-		return w, errors.Wrap(err, "failed to scan episode")
+		return w, err
 	}
 	return w, nil
 }
@@ -73,24 +63,8 @@ func GetAllWatching(db *sql.DB) ([]Watching, error) {
 }
 
 // DeleteWatching deletes the watching entry for an anime from the
-// database.  This function returns ErrMissing if no such entry
-// exists.
+// database.
 func DeleteWatching(db *sql.DB, aid int) error {
-	t, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer t.Rollback()
-	r, err := t.Exec(`DELETE FROM watching WHERE aid=?`, aid)
-	if err != nil {
-		return err
-	}
-	n, err := r.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if n == 0 {
-		return ErrMissing
-	}
-	return t.Commit()
+	_, err := db.Exec(`DELETE FROM watching WHERE aid=?`, aid)
+	return err
 }

@@ -95,26 +95,3 @@ func TestInsertAndGetAllWatching(t *testing.T) {
 		t.Errorf("GetAllWatching(db) = %#v; want %#v", got, want)
 	}
 }
-
-func TestDeleteWatching_missing(t *testing.T) {
-	db, err := database.OpenMem(context.Background())
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer db.Close()
-	if err := DeleteWatching(db, 22); err != ErrMissing {
-		t.Errorf("DeleteWatching() = %#v (expected %#v)", err, ErrMissing)
-	}
-}
-
-func TestGetWatching_missing(t *testing.T) {
-	db, err := database.OpenMem(context.Background())
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer db.Close()
-	_, err = GetWatching(db, 22)
-	if err != ErrMissing {
-		t.Errorf("GetWatching() = %#v (expected %#v)", err, ErrMissing)
-	}
-}

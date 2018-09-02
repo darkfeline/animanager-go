@@ -20,6 +20,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"io"
@@ -71,7 +72,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 	bw := bufio.NewWriter(os.Stdout)
 	printAnime(bw, a)
 	switch w, err := query.GetWatching(db, aid); err {
-	case query.ErrMissing:
+	case sql.ErrNoRows:
 		io.WriteString(bw, "Not registered\n")
 	case nil:
 		fmt.Fprintf(bw, "Registered: %#v\n", w.Regexp)
