@@ -61,26 +61,15 @@ func (a Anime) EndDate() date.Date {
 
 type AnimeType string
 
-// GetAnime gets the anime from the database.  ErrMissing is returned
-// if the anime doesn't exist.
+// GetAnime gets the anime from the database.
 func GetAnime(db *sql.DB, aid int) (*Anime, error) {
-	r, err := db.Query(`
+	r := db.QueryRow(`
 SELECT aid, title, type, episodecount, startdate, enddate
 FROM anime WHERE aid=?`, aid)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to query anime")
-	}
-	defer r.Close()
-	if !r.Next() {
-		if r.Err() != nil {
-			return nil, r.Err()
-		}
-		return nil, ErrMissing
-	}
-	a := Anime{}
-	if err := r.Scan(&a.AID, &a.Title, &a.Type,
-		&a.EpisodeCount, &a.NullStartDate, &a.NullEndDate); err != nil {
-		return nil, errors.Wrap(err, "failed to scan anime")
+	var a Anime
+	if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount,
+		&a.NullStartDate, &a.NullEndDate); err != nil {
+		return nil, err
 	}
 	return &a, nil
 }
