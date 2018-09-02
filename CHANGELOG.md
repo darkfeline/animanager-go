@@ -7,6 +7,7 @@
 * New database schema (version 5):
   * Added `offset` to `watching` table.  This is used to adjust for
     different episode numbers in filenames compared to AniDB.
+* Database is backed up before migrating.
 
 ### Fixed
 

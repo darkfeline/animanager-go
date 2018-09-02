@@ -21,8 +21,10 @@ package database
 import (
 	"context"
 	"database/sql"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/mattn/go-sqlite3"
@@ -45,6 +47,20 @@ func Open(ctx context.Context, src string) (db *sql.DB, err error) {
 			db.Close()
 		}
 	}(db)
+	if !isMemorySource(src) {
+		ok, err := migrate.IsCurrentVersion(db)
+		if err != nil {
+			return nil, err
+		}
+		if !ok {
+			sp := sourcePath(src)
+			dp := sourcePath(src) + ".bak"
+			if err := backup(ctx, db, sp, dp); err != nil {
+				return nil, err
+			}
+		}
+
+	}
 	if err := migrate.Migrate(ctx, db); err != nil {
 		return nil, errors.Wrap(err, "migrate database")
 	}
@@ -68,6 +84,46 @@ func openDB(ctx context.Context, src string) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func backup(ctx context.Context, db *sql.DB, src, dst string) error {
+	c, err := db.Conn(ctx)
+	if err != nil {
+		return errors.Wrap(err, "backup")
+	}
+	defer c.Close()
+	_, err = c.ExecContext(ctx, "BEGIN IMMEDIATE")
+	if err != nil {
+		return errors.Wrap(err, "backup")
+	}
+	defer c.ExecContext(ctx, "ROLLBACK")
+	err = copyFile(src, dst)
+	if err != nil {
+		return errors.Wrap(err, "backup")
+	}
+	return nil
+}
+
+func copyFile(src, dst string) error {
+	sf, err := os.Open(src)
+	if err != nil {
+		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+	}
+	defer sf.Close()
+	df, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
+	if err != nil {
+		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+	}
+	defer df.Close()
+	_, err = io.Copy(df, sf)
+	if err != nil {
+		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+	}
+	err = df.Close()
+	if err != nil {
+		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+	}
+	return nil
 }
 
 // addParam adds the parameter to the SQL data source.
