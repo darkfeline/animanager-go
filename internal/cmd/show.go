@@ -75,7 +75,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 	case sql.ErrNoRows:
 		io.WriteString(bw, "Not registered\n")
 	case nil:
-		fmt.Fprintf(bw, "Registered: %#v\n", w.Regexp)
+		fmt.Fprintf(bw, "Registered: %#v (offset %d)\n", w.Regexp, w.Offset)
 	default:
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
