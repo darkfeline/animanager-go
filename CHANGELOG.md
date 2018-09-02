@@ -2,6 +2,12 @@
 
 ## 0.14.0
 
+### Added
+
+* New database schema (version 5):
+  * Added `offset` to `watching` table.  This is used to adjust for
+    different episode numbers in filenames compared to AniDB.
+
 ### Fixed
 
 * `watch` `-episode` flag now works.

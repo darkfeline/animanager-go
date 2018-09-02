@@ -60,6 +60,7 @@ var migrations = []struct {
 }{
 	{0, 3, migrate3},
 	{3, 4, migrate4},
+	{4, 5, migrate5},
 }
 
 type migrateFunc func(context.Context, *sql.DB) error
