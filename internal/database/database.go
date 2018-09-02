@@ -35,35 +35,43 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
-func Open(ctx context.Context, p string) (d *sql.DB, err error) {
-	logSQLiteVersion()
-	if strings.IndexByte(p, '?') == -1 {
-		p = p + "?_fk=1"
-	} else {
-		p = p + "&_fk=1"
-	}
-	d, err = sql.Open("sqlite3", p)
+func Open(ctx context.Context, path string) (db *sql.DB, err error) {
+	db, err = openDB(ctx, path)
 	if err != nil {
 		return nil, err
 	}
-	defer func(d *sql.DB) {
+	defer func(db *sql.DB) {
 		if err != nil {
-			d.Close()
+			db.Close()
 		}
-	}(d)
-	if err := migrate.Migrate(ctx, d); err != nil {
+	}(db)
+	if err := migrate.Migrate(ctx, db); err != nil {
 		return nil, errors.Wrap(err, "migrate database")
 	}
-	return d, nil
+	return db, nil
 }
 
-// Open opens and returns a SQLite database from memory.  The database is
-// migrated to the newest version.
+// OpenMem opens and returns a SQLite database from memory.  The
+// database is migrated to the newest version.
 //
 // The database is shared between all concurrent connections, so it
 // must be closed out between tests.
 func OpenMem(ctx context.Context) (*sql.DB, error) {
 	return Open(ctx, "file::memory:?mode=memory&cache=shared")
+}
+
+func openDB(ctx context.Context, path string) (*sql.DB, error) {
+	logSQLiteVersion()
+	if strings.IndexByte(path, '?') == -1 {
+		path = path + "?_fk=1"
+	} else {
+		path = path + "&_fk=1"
+	}
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
 }
 
 func logSQLiteVersion() {
