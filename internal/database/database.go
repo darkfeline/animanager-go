@@ -85,6 +85,7 @@ func addParam(src, param, value string) string {
 	return b.String()
 }
 
+// getPath returns the path of the SQL data source string.
 func getPath(src string) string {
 	// Remove file: prefix if it exists.
 	if strings.HasPrefix(src, "file:") {
