@@ -35,18 +35,20 @@ import (
 
 type Register struct {
 	pattern string
+	offset  int
 }
 
 func (*Register) Name() string     { return "register" }
 func (*Register) Synopsis() string { return "Register an anime." }
 func (*Register) Usage() string {
-	return `Usage: register [-pattern pattern] aid
+	return `Usage: register [-pattern pattern] [-offset int] aid
 Register an anime.
 `
 }
 
 func (r *Register) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&r.pattern, "pattern", "", "File pattern")
+	f.IntVar(&r.offset, "offset", 0, "Episode offset")
 }
 
 func (r *Register) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
@@ -78,6 +80,7 @@ func (r *Register) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{
 	w := query.Watching{
 		AID:    aid,
 		Regexp: r.pattern,
+		Offset: r.offset,
 	}
 	if err := query.InsertWatching(db, w); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)

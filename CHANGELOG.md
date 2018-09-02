@@ -8,6 +8,8 @@
   * Added `offset` to `watching` table.  This is used to adjust for
     different episode numbers in filenames compared to AniDB.
 * Database is backed up before migrating.
+* `register` command now has an `-offset` flag for setting file
+  pattern episode offset.
 
 ### Fixed
 
