@@ -53,6 +53,20 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 	return nil
 }
 
+// IsCurrentVersion returns true if the database is the current
+// version.
+func IsCurrentVersion(d *sql.DB) (bool, error) {
+	v, err := getUserVersion(d)
+	if err != nil {
+		return false, errors.Wrap(err, "get user version")
+	}
+	return v == currentVersion(), nil
+}
+
+func currentVersion() int {
+	return migrations[len(migrations)-1].To
+}
+
 var migrations = []struct {
 	From int
 	To   int
