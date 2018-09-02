@@ -29,3 +29,25 @@ func TestOpenMem(t *testing.T) {
 		t.Errorf("Error opening database: %s", err)
 	}
 }
+
+func TestGetPath(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		src  string
+		want string
+	}{
+		{"some/path", "some/path"},
+		{"file:some/path", "some/path"},
+		{"some/path?arg=true", "some/path"},
+		{"file:some/path?arg=true", "some/path"},
+	}
+	for _, c := range cases {
+		t.Run(c.src, func(t *testing.T) {
+			t.Parallel()
+			got := getPath(c.src)
+			if got != c.want {
+				t.Errorf("getPath(%#v) = %#v; want %#v", c.src, got, c.want)
+			}
+		})
+	}
+}

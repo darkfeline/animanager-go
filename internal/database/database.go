@@ -74,6 +74,18 @@ func openDB(ctx context.Context, src string) (*sql.DB, error) {
 	return db, nil
 }
 
+func getPath(src string) string {
+	// Remove file: prefix if it exists.
+	if strings.HasPrefix(src, "file:") {
+		src = src[len("file:"):]
+	}
+	// Remove params
+	if i := strings.IndexByte(src, '?'); i != -1 {
+		src = src[:i]
+	}
+	return src
+}
+
 func logSQLiteVersion() {
 	v, vn, id := sqlite3.Version()
 	Logger.Printf("SQLite version: %s %d %s", v, vn, id)
