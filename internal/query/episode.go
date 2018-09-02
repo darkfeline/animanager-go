@@ -90,6 +90,9 @@ func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
 		watched = 0
 	}
 	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
 	defer t.Rollback()
 	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE id=?`,
 		watched, id)

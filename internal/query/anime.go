@@ -77,6 +77,9 @@ FROM anime WHERE aid=?`, aid)
 // InsertAnime inserts or updates an anime into the database.
 func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
 	defer t.Rollback()
 	var startDate interface{}
 	var endDate interface{}

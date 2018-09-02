@@ -14,6 +14,9 @@ type Watching struct {
 // InsertWatching inserts or updates a watching entry into the database.
 func InsertWatching(db *sql.DB, aid int, regexp string) error {
 	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
 	defer t.Rollback()
 	_, err = t.Exec(`
 INSERT INTO watching (aid, regexp) VALUES (?, ?)
@@ -74,6 +77,9 @@ func GetAllWatching(db *sql.DB) ([]Watching, error) {
 // exists.
 func DeleteWatching(db *sql.DB, aid int) error {
 	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
 	defer t.Rollback()
 	r, err := t.Exec(`DELETE FROM watching WHERE aid=?`, aid)
 	if err != nil {

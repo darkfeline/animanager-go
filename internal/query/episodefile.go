@@ -13,6 +13,9 @@ type EpisodeFile struct {
 // InsertEpisodeFile inserts a file for an episode into the database.
 func InsertEpisodeFile(db *sql.DB, id int, path string) error {
 	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
 	defer t.Rollback()
 	_, err = t.Exec(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`, id, path)
 	if err != nil {
@@ -51,6 +54,9 @@ FROM episode_file WHERE episode_id=?`, episodeID)
 // DeleteEpisodeFiles deletes all episode files.
 func DeleteEpisodeFiles(db *sql.DB) error {
 	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
 	defer t.Rollback()
 	_, err = t.Exec(`DELETE FROM episode_file`)
 	if err != nil {
