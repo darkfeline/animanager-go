@@ -51,3 +51,20 @@ func TestGetPath(t *testing.T) {
 		})
 	}
 }
+
+func TestAddParam(t *testing.T) {
+	t.Run("no params", func(t *testing.T) {
+		got := addParam("file:some/path", "_fk", "1")
+		want := "file:some/path?_fk=1"
+		if got != want {
+			t.Errorf("addParam() = %#v; want %#v", got, want)
+		}
+	})
+	t.Run("params", func(t *testing.T) {
+		got := addParam("file:some/path?mode=shared", "_fk", "1")
+		want := "file:some/path?mode=shared&_fk=1"
+		if got != want {
+			t.Errorf("addParam() = %#v; want %#v", got, want)
+		}
+	})
+}

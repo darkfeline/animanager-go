@@ -62,16 +62,27 @@ func OpenMem(ctx context.Context) (*sql.DB, error) {
 
 func openDB(ctx context.Context, src string) (*sql.DB, error) {
 	logSQLiteVersion()
-	if strings.IndexByte(src, '?') == -1 {
-		src = src + "?_fk=1"
-	} else {
-		src = src + "&_fk=1"
-	}
+	src = addParam(src, "_fk", "1")
 	db, err := sql.Open("sqlite3", src)
 	if err != nil {
 		return nil, err
 	}
 	return db, nil
+}
+
+// addParam adds the parameter to the SQL data source.
+func addParam(src, param, value string) string {
+	var b strings.Builder
+	b.WriteString(src)
+	if strings.IndexByte(src, '?') == -1 {
+		b.WriteString("?")
+	} else {
+		b.WriteString("&")
+	}
+	b.WriteString(param)
+	b.WriteString("=")
+	b.WriteString(value)
+	return b.String()
 }
 
 func getPath(src string) string {
