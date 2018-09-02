@@ -86,12 +86,11 @@ func addParam(src, param, value string) string {
 }
 
 func isMemorySource(src string) bool {
-	p := getPath(src)
-	return p == ":memory:"
+	return sourcePath(src) == ":memory:"
 }
 
-// getPath returns the path of the SQL data source string.
-func getPath(src string) string {
+// sourcePath returns the path of the SQL data source string.
+func sourcePath(src string) string {
 	// Remove file: prefix if it exists.
 	if strings.HasPrefix(src, "file:") {
 		src = src[len("file:"):]

@@ -30,7 +30,7 @@ func TestOpenMem(t *testing.T) {
 	}
 }
 
-func TestGetPath(t *testing.T) {
+func TestSourcePath(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
 		src  string
@@ -44,9 +44,9 @@ func TestGetPath(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.src, func(t *testing.T) {
 			t.Parallel()
-			got := getPath(c.src)
+			got := sourcePath(c.src)
 			if got != c.want {
-				t.Errorf("getPath(%#v) = %#v; want %#v", c.src, got, c.want)
+				t.Errorf("sourcePath(%#v) = %#v; want %#v", c.src, got, c.want)
 			}
 		})
 	}
