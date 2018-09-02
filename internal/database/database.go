@@ -35,8 +35,8 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
-func Open(ctx context.Context, path string) (db *sql.DB, err error) {
-	db, err = openDB(ctx, path)
+func Open(ctx context.Context, src string) (db *sql.DB, err error) {
+	db, err = openDB(ctx, src)
 	if err != nil {
 		return nil, err
 	}
@@ -60,14 +60,14 @@ func OpenMem(ctx context.Context) (*sql.DB, error) {
 	return Open(ctx, "file::memory:?mode=memory&cache=shared")
 }
 
-func openDB(ctx context.Context, path string) (*sql.DB, error) {
+func openDB(ctx context.Context, src string) (*sql.DB, error) {
 	logSQLiteVersion()
-	if strings.IndexByte(path, '?') == -1 {
-		path = path + "?_fk=1"
+	if strings.IndexByte(src, '?') == -1 {
+		src = src + "?_fk=1"
 	} else {
-		path = path + "&_fk=1"
+		src = src + "&_fk=1"
 	}
-	db, err := sql.Open("sqlite3", path)
+	db, err := sql.Open("sqlite3", src)
 	if err != nil {
 		return nil, err
 	}
