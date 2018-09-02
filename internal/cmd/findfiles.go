@@ -190,6 +190,7 @@ func findRegisteredFiles(w query.Watching, eps []query.Episode, files []string, 
 			e <- fmt.Errorf("regexp %#v submatch not a number", w.Regexp)
 			return
 		}
+		n += w.Offset
 		if n >= len(regEps) {
 			continue
 		}
