@@ -47,15 +47,18 @@ func TestInsertAndGetWatching(t *testing.T) {
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	p := "foobar"
-	if err := InsertWatching(db, aid, p); err != nil {
+	want := Watching{
+		AID:    aid,
+		Regexp: "foo",
+		Offset: 2,
+	}
+	if err := InsertWatching(db, want); err != nil {
 		t.Fatalf("Error inserting watching: %s", err)
 	}
 	got, err := GetWatching(db, aid)
 	if err != nil {
 		t.Fatalf("Error getting anime: %s", err)
 	}
-	want := Watching{AID: aid, Regexp: p}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("GetWatching(db, %d) = %#v; want %#v", aid, got, want)
 	}
@@ -82,15 +85,16 @@ func TestInsertAndGetAllWatching(t *testing.T) {
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	p := "foobar"
-	if err := InsertWatching(db, aid, p); err != nil {
+	want := []Watching{
+		{AID: aid, Regexp: "foo", Offset: 2},
+	}
+	if err := InsertWatching(db, want[0]); err != nil {
 		t.Fatalf("Error inserting watching: %s", err)
 	}
 	got, err := GetAllWatching(db)
 	if err != nil {
 		t.Fatalf("Error getting anime: %s", err)
 	}
-	want := []Watching{{AID: aid, Regexp: p}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("GetAllWatching(db) = %#v; want %#v", got, want)
 	}

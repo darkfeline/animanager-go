@@ -75,7 +75,11 @@ func (r *Register) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{
 		}
 		r.pattern = animeDefaultRegexp(a)
 	}
-	if err := query.InsertWatching(db, aid, r.pattern); err != nil {
+	w := query.Watching{
+		AID:    aid,
+		Regexp: r.pattern,
+	}
+	if err := query.InsertWatching(db, w); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}

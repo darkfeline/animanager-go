@@ -9,23 +9,24 @@ import (
 type Watching struct {
 	AID    int
 	Regexp string
+	Offset int
 }
 
 // InsertWatching inserts or updates a watching entry into the database.
-func InsertWatching(db *sql.DB, aid int, regexp string) error {
+func InsertWatching(db *sql.DB, w Watching) error {
 	t, err := db.Begin()
 	if err != nil {
 		return err
 	}
 	defer t.Rollback()
 	_, err = t.Exec(`
-INSERT INTO watching (aid, regexp) VALUES (?, ?)
-ON CONFLICT (aid) DO UPDATE SET regexp=? WHERE aid=?`,
-		aid, regexp,
-		regexp, aid,
+INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
+ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
+		w.AID, w.Regexp, w.Offset,
+		w.Regexp, w.Offset, w.AID,
 	)
 	if err != nil {
-		return errors.Wrapf(err, "failed to insert watching %d", aid)
+		return errors.Wrapf(err, "failed to insert watching %d", w.AID)
 	}
 	return t.Commit()
 }
@@ -33,9 +34,9 @@ ON CONFLICT (aid) DO UPDATE SET regexp=? WHERE aid=?`,
 // GetWatching gets the watching entry for an anime from the
 // database.
 func GetWatching(db *sql.DB, aid int) (Watching, error) {
-	r := db.QueryRow(`SELECT aid, regexp FROM watching WHERE aid=?`, aid)
+	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
 	var w Watching
-	if err := r.Scan(&w.AID, &w.Regexp); err != nil {
+	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
 		return w, err
 	}
 	return w, nil
@@ -43,7 +44,7 @@ func GetWatching(db *sql.DB, aid int) (Watching, error) {
 
 // GetAllWatching gets all watching entries.
 func GetAllWatching(db *sql.DB) ([]Watching, error) {
-	r, err := db.Query(`SELECT aid, regexp FROM watching`)
+	r, err := db.Query(`SELECT aid, regexp, offset FROM watching`)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func GetAllWatching(db *sql.DB) ([]Watching, error) {
 	var result []Watching
 	for r.Next() {
 		var w Watching
-		if err := r.Scan(&w.AID, &w.Regexp); err != nil {
+		if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
 			return nil, err
 		}
 		result = append(result, w)
