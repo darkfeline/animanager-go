@@ -23,7 +23,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -142,15 +141,4 @@ func watchAnime(c config.Config, db *sql.DB, aid int) error {
 		return watchEpisode(c, db, e.ID)
 	}
 	return errors.Errorf("no unwatched episodes for %d", aid)
-}
-
-func readLine(r *bufio.Reader) (string, error) {
-	s, err := r.ReadString('\n')
-	if err != nil && err != io.EOF {
-		return "", err
-	}
-	if s[len(s)-1] == '\n' {
-		s = s[:len(s)-1]
-	}
-	return s, nil
 }
