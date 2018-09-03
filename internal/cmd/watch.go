@@ -104,18 +104,29 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 		fmt.Println("Already watched")
 		return nil
 	}
-	fmt.Print("Set done? [Y/n] ")
 	br := bufio.NewReader(os.Stdin)
-	ans, err := input.ReadYN(br, true)
-	if err != nil {
-		return err
-	}
-	if ans {
+	for {
+		fmt.Print("Set done? [Y/n] ")
+		ans, err := input.ReadYN(br, true)
+		if err, ok := err.(temporary); ok && err.Temporary() {
+			fmt.Println(err)
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		if !ans {
+			return nil
+		}
 		if err := query.UpdateEpisodeDone(db, id, true); err != nil {
 			return err
 		}
+		return nil
 	}
-	return nil
+}
+
+type temporary interface {
+	Temporary() bool
 }
 
 func playFile(c config.Config, p string) error {

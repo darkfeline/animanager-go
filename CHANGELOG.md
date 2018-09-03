@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.0
+
+### Fixed
+
+* `watch` command handles invalid input now.
+
 ## 0.14.0 - 2018-09-02
 
 ### Added
