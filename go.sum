@@ -1,0 +1,12 @@
+github.com/BurntSushi/toml v0.3.0 h1:e1/Ivsx3Z0FVTV0NSOv/aVgbUWyQuzj7DDnFblkRvsY=
+github.com/BurntSushi/toml v0.3.0/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/google/subcommands v0.0.0-20180618214453-5bae204cdfb2 h1:xT8XvBDdhTRgh/lZ94y4WLPjbIMh4Gsxcho5SyBMIaM=
+github.com/google/subcommands v0.0.0-20180618214453-5bae204cdfb2/go.mod h1:ZjhPrFU+Olkh9WazFPsl27BQ4UPiG37m3yTrtFlrHVk=
+github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/4=
+github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
+github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
+github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+go.felesatra.moe/anidb v0.0.0-20180812055748-831f2a906388 h1:TTGRE7rqGuf4sKtLiLZQZxwt0b1b3hqYqrvLLAnfmug=
+go.felesatra.moe/anidb v0.0.0-20180812055748-831f2a906388/go.mod h1:xG8R+dA65Vq2jE/jXwyQTMqjBsHNh9clxVwmpyNA6m8=
+go.felesatra.moe/xdg v0.0.0-20180609034518-93689817508c h1:zt7KbW62b86ogHGvbq4TlxM5AWgwkxvSfjkoVgUTdNw=
+go.felesatra.moe/xdg v0.0.0-20180609034518-93689817508c/go.mod h1:PA/TEhZdEMC3MpbKiuYdx3i8QbsiXhzQPBZLT557LVg=
