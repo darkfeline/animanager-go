@@ -4,6 +4,8 @@
 
 ### Fixed
 
+* `add` now waits two seconds between queries per AniDB API
+  requirements.
 * `watch` command handles invalid input now.
 
 ## 0.14.0 - 2018-09-02

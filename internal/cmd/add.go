@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/google/subcommands"
 
@@ -68,10 +69,13 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	for _, aid := range aids {
+	for i, aid := range aids {
 		if err := addAnime(db, aid); err != nil {
 			fmt.Fprintf(os.Stderr, "Error adding anime: %s\n", err)
 			return subcommands.ExitFailure
+		}
+		if i < len(aids)-1 {
+			time.Sleep(2 * time.Second)
 		}
 	}
 	return subcommands.ExitSuccess
