@@ -34,21 +34,25 @@ import (
 )
 
 type Add struct {
+	addIncomplete bool
 }
 
 func (*Add) Name() string     { return "add" }
 func (*Add) Synopsis() string { return "Add an anime." }
 func (*Add) Usage() string {
 	return `Usage: add aids...
+       add -incomplete [aids...]
 Add an anime.
 `
 }
 
-func (*Add) SetFlags(f *flag.FlagSet) {
+func (a *Add) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&a.addIncomplete, "incomplete", false, "Re-add incomplete anime")
 }
 
 func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	if f.NArg() < 1 {
+	// Process arguments.
+	if f.NArg() < 1 && !a.addIncomplete {
 		fmt.Fprint(os.Stderr, a.Usage())
 		return subcommands.ExitUsageError
 	}
@@ -69,6 +73,14 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
+	if a.addIncomplete {
+		as, err := getIncompleteAnime(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			return subcommands.ExitFailure
+		}
+		aids = append(aids, as...)
+	}
 	for i, aid := range aids {
 		if err := addAnime(db, aid); err != nil {
 			fmt.Fprintf(os.Stderr, "Error adding anime: %s\n", err)
@@ -81,7 +93,66 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 	return subcommands.ExitSuccess
 }
 
+func getIncompleteAnime(db *sql.DB) ([]int, error) {
+	aids, err := query.GetAIDs(db)
+	if err != nil {
+		return nil, fmt.Errorf("get incomplete anime: %s", err)
+	}
+	var r []int
+	for _, aid := range aids {
+		ok, err := isIncomplete(db, aid)
+		if err != nil {
+			return nil, fmt.Errorf("get incomplete anime: %s", err)
+		}
+		if ok {
+			r = append(r, aid)
+		}
+	}
+	return r, nil
+}
+
+func isIncomplete(db *sql.DB, aid int) (bool, error) {
+	a, err := query.GetAnime(db, aid)
+	if err != nil {
+		return false, fmt.Errorf("check %d completion: %s", aid, err)
+	}
+	eps, err := query.GetEpisodes(db, aid)
+	if err != nil {
+		return false, fmt.Errorf("check %d completion: %s", aid, err)
+	}
+	var rEps []query.Episode
+	var unnamed int
+	for _, e := range eps {
+		if e.Type != query.EpRegular {
+			continue
+		}
+		rEps = append(rEps, e)
+		if isUnnamed(e) {
+			unnamed += 1
+		} else {
+			// Unnamed episodes followed by named episodes
+			// are probably just missing the episode title
+			// entirely, so don't count them.
+			unnamed = 0
+		}
+	}
+	if len(rEps) < a.EpisodeCount {
+		return true, nil
+	}
+	// This is just a heuristic, some shows only have titles for
+	// first/last episode.
+	if unnamed > 0 && unnamed < a.EpisodeCount-2 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func isUnnamed(e query.Episode) bool {
+	return len(e.Title) > 8 && e.Title[:8] == "Episode "
+}
+
 func addAnime(db *sql.DB, aid int) error {
+	Logger.Printf("Adding %d", aid)
 	a, err := anidb.RequestAnime(aid)
 	if err != nil {
 		return err

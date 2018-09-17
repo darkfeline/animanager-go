@@ -61,6 +61,27 @@ func (a Anime) EndDate() date.Date {
 
 type AnimeType string
 
+// GetAIDs returns all AIDs.
+func GetAIDs(db *sql.DB) ([]int, error) {
+	r, err := db.Query(`SELECT aid FROM anime`)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	var aids []int
+	for r.Next() {
+		var aid int
+		if err := r.Scan(&aid); err != nil {
+			return nil, err
+		}
+		aids = append(aids, aid)
+	}
+	if err := r.Err(); err != nil {
+		return nil, err
+	}
+	return aids, nil
+}
+
 // GetAnime gets the anime from the database.
 func GetAnime(db *sql.DB, aid int) (*Anime, error) {
 	r := db.QueryRow(`
