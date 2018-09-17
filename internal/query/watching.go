@@ -32,12 +32,12 @@ ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
 }
 
 // GetWatching gets the watching entry for an anime from the
-// database.
+// database.  This function's error implements Error.
 func GetWatching(db *sql.DB, aid int) (Watching, error) {
 	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
 	var w Watching
 	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-		return w, err
+		return w, qErr{err}
 	}
 	return w, nil
 }
