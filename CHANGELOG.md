@@ -1,12 +1,15 @@
 # Changelog
 
-## 0.15.0
+## 0.15.0 - 2018-09-16
 
-### Fixed
+### Added
 
 * `add` command now waits two seconds between queries per AniDB API
   requirements.
 * New `-incomplete` flag for `add` command.
+
+### Fixed
+
 * `watch` command handles invalid input now.
 
 ## 0.14.0 - 2018-09-02
