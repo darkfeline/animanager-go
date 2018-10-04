@@ -31,31 +31,31 @@ import (
 	"go.felesatra.moe/animanager/internal/anidb/titles"
 )
 
-type TitleSearch struct {
+type Search struct {
 	skipCache bool
 }
 
-func (*TitleSearch) Name() string     { return "titlesearch" }
-func (*TitleSearch) Synopsis() string { return "Search for an anime title." }
-func (*TitleSearch) Usage() string {
-	return `Usage: titlesearch terms...
+func (*Search) Name() string     { return "search" }
+func (*Search) Synopsis() string { return "Search for an anime title." }
+func (*Search) Usage() string {
+	return `Usage: search terms...
 Search for an anime title.
 `
 }
 
-func (t *TitleSearch) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&t.skipCache, "skipcache", false, "Ignore local titles cache.")
+func (s *Search) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&s.skipCache, "skipcache", false, "Ignore local titles cache.")
 }
 
-func (t *TitleSearch) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if f.NArg() == 0 {
-		fmt.Fprint(os.Stderr, t.Usage())
+		fmt.Fprint(os.Stderr, s.Usage())
 		return subcommands.ExitUsageError
 	}
 	terms := f.Args()
 	var ts []anidb.AnimeT
 	var err error
-	if t.skipCache {
+	if s.skipCache {
 		ts, err = titles.GetSkipCache()
 	} else {
 		ts, err = titles.Get()

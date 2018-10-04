@@ -5,6 +5,7 @@
 ### Changed
 
 * `watchable` only prints the next episode instead of the next three.
+* `titlesearch` command renamed to `search`.
 
 ## 0.15.0 - 2018-09-16
 
