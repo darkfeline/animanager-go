@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.16.0
+
+### Changed
+
+* `watchable` only prints the next episode instead of the next three.
+
 ## 0.15.0 - 2018-09-16
 
 ### Added

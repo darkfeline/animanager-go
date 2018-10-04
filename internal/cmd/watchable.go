@@ -68,7 +68,7 @@ func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface
 	return subcommands.ExitSuccess
 }
 
-const watchableEpsPrintLimit = 3
+const watchableEpsPrintLimit = 1
 
 func showWatchable(db *sql.DB, all bool) error {
 	bw := bufio.NewWriter(os.Stdout)
