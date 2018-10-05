@@ -9,6 +9,7 @@
 ### Changed
 
 * `watchable` only prints the next episode instead of the next three.
+* `watchable` now skips credit episode types (OP/ED).
 * `titlesearch` command renamed to `search`.
 
 ## 0.15.0 - 2018-09-16
