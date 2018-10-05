@@ -33,19 +33,21 @@ import (
 )
 
 type Watchable struct {
-	all bool
+	all     bool
+	missing bool
 }
 
 func (*Watchable) Name() string     { return "watchable" }
 func (*Watchable) Synopsis() string { return "Show watchable anime." }
 func (*Watchable) Usage() string {
-	return `Usage: watchable [-all]
+	return `Usage: watchable [-all] [-missing]
 Show watchable anime.
 `
 }
 
 func (w *Watchable) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&w.all, "all", false, "Show all files")
+	f.BoolVar(&w.missing, "missing", false, "Show next episodes missing files")
 }
 
 func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
@@ -61,16 +63,14 @@ func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	if err := showWatchable(db, w.all); err != nil {
+	if err := showWatchable(db, *w); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
 }
 
-const watchableEpsPrintLimit = 1
-
-func showWatchable(db *sql.DB, all bool) error {
+func showWatchable(db *sql.DB, c Watchable) error {
 	bw := bufio.NewWriter(os.Stdout)
 	defer bw.Flush()
 	ws, err := query.GetAllWatching(db)
@@ -78,50 +78,62 @@ func showWatchable(db *sql.DB, all bool) error {
 		return err
 	}
 	for _, w := range ws {
-		var printed int
-		afs, err := getAnimeFiles(db, w.AID)
-		if err != nil {
+		if err := showWatchableSingle(db, c, bw, w); err != nil {
 			return err
 		}
-		for i, e := range afs.Episodes {
-			// Skip if done.
-			if e.UserWatched && !all {
-				continue
+	}
+	return nil
+}
+
+const watchableEpsPrintLimit = 1
+
+func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watching) error {
+	var printed int
+	afs, err := getAnimeFiles(db, w.AID)
+	if err != nil {
+		return err
+	}
+	for i, e := range afs.Episodes {
+		// Skip if done.
+		if e.UserWatched && !c.all {
+			continue
+		}
+		fs := afs.Files[i]
+		// Skip if no files.
+		if len(fs) == 0 && !c.missing {
+			continue
+		}
+		// If we have already printed enough episodes,
+		// stop looping and just print that there are
+		// more.
+		if !c.all && printed >= watchableEpsPrintLimit {
+			fmt.Fprint(bw, "MORE\t...\n")
+			break
+		}
+		// Print anime and previous episode if we are
+		// printing the first episode for an anime.
+		if printed == 0 {
+			a, err := query.GetAnime(db, w.AID)
+			if err != nil {
+				return err
 			}
-			fs := afs.Files[i]
-			// Skip if no files.
-			if len(fs) == 0 {
-				continue
-			}
-			// If we have already printed enough episodes,
-			// stop looping and just print that there are
-			// more.
-			if !all && printed >= watchableEpsPrintLimit {
-				fmt.Fprint(bw, "MORE\t...\n")
-				break
-			}
-			// Print anime and previous episode if we are
-			// printing the first episode for an anime.
-			if printed == 0 {
-				a, err := query.GetAnime(db, w.AID)
-				if err != nil {
-					return err
-				}
-				printAnimeShort(bw, a)
-				if i > 0 {
-					e := afs.Episodes[i-1]
-					printEpisode(bw, e)
-				}
-			}
-			printEpisode(bw, e)
-			printed++
-			for _, f := range fs {
-				fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
+			printAnimeShort(bw, a)
+			if i > 0 {
+				e := afs.Episodes[i-1]
+				printEpisode(bw, e)
 			}
 		}
-		if printed > 0 {
-			fmt.Fprintln(bw)
+		printEpisode(bw, e)
+		printed++
+		for _, f := range fs {
+			fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
 		}
+		if len(fs) == 0 {
+			fmt.Fprintf(bw, "\t\t  <NO FILES>\n")
+		}
+	}
+	if printed > 0 {
+		fmt.Fprintln(bw)
 	}
 	return nil
 }

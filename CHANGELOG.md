@@ -2,6 +2,10 @@
 
 ## 0.16.0
 
+### Added
+
+* Added `-missing` flag to `watchable` command.
+
 ### Changed
 
 * `watchable` only prints the next episode instead of the next three.
