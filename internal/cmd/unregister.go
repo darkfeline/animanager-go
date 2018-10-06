@@ -36,7 +36,7 @@ type Unregister struct {
 func (*Unregister) Name() string     { return "unregister" }
 func (*Unregister) Synopsis() string { return "Unregister an anime." }
 func (*Unregister) Usage() string {
-	return `Usage: unregister aid
+	return `Usage: unregister aid...
 Unregister an anime.
 `
 }
@@ -45,14 +45,18 @@ func (*Unregister) SetFlags(f *flag.FlagSet) {
 }
 
 func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	if f.NArg() != 1 {
+	if f.NArg() < 1 {
 		fmt.Fprint(os.Stderr, u.Usage())
 		return subcommands.ExitUsageError
 	}
-	aid, err := strconv.Atoi(f.Arg(0))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
-		return subcommands.ExitUsageError
+	var aids []int
+	for _, s := range f.Args() {
+		aid, err := strconv.Atoi(s)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
+			return subcommands.ExitUsageError
+		}
+		aids = append(aids, aid)
 	}
 
 	c := getConfig(x)
@@ -62,9 +66,11 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	if err := query.DeleteWatching(db, aid); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+	for _, aid := range aids {
+		if err := query.DeleteWatching(db, aid); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			return subcommands.ExitFailure
+		}
 	}
 	return subcommands.ExitSuccess
 }
