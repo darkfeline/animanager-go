@@ -95,7 +95,7 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 	}
 	for i, e := range afs.Episodes {
 		// Skip uninteresting episode types.
-		if e.Type == query.EpCredit {
+		if e.Type == query.EpCredit || e.Type == query.EpTrailer {
 			continue
 		}
 		// Skip if done.

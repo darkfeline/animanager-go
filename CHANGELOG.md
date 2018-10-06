@@ -9,7 +9,7 @@
 ### Changed
 
 * `watchable` only prints the next episode instead of the next three.
-* `watchable` now skips credit episode types (OP/ED).
+* `watchable` now skips credit and trailer episode types (OP/ED/PV).
 * `titlesearch` command renamed to `search`.
 * `unregister` now accepts multiple aids.
 
