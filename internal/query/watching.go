@@ -37,7 +37,7 @@ func GetWatching(db *sql.DB, aid int) (Watching, error) {
 	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
 	var w Watching
 	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-		return w, qErr{err}
+		return w, errors.Wrapf(err, "GetWatching %d", aid)
 	}
 	return w, nil
 }
