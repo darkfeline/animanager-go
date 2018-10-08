@@ -3,7 +3,7 @@ package query
 import (
 	"database/sql"
 
-	"github.com/pkg/errors"
+	"go.felesatra.moe/go2/errors"
 )
 
 type Watching struct {
