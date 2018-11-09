@@ -21,8 +21,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"go.felesatra.moe/anidb"
+	"go.felesatra.moe/go2/errors"
+
 	"go.felesatra.moe/animanager/internal/date"
 )
 

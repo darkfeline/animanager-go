@@ -27,8 +27,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mattn/go-sqlite3"
-	"github.com/pkg/errors"
+	sqlite3 "github.com/mattn/go-sqlite3"
+	"go.felesatra.moe/go2/errors"
+
 	"go.felesatra.moe/animanager/internal/migrate"
 )
 

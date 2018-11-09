@@ -25,7 +25,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/pkg/errors"
+	"go.felesatra.moe/go2/errors"
 )
 
 // Logger is used by this package for logging.

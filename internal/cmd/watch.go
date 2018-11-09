@@ -28,7 +28,7 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"github.com/pkg/errors"
+	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
@@ -151,5 +151,5 @@ func watchAnime(c config.Config, db *sql.DB, aid int) error {
 		}
 		return watchEpisode(c, db, e.ID)
 	}
-	return errors.Errorf("no unwatched episodes for %d", aid)
+	return fmt.Errorf("no unwatched episodes for %d", aid)
 }

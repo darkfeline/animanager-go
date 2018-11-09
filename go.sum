@@ -10,5 +10,5 @@ go.felesatra.moe/anidb v0.0.0-20180812055748-831f2a906388 h1:TTGRE7rqGuf4sKtLiLZ
 go.felesatra.moe/anidb v0.0.0-20180812055748-831f2a906388/go.mod h1:xG8R+dA65Vq2jE/jXwyQTMqjBsHNh9clxVwmpyNA6m8=
 go.felesatra.moe/go2/errors v0.0.0-20181006025642-9fd4afa26990 h1:Ii6vCCVkzSxZ0Wf0ltoeiPOO2ppOBeiNydWKw9s2rwo=
 go.felesatra.moe/go2/errors v0.0.0-20181006025642-9fd4afa26990/go.mod h1:jK9foHSHVKNg0IVpyLZXFiBIA44yuxca2+wlgCyP2uQ=
-go.felesatra.moe/xdg v0.0.0-20180609034518-93689817508c h1:zt7KbW62b86ogHGvbq4TlxM5AWgwkxvSfjkoVgUTdNw=
-go.felesatra.moe/xdg v0.0.0-20180609034518-93689817508c/go.mod h1:PA/TEhZdEMC3MpbKiuYdx3i8QbsiXhzQPBZLT557LVg=
+go.felesatra.moe/xdg v0.0.0-20180916213731-249cb5fe4f69 h1:ypwJJaXoWOILIxpwGevO/gGsRhuTFM6VIsiNLY1t++g=
+go.felesatra.moe/xdg v0.0.0-20180916213731-249cb5fe4f69/go.mod h1:PA/TEhZdEMC3MpbKiuYdx3i8QbsiXhzQPBZLT557LVg=
