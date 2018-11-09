@@ -59,7 +59,6 @@ func main() {
 	if debug {
 		setupDebug()
 	}
-	setup(debug)
 	ctx := context.Background()
 	c, err := config.New(configPath)
 	if err != nil {
