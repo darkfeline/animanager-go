@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/subcommands"
+	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/anidb/titles"
 	"go.felesatra.moe/animanager/internal/cmd"
@@ -55,7 +56,10 @@ func main() {
 	subcommands.Register(&cmd.Watch{}, "")
 	subcommands.Register(&cmd.Watchable{}, "")
 	flag.Parse()
-	setupLog(debug)
+	if debug {
+		setupDebug()
+	}
+	setup(debug)
 	ctx := context.Background()
 	c, err := config.New(configPath)
 	if err != nil {
@@ -64,12 +68,13 @@ func main() {
 	os.Exit(int(subcommands.Execute(ctx, c)))
 }
 
-func setupLog(debug bool) {
-	if !debug {
-		return
-	}
+func setupDebug() {
 	cmd.Logger.SetOutput(os.Stderr)
 	database.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetOutput(os.Stderr)
 	titles.Logger.SetOutput(os.Stderr)
+
+	cmd.PrintError = func(err error) {
+		fmt.Fprintln(os.Stderr, errors.Format(err, true))
+	}
 }

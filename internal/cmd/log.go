@@ -23,6 +23,6 @@ var PrintError func(error) = func(err error) {
 	if errors.AsValue(err2, err) {
 		fmt.Fprintln(os.Stderr, err2.UserError())
 	} else {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, errors.Format(err, false))
 	}
 }
