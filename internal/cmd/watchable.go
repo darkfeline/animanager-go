@@ -23,12 +23,12 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/obf"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -121,7 +121,7 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 			if err != nil {
 				return err
 			}
-			printAnimeShort(bw, a)
+			obf.PrintAnimeShort(bw, a)
 			if i > 0 {
 				e := afs.Episodes[i-1]
 				printEpisode(bw, e)
@@ -166,8 +166,4 @@ func getAnimeFiles(db *sql.DB, aid int) (afs animeFiles, err error) {
 type animeFiles struct {
 	Episodes []query.Episode
 	Files    [][]query.EpisodeFile
-}
-
-func printAnimeShort(w io.Writer, a *query.Anime) {
-	fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
 }

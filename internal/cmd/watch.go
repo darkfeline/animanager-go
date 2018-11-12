@@ -33,6 +33,7 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/input"
+	"go.felesatra.moe/animanager/internal/obf"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -140,7 +141,7 @@ func watchAnime(c config.Config, db *sql.DB, aid int) error {
 	if err != nil {
 		return errors.Wrap(err, "get anime")
 	}
-	printAnimeShort(os.Stdout, a)
+	obf.PrintAnimeShort(os.Stdout, a)
 	eps, err := query.GetEpisodes(db, aid)
 	if err != nil {
 		return err
