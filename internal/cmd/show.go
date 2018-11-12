@@ -31,7 +31,7 @@ import (
 	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obf"
+	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -72,7 +72,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	bw := bufio.NewWriter(os.Stdout)
-	obf.PrintAnime(bw, a)
+	obx.PrintAnime(bw, a)
 	w, err := query.GetWatching(db, aid)
 	switch {
 	case err == nil:
@@ -89,7 +89,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	for _, e := range es {
-		obf.PrintEpisode(bw, e)
+		obx.PrintEpisode(bw, e)
 	}
 	bw.Flush()
 	return subcommands.ExitSuccess

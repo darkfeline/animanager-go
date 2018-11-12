@@ -28,7 +28,6 @@ import (
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obf"
 	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -122,12 +121,12 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, aid int) err
 		// Print anime and previous episode if we are
 		// printing the first episode for an anime.
 		if printed == 0 {
-			obf.PrintAnimeShort(bw, a)
+			obx.PrintAnimeShort(bw, a)
 			if i > 0 {
-				obf.PrintEpisode(bw, efs[i-1].Episode)
+				obx.PrintEpisode(bw, efs[i-1].Episode)
 			}
 		}
-		obf.PrintEpisode(bw, e)
+		obx.PrintEpisode(bw, e)
 		printed++
 		for _, f := range ef.Files {
 			fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
