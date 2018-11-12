@@ -124,10 +124,10 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 			obf.PrintAnimeShort(bw, a)
 			if i > 0 {
 				e := afs.Episodes[i-1]
-				printEpisode(bw, e)
+				obf.PrintEpisode(bw, e)
 			}
 		}
-		printEpisode(bw, e)
+		obf.PrintEpisode(bw, e)
 		printed++
 		for _, f := range fs {
 			fmt.Fprintf(bw, "\t\t  %s\n", f.Path)

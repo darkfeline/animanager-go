@@ -30,6 +30,7 @@ import (
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/obf"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -87,7 +88,7 @@ func showAnimeFiles(w io.Writer, db *sql.DB, aid int) error {
 		return err
 	}
 	for _, e := range eps {
-		printEpisode(w, e)
+		obf.PrintEpisode(w, e)
 		efs, err := query.GetEpisodeFiles(db, e.ID)
 		if err != nil {
 			return err

@@ -28,3 +28,16 @@ import (
 func PrintAnimeShort(w io.Writer, a *query.Anime) {
 	fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
 }
+
+func PrintEpisode(w io.Writer, e query.Episode) {
+	fmt.Fprintf(w, "%d\t", e.ID)
+	fmt.Fprintf(w, "%s%d\t", e.Type.Prefix(), e.Number)
+	if e.UserWatched {
+		fmt.Fprintf(w, "W ")
+	} else {
+		fmt.Fprintf(w, ". ")
+	}
+	fmt.Fprintf(w, "%s\t", e.Title)
+	fmt.Fprintf(w, "(%d min)", e.Length)
+	fmt.Fprintf(w, "\n")
+}

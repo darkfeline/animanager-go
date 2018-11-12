@@ -31,6 +31,7 @@ import (
 	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/obf"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -88,7 +89,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	for _, e := range es {
-		printEpisode(bw, e)
+		obf.PrintEpisode(bw, e)
 	}
 	bw.Flush()
 	return subcommands.ExitSuccess
@@ -101,17 +102,4 @@ func printAnime(w io.Writer, a *query.Anime) {
 	fmt.Fprintf(w, "Episodes: %d\n", a.EpisodeCount)
 	fmt.Fprintf(w, "Start date: %s\n", a.StartDate())
 	fmt.Fprintf(w, "End date: %s\n", a.EndDate())
-}
-
-func printEpisode(w io.Writer, e query.Episode) {
-	fmt.Fprintf(w, "%d\t", e.ID)
-	fmt.Fprintf(w, "%s%d\t", e.Type.Prefix(), e.Number)
-	if e.UserWatched {
-		fmt.Fprintf(w, "W ")
-	} else {
-		fmt.Fprintf(w, ". ")
-	}
-	fmt.Fprintf(w, "%s\t", e.Title)
-	fmt.Fprintf(w, "(%d min)", e.Length)
-	fmt.Fprintf(w, "\n")
 }

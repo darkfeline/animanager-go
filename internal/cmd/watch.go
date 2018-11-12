@@ -88,7 +88,7 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	if err != nil {
 		return errors.Wrap(err, "get episode")
 	}
-	printEpisode(os.Stdout, *e)
+	obf.PrintEpisode(os.Stdout, *e)
 	fs, err := query.GetEpisodeFiles(db, id)
 	if err != nil {
 		return err
