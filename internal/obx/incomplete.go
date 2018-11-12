@@ -32,7 +32,15 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 	}
 	var r []int
 	for _, aid := range aids {
-		ok, err := isIncomplete(db, aid)
+		a, err := query.GetAnime(db, aid)
+		if err != nil {
+			return nil, fmt.Errorf("get incomplete anime: %s", err)
+		}
+		eps, err := query.GetEpisodes(db, aid)
+		if err != nil {
+			return nil, fmt.Errorf("get incomplete anime: %s", err)
+		}
+		ok, err := isIncomplete(a, eps)
 		if err != nil {
 			return nil, fmt.Errorf("get incomplete anime: %s", err)
 		}
@@ -43,15 +51,7 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 	return r, nil
 }
 
-func isIncomplete(db *sql.DB, aid int) (bool, error) {
-	a, err := query.GetAnime(db, aid)
-	if err != nil {
-		return false, fmt.Errorf("check %d completion: %s", aid, err)
-	}
-	eps, err := query.GetEpisodes(db, aid)
-	if err != nil {
-		return false, fmt.Errorf("check %d completion: %s", aid, err)
-	}
+func isIncomplete(a *query.Anime, eps []query.Episode) (bool, error) {
 	var rEps []query.Episode
 	var unnamed int
 	for _, e := range eps {
