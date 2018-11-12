@@ -136,22 +136,22 @@ func refreshFiles(db *sql.DB, files []string) error {
 	if err := query.DeleteEpisodeFiles(db); err != nil {
 		return errors.Wrap(err, "refresh files")
 	}
+	var efs []epFile
+	Logger.Print("Matching files")
 	for _, w := range ws {
-		Logger.Printf("Adding files for %d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
 			return errors.Wrap(err, "refresh files")
 		}
-		efs, err := filterFiles(w, eps, files)
+		efs2, err := filterFiles(w, eps, files)
 		if err != nil {
 			return errors.Wrap(err, "refresh files")
 		}
-		if err := insertEpisodeFiles(db, efs); err != nil {
-			return errors.Wrap(err, "refresh files")
-		}
-		Logger.Printf("Finished adding files for %d", w.AID)
+		efs = append(efs, efs2...)
 	}
-	return nil
+	Logger.Print("Inserting files")
+	err = insertEpisodeFiles(db, efs)
+	return errors.Wrap(err, "refresh files")
 }
 
 type epFile struct {
