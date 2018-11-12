@@ -30,6 +30,7 @@ import (
 
 	"go.felesatra.moe/animanager/internal/anidb"
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -74,7 +75,7 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 	}
 	defer db.Close()
 	if a.addIncomplete {
-		as, err := getIncompleteAnime(db)
+		as, err := obx.GetIncompleteAnime(db)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			return subcommands.ExitFailure
@@ -91,64 +92,6 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 		}
 	}
 	return subcommands.ExitSuccess
-}
-
-func getIncompleteAnime(db *sql.DB) ([]int, error) {
-	aids, err := query.GetAIDs(db)
-	if err != nil {
-		return nil, fmt.Errorf("get incomplete anime: %s", err)
-	}
-	var r []int
-	for _, aid := range aids {
-		ok, err := isIncomplete(db, aid)
-		if err != nil {
-			return nil, fmt.Errorf("get incomplete anime: %s", err)
-		}
-		if ok {
-			r = append(r, aid)
-		}
-	}
-	return r, nil
-}
-
-func isIncomplete(db *sql.DB, aid int) (bool, error) {
-	a, err := query.GetAnime(db, aid)
-	if err != nil {
-		return false, fmt.Errorf("check %d completion: %s", aid, err)
-	}
-	eps, err := query.GetEpisodes(db, aid)
-	if err != nil {
-		return false, fmt.Errorf("check %d completion: %s", aid, err)
-	}
-	var rEps []query.Episode
-	var unnamed int
-	for _, e := range eps {
-		if e.Type != query.EpRegular {
-			continue
-		}
-		rEps = append(rEps, e)
-		if isUnnamed(e) {
-			unnamed += 1
-		} else {
-			// Unnamed episodes followed by named episodes
-			// are probably just missing the episode title
-			// entirely, so don't count them.
-			unnamed = 0
-		}
-	}
-	if len(rEps) < a.EpisodeCount {
-		return true, nil
-	}
-	// This is just a heuristic, some shows only have titles for
-	// first/last episode.
-	if unnamed > 0 && unnamed < a.EpisodeCount-2 {
-		return true, nil
-	}
-	return false, nil
-}
-
-func isUnnamed(e query.Episode) bool {
-	return len(e.Title) > 8 && e.Title[:8] == "Episode "
 }
 
 func addAnime(db *sql.DB, aid int) error {
