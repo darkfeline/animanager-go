@@ -92,8 +92,6 @@ func showWatchable(db *sql.DB, o obx.PrintWatchableOption) error {
 	return nil
 }
 
-const watchableEpsPrintLimit = 1
-
 func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o obx.PrintWatchableOption) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
