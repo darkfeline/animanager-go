@@ -26,7 +26,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"sync"
 
 	"github.com/google/subcommands"
 	"go.felesatra.moe/go2/errors"
@@ -137,30 +136,20 @@ func refreshFiles(db *sql.DB, files []string) error {
 	if err := query.DeleteEpisodeFiles(db); err != nil {
 		return errors.Wrap(err, "refresh files")
 	}
-
-	var wg sync.WaitGroup
-	epChan := make(chan epFile)
-	errChan := make(chan error)
 	for _, w := range ws {
-		Logger.Printf("Finding registered files for %d", w.AID)
+		Logger.Printf("Adding files for %d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
 			return errors.Wrap(err, "refresh files")
 		}
-		wg.Add(1)
-		go func(w query.Watching) {
-			findRegisteredFiles(w, eps, files, epChan, errChan)
-			Logger.Printf("Finished finding registered files for %d", w.AID)
-			wg.Done()
-		}(w)
-	}
-	go func() {
-		wg.Wait()
-		close(epChan)
-	}()
-	go insertEpisodeFiles(db, epChan, errChan)
-	for err := range errChan {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		efs, err := filterFiles(w, eps, files)
+		if err != nil {
+			return errors.Wrap(err, "refresh files")
+		}
+		if err := insertEpisodeFiles(db, efs); err != nil {
+			return errors.Wrap(err, "refresh files")
+		}
+		Logger.Printf("Finished adding files for %d", w.AID)
 	}
 	return nil
 }
@@ -170,14 +159,12 @@ type epFile struct {
 	Path string
 }
 
-// findRegisteredFiles sends files that match the watching entry as
-// epFiles to the output channel.  Errors are sent to the error
-// channel.
-func findRegisteredFiles(w query.Watching, eps []query.Episode, files []string, c chan<- epFile, e chan<- error) {
+// filterFiles returns files that match the watching entry.
+func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]epFile, error) {
+	var result []epFile
 	r, err := regexp.Compile("(?i)" + w.Regexp)
 	if err != nil {
-		e <- err
-		return
+		return nil, errors.Wrapf(err, "filter files for %d", w.AID)
 	}
 	regEps := make([]query.Episode, maxEpisodeNumber(eps)+1)
 	for _, e := range eps {
@@ -191,23 +178,25 @@ func findRegisteredFiles(w query.Watching, eps []query.Episode, files []string, 
 			continue
 		}
 		if len(ms) < 2 {
-			e <- fmt.Errorf("regexp %#v has no submatch", w.Regexp)
-			return
+			return nil, fmt.Errorf("filter files for %d: regexp %#v has no submatch",
+				w.AID, w.Regexp)
+
 		}
 		n, err := strconv.Atoi(ms[1])
 		if err != nil {
-			e <- fmt.Errorf("regexp %#v submatch not a number", w.Regexp)
-			return
+			return nil, fmt.Errorf("filter files for %d: regexp %#v submatch not a number",
+				w.AID, w.Regexp)
 		}
 		n += w.Offset
 		if n >= len(regEps) {
 			continue
 		}
-		c <- epFile{
+		result = append(result, epFile{
 			ID:   regEps[n].ID,
 			Path: f,
-		}
+		})
 	}
+	return result, nil
 }
 
 func maxEpisodeNumber(eps []query.Episode) int {
@@ -220,15 +209,12 @@ func maxEpisodeNumber(eps []query.Episode) int {
 	return maxEp
 }
 
-// insertEpisodeFiles inserts received episodes files from the channel
-// and inserts them into the database.  Errors are sent to the error
-// channel.  This function returns when the input channel is closed.
-// The error channel is closed at the end.
-func insertEpisodeFiles(db *sql.DB, c <-chan epFile, e chan<- error) {
-	for ep := range c {
-		if err := query.InsertEpisodeFile(db, ep.ID, ep.Path); err != nil {
-			e <- err
+// insertEpisodeFiles inserts episode files into the database.
+func insertEpisodeFiles(db *sql.DB, efs []epFile) error {
+	for _, ef := range efs {
+		if err := query.InsertEpisodeFile(db, ef.ID, ef.Path); err != nil {
+			return errors.Wrap(err, "inserting episode files")
 		}
 	}
-	close(e)
+	return nil
 }

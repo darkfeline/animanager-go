@@ -21,7 +21,7 @@ func TestMaxEpisodeNumber(t *testing.T) {
 	}
 }
 
-func TestFindRegisteredFiles(t *testing.T) {
+func TestFilterFiles(t *testing.T) {
 	w := query.Watching{
 		Regexp: "lacia([0-9]+)",
 	}
@@ -39,18 +39,9 @@ func TestFindRegisteredFiles(t *testing.T) {
 		"/foo/lacia5",
 		"/foo/lacia13",
 	}
-	c := make(chan epFile, 10)
-	e := make(chan error, 2)
-	findRegisteredFiles(w, eps, files, c, e)
-	close(c)
-	close(e)
-	var got []epFile
-	for e := range c {
-		got = append(got, e)
-	}
-	var errs []error
-	for e := range e {
-		errs = append(errs, e)
+	got, err := filterFiles(w, eps, files)
+	if err != nil {
+		t.Errorf("filterFiles returned error: %#v", err)
 	}
 	want := []epFile{
 		{ID: 1, Path: "/foo/lacia1"},
@@ -59,9 +50,6 @@ func TestFindRegisteredFiles(t *testing.T) {
 		{ID: 3, Path: "/foo/lacia5"},
 	}
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("findRegisteredFiles() = %#v; want %#v", got, want)
-	}
-	if len(errs) > 0 {
-		t.Errorf("findRegisteredFiles returned errors %#v", errs)
+		t.Errorf("filterFiles() = %#v; want %#v", got, want)
 	}
 }
