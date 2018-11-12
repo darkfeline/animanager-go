@@ -10,16 +10,21 @@ type EpisodeFile struct {
 	Path      string
 }
 
-// InsertEpisodeFile inserts a file for an episode into the database.
-func InsertEpisodeFile(db *sql.DB, id int, path string) error {
+// InsertEpisodeFile inserts episode files into the database.
+func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 	t, err := db.Begin()
 	if err != nil {
 		return err
 	}
 	defer t.Rollback()
-	_, err = t.Exec(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`, id, path)
+	s, err := t.Prepare(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`)
 	if err != nil {
-		return fmt.Errorf("insert episode %d file for %s: %s", id, path, err)
+		return err
+	}
+	for _, ef := range efs {
+		if _, err = s.Exec(ef.EpisodeID, ef.Path); err != nil {
+			return err
+		}
 	}
 	return t.Commit()
 }

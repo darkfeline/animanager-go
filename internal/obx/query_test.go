@@ -51,7 +51,8 @@ func TestGetAnimeFiles(t *testing.T) {
 	if err := query.InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	if err := query.InsertEpisodeFile(db, 1, "/foobar"); err != nil {
+	efs := []query.EpisodeFile{{EpisodeID: 1, Path: "/foobar"}}
+	if err := query.InsertEpisodeFiles(db, efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
 	got, err := GetAnimeFiles(db, aid)

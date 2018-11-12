@@ -137,7 +137,7 @@ func refreshFiles(db *sql.DB, files []string) error {
 	if err := query.DeleteEpisodeFiles(db); err != nil {
 		return errors.Wrap(err, "refresh files")
 	}
-	var efs []epFile
+	var efs []query.EpisodeFile
 	Logger.Print("Matching files")
 	for _, w := range ws {
 		eps, err := query.GetEpisodes(db, w.AID)
@@ -151,18 +151,13 @@ func refreshFiles(db *sql.DB, files []string) error {
 		efs = append(efs, efs2...)
 	}
 	Logger.Print("Inserting files")
-	err = insertEpisodeFiles(db, efs)
+	err = query.InsertEpisodeFiles(db, efs)
 	return errors.Wrap(err, "refresh files")
 }
 
-type epFile struct {
-	ID   int
-	Path string
-}
-
 // filterFiles returns files that match the watching entry.
-func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]epFile, error) {
-	var result []epFile
+func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query.EpisodeFile, error) {
+	var result []query.EpisodeFile
 	r, err := regexp.Compile("(?i)" + w.Regexp)
 	if err != nil {
 		return nil, errors.Wrapf(err, "filter files for %d", w.AID)
@@ -187,20 +182,10 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]epFil
 		if n >= len(regEps) {
 			continue
 		}
-		result = append(result, epFile{
-			ID:   regEps[n].ID,
-			Path: f,
+		result = append(result, query.EpisodeFile{
+			EpisodeID: regEps[n].ID,
+			Path:      f,
 		})
 	}
 	return result, nil
-}
-
-// insertEpisodeFiles inserts episode files into the database.
-func insertEpisodeFiles(db *sql.DB, efs []epFile) error {
-	for _, ef := range efs {
-		if err := query.InsertEpisodeFile(db, ef.ID, ef.Path); err != nil {
-			return errors.Wrap(err, "inserting episode files")
-		}
-	}
-	return nil
 }
