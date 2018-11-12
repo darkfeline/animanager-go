@@ -76,44 +76,6 @@ func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 	return subcommands.ExitSuccess
 }
 
-// refreshFiles updates episode files using the given video file
-// paths.
-func refreshFiles(db *sql.DB, files []string) error {
-	ws, err := query.GetAllWatching(db)
-	if err != nil {
-		return errors.Wrap(err, "refresh files")
-	}
-	if err := query.DeleteEpisodeFiles(db); err != nil {
-		return errors.Wrap(err, "refresh files")
-	}
-
-	var wg sync.WaitGroup
-	epChan := make(chan epFile)
-	errChan := make(chan error)
-	for _, w := range ws {
-		Logger.Printf("Finding registered files for %d", w.AID)
-		eps, err := query.GetEpisodes(db, w.AID)
-		if err != nil {
-			return errors.Wrap(err, "refresh files")
-		}
-		wg.Add(1)
-		go func(w query.Watching) {
-			findRegisteredFiles(w, eps, files, epChan, errChan)
-			Logger.Printf("Finished finding registered files for %d", w.AID)
-			wg.Done()
-		}(w)
-	}
-	go func() {
-		wg.Wait()
-		close(epChan)
-	}()
-	go insertEpisodeFiles(db, epChan, errChan)
-	for err := range errChan {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	}
-	return nil
-}
-
 func findVideoFilesMany(dirs []string) ([]string, error) {
 	var result []string
 	for _, d := range dirs {
@@ -163,6 +125,44 @@ func isVideoFile(path string, fi os.FileInfo) bool {
 		}
 	}
 	return false
+}
+
+// refreshFiles updates episode files using the given video file
+// paths.
+func refreshFiles(db *sql.DB, files []string) error {
+	ws, err := query.GetAllWatching(db)
+	if err != nil {
+		return errors.Wrap(err, "refresh files")
+	}
+	if err := query.DeleteEpisodeFiles(db); err != nil {
+		return errors.Wrap(err, "refresh files")
+	}
+
+	var wg sync.WaitGroup
+	epChan := make(chan epFile)
+	errChan := make(chan error)
+	for _, w := range ws {
+		Logger.Printf("Finding registered files for %d", w.AID)
+		eps, err := query.GetEpisodes(db, w.AID)
+		if err != nil {
+			return errors.Wrap(err, "refresh files")
+		}
+		wg.Add(1)
+		go func(w query.Watching) {
+			findRegisteredFiles(w, eps, files, epChan, errChan)
+			Logger.Printf("Finished finding registered files for %d", w.AID)
+			wg.Done()
+		}(w)
+	}
+	go func() {
+		wg.Wait()
+		close(epChan)
+	}()
+	go insertEpisodeFiles(db, epChan, errChan)
+	for err := range errChan {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+	}
+	return nil
 }
 
 type epFile struct {
