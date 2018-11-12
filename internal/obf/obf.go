@@ -19,8 +19,11 @@
 package obf
 
 import (
+	"bufio"
 	"fmt"
 	"io"
+
+	"go.felesatra.moe/anidb"
 
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -36,6 +39,26 @@ func PrintAnime(w io.Writer, a *query.Anime) {
 
 func PrintAnimeShort(w io.Writer, a *query.Anime) {
 	fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
+}
+
+func PrintAnimeT(w io.Writer, ts []anidb.AnimeT) error {
+	bw := bufio.NewWriter(w)
+	for _, at := range ts {
+		fmt.Fprintf(bw, "%d\t", at.AID)
+		first := true
+		for _, t := range at.Titles {
+			if t.Lang != "x-jat" && t.Lang != "en" {
+				continue
+			}
+			if !first {
+				fmt.Fprint(bw, " | ")
+			}
+			fmt.Fprint(bw, t.Name)
+			first = false
+		}
+		fmt.Fprint(bw, "\n")
+	}
+	return bw.Flush()
 }
 
 func PrintEpisode(w io.Writer, e query.Episode) {

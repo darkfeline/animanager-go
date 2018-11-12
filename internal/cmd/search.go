@@ -18,17 +18,16 @@
 package cmd
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/google/subcommands"
 	"go.felesatra.moe/anidb"
 
 	"go.felesatra.moe/animanager/internal/anidb/titles"
+	"go.felesatra.moe/animanager/internal/obf"
 )
 
 type Search struct {
@@ -65,26 +64,6 @@ func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	ts = titles.Search(ts, terms)
-	printAnimeT(os.Stdout, ts)
+	obf.PrintAnimeT(os.Stdout, ts)
 	return subcommands.ExitSuccess
-}
-
-func printAnimeT(w io.Writer, ts []anidb.AnimeT) error {
-	bw := bufio.NewWriter(w)
-	for _, at := range ts {
-		fmt.Fprintf(bw, "%d\t", at.AID)
-		first := true
-		for _, t := range at.Titles {
-			if t.Lang != "x-jat" && t.Lang != "en" {
-				continue
-			}
-			if !first {
-				fmt.Fprint(bw, " | ")
-			}
-			fmt.Fprint(bw, t.Name)
-			first = false
-		}
-		fmt.Fprint(bw, "\n")
-	}
-	return bw.Flush()
 }
