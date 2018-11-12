@@ -15,5 +15,5 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package query provides database query functions.
+// Package query provides basic database query functions.
 package query
