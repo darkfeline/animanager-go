@@ -31,6 +31,7 @@ import (
 	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -166,12 +167,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]epFil
 	if err != nil {
 		return nil, errors.Wrapf(err, "filter files for %d", w.AID)
 	}
-	regEps := make([]query.Episode, maxEpisodeNumber(eps)+1)
-	for _, e := range eps {
-		if e.Type == query.EpRegular {
-			regEps[e.Number] = e
-		}
-	}
+	regEps := obx.MakeEpisodeMap(eps)
 	for _, f := range files {
 		ms := r.FindStringSubmatch(filepath.Base(f))
 		if ms == nil {
@@ -197,16 +193,6 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]epFil
 		})
 	}
 	return result, nil
-}
-
-func maxEpisodeNumber(eps []query.Episode) int {
-	maxEp := 0
-	for _, e := range eps {
-		if e.Type == query.EpRegular && e.Number > maxEp {
-			maxEp = e.Number
-		}
-	}
-	return maxEp
 }
 
 // insertEpisodeFiles inserts episode files into the database.
