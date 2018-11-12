@@ -77,8 +77,15 @@ func showWatchable(db *sql.DB, c Watchable) error {
 	if err != nil {
 		return err
 	}
+	o := obx.PrintWatchableOption{
+		IncludeWatched:      c.all,
+		IncludeMissingFiles: c.missing,
+	}
+	if c.all {
+		o.NumWatchable = -1
+	}
 	for _, w := range ws {
-		if err := showWatchableSingle(db, c, bw, w.AID); err != nil {
+		if err := showWatchableSingle(db, bw, w.AID, o); err != nil {
 			return err
 		}
 	}
@@ -87,7 +94,7 @@ func showWatchable(db *sql.DB, c Watchable) error {
 
 const watchableEpsPrintLimit = 1
 
-func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, aid int) error {
+func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o obx.PrintWatchableOption) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return err
@@ -95,13 +102,6 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, aid int) err
 	efs, err := obx.GetAnimeFiles(db, aid)
 	if err != nil {
 		return err
-	}
-	o := obx.PrintWatchableOption{
-		IncludeWatched:      c.all,
-		IncludeMissingFiles: c.missing,
-	}
-	if c.all {
-		o.NumWatchable = -1
 	}
 	return obx.PrintWatchable(os.Stdout, a, efs, o)
 }
