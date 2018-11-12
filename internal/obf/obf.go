@@ -28,17 +28,20 @@ import (
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-func PrintAnime(w io.Writer, a *query.Anime) {
-	fmt.Fprintf(w, "AID: %d\n", a.AID)
-	fmt.Fprintf(w, "Title: %s\n", a.Title)
-	fmt.Fprintf(w, "Type: %s\n", a.Type)
-	fmt.Fprintf(w, "Episodes: %d\n", a.EpisodeCount)
-	fmt.Fprintf(w, "Start date: %s\n", a.StartDate())
-	fmt.Fprintf(w, "End date: %s\n", a.EndDate())
+func PrintAnime(w io.Writer, a *query.Anime) error {
+	bw := bufio.NewWriter(w)
+	fmt.Fprintf(bw, "AID: %d\n", a.AID)
+	fmt.Fprintf(bw, "Title: %s\n", a.Title)
+	fmt.Fprintf(bw, "Type: %s\n", a.Type)
+	fmt.Fprintf(bw, "Episodes: %d\n", a.EpisodeCount)
+	fmt.Fprintf(bw, "Start date: %s\n", a.StartDate())
+	fmt.Fprintf(bw, "End date: %s\n", a.EndDate())
+	return bw.Flush()
 }
 
-func PrintAnimeShort(w io.Writer, a *query.Anime) {
-	fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
+func PrintAnimeShort(w io.Writer, a *query.Anime) error {
+	_, err := fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
+	return err
 }
 
 func PrintAnimeT(w io.Writer, ts []anidb.AnimeT) error {
@@ -61,15 +64,17 @@ func PrintAnimeT(w io.Writer, ts []anidb.AnimeT) error {
 	return bw.Flush()
 }
 
-func PrintEpisode(w io.Writer, e query.Episode) {
-	fmt.Fprintf(w, "%d\t", e.ID)
-	fmt.Fprintf(w, "%s%d\t", e.Type.Prefix(), e.Number)
+func PrintEpisode(w io.Writer, e query.Episode) error {
+	bw := bufio.NewWriter(w)
+	fmt.Fprintf(bw, "%d\t", e.ID)
+	fmt.Fprintf(bw, "%s%d\t", e.Type.Prefix(), e.Number)
 	if e.UserWatched {
-		fmt.Fprintf(w, "W ")
+		fmt.Fprintf(bw, "W ")
 	} else {
-		fmt.Fprintf(w, ". ")
+		fmt.Fprintf(bw, ". ")
 	}
-	fmt.Fprintf(w, "%s\t", e.Title)
-	fmt.Fprintf(w, "(%d min)", e.Length)
-	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(bw, "%s\t", e.Title)
+	fmt.Fprintf(bw, "(%d min)", e.Length)
+	fmt.Fprintf(bw, "\n")
+	return bw.Flush()
 }
