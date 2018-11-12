@@ -88,7 +88,6 @@ func showWatchable(db *sql.DB, c Watchable) error {
 const watchableEpsPrintLimit = 1
 
 func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, aid int) error {
-	var printed int
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return err
@@ -97,46 +96,12 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, aid int) err
 	if err != nil {
 		return err
 	}
-	for i, ef := range efs {
-		e := ef.Episode
-		// Skip uninteresting episode types.
-		if e.Type == query.EpCredit || e.Type == query.EpTrailer {
-			continue
-		}
-		// Skip if done.
-		if e.UserWatched && !c.all {
-			continue
-		}
-		// Skip if no files.
-		if len(ef.Files) == 0 && !c.missing {
-			continue
-		}
-		// If we have already printed enough episodes,
-		// stop looping and just print that there are
-		// more.
-		if !c.all && printed >= watchableEpsPrintLimit {
-			fmt.Fprint(bw, "MORE\t...\n")
-			break
-		}
-		// Print anime and previous episode if we are
-		// printing the first episode for an anime.
-		if printed == 0 {
-			obx.PrintAnimeShort(bw, a)
-			if i > 0 {
-				obx.PrintEpisode(bw, efs[i-1].Episode)
-			}
-		}
-		obx.PrintEpisode(bw, e)
-		printed++
-		for _, f := range ef.Files {
-			fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
-		}
-		if len(ef.Files) == 0 {
-			fmt.Fprintf(bw, "\t\t  <NO FILES>\n")
-		}
+	o := obx.PrintWatchableOption{
+		IncludeWatched:      c.all,
+		IncludeMissingFiles: c.missing,
 	}
-	if printed > 0 {
-		fmt.Fprintln(bw)
+	if c.all {
+		o.NumWatchable = -1
 	}
-	return nil
+	return obx.PrintWatchable(os.Stdout, a, efs, o)
 }

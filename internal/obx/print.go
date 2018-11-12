@@ -77,3 +77,66 @@ func PrintEpisode(w io.Writer, e query.Episode) error {
 	fmt.Fprintf(bw, "\n")
 	return bw.Flush()
 }
+
+// PrintWatchableOption provides options for PrintWatchable.
+type PrintWatchableOption struct {
+	IncludeWatched      bool
+	IncludeMissingFiles bool
+	// NumWatchable is the number of watchable episodes to print.
+	// If zero, use the default value.  If negative, print all
+	// watchable episodes.
+	NumWatchable int
+}
+
+const defaultNumWatchable = 1
+
+// PrintWatchable prints the watchable episodes of an anime.
+func PrintWatchable(w io.Writer, a *query.Anime, efs []EpisodeFiles, o PrintWatchableOption) error {
+	if o.NumWatchable == 0 {
+		o.NumWatchable = defaultNumWatchable
+	}
+	bw := bufio.NewWriter(w)
+	var printed int
+	for i, ef := range efs {
+		e := ef.Episode
+		// Skip uninteresting episode types.
+		if e.Type == query.EpCredit || e.Type == query.EpTrailer {
+			continue
+		}
+		// Skip if done.
+		if e.UserWatched && !o.IncludeWatched {
+			continue
+		}
+		// Skip if no files.
+		if len(ef.Files) == 0 && !o.IncludeMissingFiles {
+			continue
+		}
+		// If we have already printed enough episodes,
+		// stop looping and just print that there are
+		// more.
+		if o.NumWatchable > 0 && printed >= o.NumWatchable {
+			fmt.Fprint(bw, "MORE\t...\n")
+			break
+		}
+		// Print anime and previous episode if we are
+		// printing the first episode for an anime.
+		if printed == 0 {
+			PrintAnimeShort(bw, a)
+			if i > 0 {
+				PrintEpisode(bw, efs[i-1].Episode)
+			}
+		}
+		PrintEpisode(bw, e)
+		printed++
+		for _, f := range ef.Files {
+			fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
+		}
+		if len(ef.Files) == 0 {
+			fmt.Fprintf(bw, "\t\t  <NO FILES>\n")
+		}
+	}
+	if printed > 0 {
+		fmt.Fprintln(bw)
+	}
+	return bw.Flush()
+}
