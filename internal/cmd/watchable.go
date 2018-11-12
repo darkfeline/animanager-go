@@ -90,6 +90,10 @@ const watchableEpsPrintLimit = 1
 
 func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watching) error {
 	var printed int
+	a, err := query.GetAnime(db, w.AID)
+	if err != nil {
+		return err
+	}
 	efs, err := obx.GetAnimeFiles(db, w.AID)
 	if err != nil {
 		return err
@@ -118,10 +122,6 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 		// Print anime and previous episode if we are
 		// printing the first episode for an anime.
 		if printed == 0 {
-			a, err := query.GetAnime(db, w.AID)
-			if err != nil {
-				return err
-			}
 			obf.PrintAnimeShort(bw, a)
 			if i > 0 {
 				obf.PrintEpisode(bw, efs[i-1].Episode)
