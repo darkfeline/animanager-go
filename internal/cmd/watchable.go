@@ -79,7 +79,7 @@ func showWatchable(db *sql.DB, c Watchable) error {
 		return err
 	}
 	for _, w := range ws {
-		if err := showWatchableSingle(db, c, bw, w); err != nil {
+		if err := showWatchableSingle(db, c, bw, w.AID); err != nil {
 			return err
 		}
 	}
@@ -88,13 +88,13 @@ func showWatchable(db *sql.DB, c Watchable) error {
 
 const watchableEpsPrintLimit = 1
 
-func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watching) error {
+func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, aid int) error {
 	var printed int
-	a, err := query.GetAnime(db, w.AID)
+	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return err
 	}
-	efs, err := obx.GetAnimeFiles(db, w.AID)
+	efs, err := obx.GetAnimeFiles(db, aid)
 	if err != nil {
 		return err
 	}
