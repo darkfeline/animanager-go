@@ -72,7 +72,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	bw := bufio.NewWriter(os.Stdout)
-	printAnime(bw, a)
+	obf.PrintAnime(bw, a)
 	w, err := query.GetWatching(db, aid)
 	switch {
 	case err == nil:
@@ -93,13 +93,4 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 	}
 	bw.Flush()
 	return subcommands.ExitSuccess
-}
-
-func printAnime(w io.Writer, a *query.Anime) {
-	fmt.Fprintf(w, "AID: %d\n", a.AID)
-	fmt.Fprintf(w, "Title: %s\n", a.Title)
-	fmt.Fprintf(w, "Type: %s\n", a.Type)
-	fmt.Fprintf(w, "Episodes: %d\n", a.EpisodeCount)
-	fmt.Fprintf(w, "Start date: %s\n", a.StartDate())
-	fmt.Fprintf(w, "End date: %s\n", a.EndDate())
 }

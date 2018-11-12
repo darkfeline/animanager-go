@@ -25,6 +25,15 @@ import (
 	"go.felesatra.moe/animanager/internal/query"
 )
 
+func PrintAnime(w io.Writer, a *query.Anime) {
+	fmt.Fprintf(w, "AID: %d\n", a.AID)
+	fmt.Fprintf(w, "Title: %s\n", a.Title)
+	fmt.Fprintf(w, "Type: %s\n", a.Type)
+	fmt.Fprintf(w, "Episodes: %d\n", a.EpisodeCount)
+	fmt.Fprintf(w, "Start date: %s\n", a.StartDate())
+	fmt.Fprintf(w, "End date: %s\n", a.EndDate())
+}
+
 func PrintAnimeShort(w io.Writer, a *query.Anime) {
 	fmt.Fprintf(w, "%d\t%s\t%d eps\n", a.AID, a.Title, a.EpisodeCount)
 }
