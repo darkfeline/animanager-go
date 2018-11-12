@@ -63,26 +63,26 @@ func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	if err := showWatchable(db, *w); err != nil {
+	o := obx.PrintWatchableOption{
+		IncludeWatched:      w.all,
+		IncludeMissingFiles: w.missing,
+	}
+	if w.all {
+		o.NumWatchable = -1
+	}
+	if err := showWatchable(db, o); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
 }
 
-func showWatchable(db *sql.DB, c Watchable) error {
+func showWatchable(db *sql.DB, o obx.PrintWatchableOption) error {
 	bw := bufio.NewWriter(os.Stdout)
 	defer bw.Flush()
 	ws, err := query.GetAllWatching(db)
 	if err != nil {
 		return err
-	}
-	o := obx.PrintWatchableOption{
-		IncludeWatched:      c.all,
-		IncludeMissingFiles: c.missing,
-	}
-	if c.all {
-		o.NumWatchable = -1
 	}
 	for _, w := range ws {
 		if err := showWatchableSingle(db, bw, w.AID, o); err != nil {
