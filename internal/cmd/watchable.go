@@ -29,6 +29,7 @@ import (
 
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/obf"
+	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -89,11 +90,12 @@ const watchableEpsPrintLimit = 1
 
 func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watching) error {
 	var printed int
-	afs, err := getAnimeFiles(db, w.AID)
+	efs, err := obx.GetAnimeFiles(db, w.AID)
 	if err != nil {
 		return err
 	}
-	for i, e := range afs.Episodes {
+	for i, ef := range efs {
+		e := ef.Episode
 		// Skip uninteresting episode types.
 		if e.Type == query.EpCredit || e.Type == query.EpTrailer {
 			continue
@@ -102,9 +104,8 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 		if e.UserWatched && !c.all {
 			continue
 		}
-		fs := afs.Files[i]
 		// Skip if no files.
-		if len(fs) == 0 && !c.missing {
+		if len(ef.Files) == 0 && !c.missing {
 			continue
 		}
 		// If we have already printed enough episodes,
@@ -123,16 +124,15 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 			}
 			obf.PrintAnimeShort(bw, a)
 			if i > 0 {
-				e := afs.Episodes[i-1]
-				obf.PrintEpisode(bw, e)
+				obf.PrintEpisode(bw, efs[i-1].Episode)
 			}
 		}
 		obf.PrintEpisode(bw, e)
 		printed++
-		for _, f := range fs {
+		for _, f := range ef.Files {
 			fmt.Fprintf(bw, "\t\t  %s\n", f.Path)
 		}
-		if len(fs) == 0 {
+		if len(ef.Files) == 0 {
 			fmt.Fprintf(bw, "\t\t  <NO FILES>\n")
 		}
 	}
@@ -140,30 +140,4 @@ func showWatchableSingle(db *sql.DB, c Watchable, bw *bufio.Writer, w query.Watc
 		fmt.Fprintln(bw)
 	}
 	return nil
-}
-
-func getAnimeFiles(db *sql.DB, aid int) (afs animeFiles, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("get anime %d files: %s", aid, err)
-		}
-	}()
-	eps, err := query.GetEpisodes(db, aid)
-	if err != nil {
-		return afs, err
-	}
-	for _, e := range eps {
-		afs.Episodes = append(afs.Episodes, e)
-		fs, err := query.GetEpisodeFiles(db, e.ID)
-		if err != nil {
-			return afs, err
-		}
-		afs.Files = append(afs.Files, fs)
-	}
-	return afs, nil
-}
-
-type animeFiles struct {
-	Episodes []query.Episode
-	Files    [][]query.EpisodeFile
 }
