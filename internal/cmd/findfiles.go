@@ -29,6 +29,7 @@ import (
 	"sync"
 
 	"github.com/google/subcommands"
+	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
@@ -68,15 +69,24 @@ func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitFailure
 	}
 	Logger.Printf("Finished finding video files")
+	if err := refreshFiles(db, files); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		return subcommands.ExitFailure
+	}
+	return subcommands.ExitSuccess
+}
+
+// refreshFiles updates episode files using the given video file
+// paths.
+func refreshFiles(db *sql.DB, files []string) error {
 	ws, err := query.GetAllWatching(db)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return errors.Wrap(err, "refresh files")
 	}
 	if err := query.DeleteEpisodeFiles(db); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return errors.Wrap(err, "refresh files")
 	}
+
 	var wg sync.WaitGroup
 	epChan := make(chan epFile)
 	errChan := make(chan error)
@@ -84,8 +94,7 @@ func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		Logger.Printf("Finding registered files for %d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
+			return errors.Wrap(err, "refresh files")
 		}
 		wg.Add(1)
 		go func(w query.Watching) {
@@ -102,7 +111,7 @@ func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 	for err := range errChan {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
 
 func findVideoFilesMany(dirs []string) ([]string, error) {
