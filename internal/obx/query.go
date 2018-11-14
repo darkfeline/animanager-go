@@ -50,3 +50,29 @@ type EpisodeFiles struct {
 	Episode query.Episode
 	Files   []query.EpisodeFile
 }
+
+// GetCompletedAnimeCount returns the number of completed anime.
+func GetCompletedAnimeCount(db *sql.DB) (int, error) {
+	as, err := query.GetAllAnime(db)
+	if err != nil {
+		return 0, err
+	}
+	es, err := query.GetAllEpisodes(db)
+	if err != nil {
+		return 0, err
+	}
+	counts := make(map[int]int)
+	for _, a := range as {
+		counts[a.AID] = a.EpisodeCount
+	}
+	for _, e := range es {
+		counts[e.AID]--
+	}
+	var res int
+	for _, count := range counts {
+		if count <= 0 {
+			res++
+		}
+	}
+	return res, nil
+}

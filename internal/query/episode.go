@@ -32,6 +32,30 @@ type Episode struct {
 	UserWatched bool
 }
 
+// GetEpisodeCount returns the number of episode rows.
+func GetEpisodeCount(db *sql.DB) (int, error) {
+	r := db.QueryRow(`SELECT COUNT(*) FROM episode`)
+	var n int
+	err := r.Scan(&n)
+	return n, err
+}
+
+// GetWatchedEpisodeCount returns the number of watched episodes.
+func GetWatchedEpisodeCount(db *sql.DB) (int, error) {
+	r := db.QueryRow(`SELECT COUNT(*) FROM episode where user_watched=1`)
+	var n int
+	err := r.Scan(&n)
+	return n, err
+}
+
+// GetWatchedMinutes returns the number of minutes watched.
+func GetWatchedMinutes(db *sql.DB) (int, error) {
+	r := db.QueryRow(`SELECT SUM(length) FROM episode where user_watched=1`)
+	var n int
+	err := r.Scan(&n)
+	return n, err
+}
+
 // GetEpisode gets the episode from the database.
 func GetEpisode(db *sql.DB, id int) (*Episode, error) {
 	r := db.QueryRow(`
@@ -50,6 +74,30 @@ func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	var es []Episode
+	for r.Next() {
+		var e Episode
+		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+			&e.Title, &e.Length, &e.UserWatched); err != nil {
+			return nil, err
+		}
+		es = append(es, e)
+	}
+	if err := r.Err(); err != nil {
+		return nil, err
+	}
+	return es, nil
+}
+
+// GetAllEpisodes gets all episodes from the database.
+func GetAllEpisodes(db *sql.DB) ([]Episode, error) {
+	r, err := db.Query(`
+SELECT id, aid, type, number, title, length, user_watched
+FROM episode`)
 	if err != nil {
 		return nil, err
 	}

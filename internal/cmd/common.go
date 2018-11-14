@@ -18,22 +18,20 @@
 package cmd
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 
+	"github.com/google/subcommands"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/go2/errors"
 )
 
 // Logger is used by this package for logging.
 var Logger = log.New(ioutil.Discard, "cmd: ", log.LstdFlags)
-
-type userError interface {
-	error
-	UserError() string
-}
 
 // PrintError is used by this package for printing user facing errors.
 var PrintError func(error) = func(err error) {
@@ -45,7 +43,36 @@ var PrintError func(error) = func(err error) {
 	}
 }
 
+// userError is the interface implemented by errors to provide a
+// user-friendly error string used by the default PrintError function.
+type userError interface {
+	error
+	UserError() string
+}
+
 // getConfig gets the Config passed into a subcommand.
 func getConfig(x []interface{}) config.Config {
 	return x[0].(config.Config)
+}
+
+func executeInner(e innerExecutor, ctx context.Context, f *flag.FlagSet, x []interface{}) subcommands.ExitStatus {
+	err := e.innerExecute(ctx, f, x...)
+	var err2 usageError
+	if errors.AsValue(&err2, err) {
+		PrintError(err)
+		return subcommands.ExitUsageError
+	}
+	if err != nil {
+		PrintError(err)
+		return subcommands.ExitFailure
+	}
+	return subcommands.ExitSuccess
+}
+
+type innerExecutor interface {
+	innerExecute(ctx context.Context, f *flag.FlagSet, x ...interface{}) error
+}
+
+type usageError struct {
+	error
 }

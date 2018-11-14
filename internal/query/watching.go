@@ -42,6 +42,14 @@ func GetWatching(db *sql.DB, aid int) (Watching, error) {
 	return w, nil
 }
 
+// GetWatchingCount returns the number of watching rows.
+func GetWatchingCount(db *sql.DB) (int, error) {
+	r := db.QueryRow(`SELECT COUNT(*) FROM watching`)
+	var n int
+	err := r.Scan(&n)
+	return n, err
+}
+
 // GetAllWatching gets all watching entries.
 func GetAllWatching(db *sql.DB) ([]Watching, error) {
 	r, err := db.Query(`SELECT aid, regexp, offset FROM watching`)

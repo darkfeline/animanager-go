@@ -5,6 +5,7 @@
 ### Added
 
 * Added `-missing` flag to `watchable` command.
+* Added `stats` command.
 
 ### Changed
 

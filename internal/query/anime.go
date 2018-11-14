@@ -62,6 +62,14 @@ func (a Anime) EndDate() date.Date {
 
 type AnimeType string
 
+// GetAnimeCount returns the number of anime rows.
+func GetAnimeCount(db *sql.DB) (int, error) {
+	r := db.QueryRow(`SELECT COUNT(*) FROM anime`)
+	var n int
+	err := r.Scan(&n)
+	return n, err
+}
+
 // GetAIDs returns all AIDs.
 func GetAIDs(db *sql.DB) ([]int, error) {
 	r, err := db.Query(`SELECT aid FROM anime`)
@@ -94,6 +102,29 @@ FROM anime WHERE aid=?`, aid)
 		return nil, err
 	}
 	return &a, nil
+}
+
+// GetAllAnime returns all anime.
+func GetAllAnime(db *sql.DB) ([]Anime, error) {
+	r, err := db.Query(`
+SELECT aid, title, type, episodecount, startdate, enddate FROM anime`)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	var as []Anime
+	for r.Next() {
+		var a Anime
+		if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount,
+			&a.NullStartDate, &a.NullEndDate); err != nil {
+			return nil, err
+		}
+		as = append(as, a)
+	}
+	if err := r.Err(); err != nil {
+		return nil, err
+	}
+	return as, nil
 }
 
 // InsertAnime inserts or updates an anime into the database.
