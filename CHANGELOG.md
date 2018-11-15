@@ -6,6 +6,7 @@
 
 * Added `-missing` flag to `watchable` command.
 * Added `stats` command.
+* Added `unfinished` command.
 
 ### Changed
 
