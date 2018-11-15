@@ -51,8 +51,18 @@ type EpisodeFiles struct {
 	Files   []query.EpisodeFile
 }
 
-// GetCompletedAnime returns completed anime.
-func GetCompletedAnime(db *sql.DB, incomplete bool) ([]query.Anime, error) {
+// GetWatchedAnime returns watched anime.
+func GetWatchedAnime(db *sql.DB) ([]query.Anime, error) {
+	return getAnimeByWatched(db, true)
+}
+
+// GetUnwatchedAnime returns unwatched (unfinished) anime.
+func GetUnwatchedAnime(db *sql.DB) ([]query.Anime, error) {
+	return getAnimeByWatched(db, false)
+}
+
+// getAnimeByWatched returns anime by watched status.
+func getAnimeByWatched(db *sql.DB, watched bool) ([]query.Anime, error) {
 	as, err := query.GetAllAnime(db)
 	if err != nil {
 		return nil, err
@@ -74,10 +84,10 @@ func GetCompletedAnime(db *sql.DB, incomplete bool) ([]query.Anime, error) {
 	}
 	var res []query.Anime
 	var test func(int) bool
-	if incomplete {
-		test = func(count int) bool { return count > 0 }
-	} else {
+	if watched {
 		test = func(count int) bool { return count <= 0 }
+	} else {
+		test = func(count int) bool { return count > 0 }
 	}
 	for aid, count := range counts {
 		if test(count) {

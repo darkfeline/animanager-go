@@ -69,7 +69,7 @@ func (s *Stats) innerExecute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return err
 	}
 	fmt.Printf("Watched episodes:\t%d\n", n)
-	as, err := obx.GetCompletedAnime(db, false)
+	as, err := obx.GetWatchedAnime(db)
 	if err != nil {
 		return err
 	}
