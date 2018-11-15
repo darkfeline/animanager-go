@@ -51,29 +51,38 @@ type EpisodeFiles struct {
 	Files   []query.EpisodeFile
 }
 
-// GetCompletedAnimeCount returns the number of completed anime.
-func GetCompletedAnimeCount(db *sql.DB) (int, error) {
+// GetCompletedAnime returns completed anime.
+func GetCompletedAnime(db *sql.DB, incomplete bool) ([]query.Anime, error) {
 	as, err := query.GetAllAnime(db)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	es, err := query.GetAllEpisodes(db)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
+	am := make(map[int]*query.Anime)
 	counts := make(map[int]int)
-	for _, a := range as {
+	for i, a := range as {
 		counts[a.AID] = a.EpisodeCount
+		am[a.AID] = &as[i]
 	}
 	for _, e := range es {
 		if e.UserWatched && e.Type == query.EpRegular {
 			counts[e.AID]--
 		}
 	}
-	var res int
-	for _, count := range counts {
-		if count <= 0 {
-			res++
+	var res []query.Anime
+	var test func(int) bool
+	if incomplete {
+		test = func(count int) bool { return count > 0 }
+	} else {
+		test = func(count int) bool { return count <= 0 }
+	}
+	for aid, count := range counts {
+		if test(count) {
+			res = append(res, *am[aid])
+
 		}
 	}
 	return res, nil
