@@ -66,7 +66,9 @@ func GetCompletedAnimeCount(db *sql.DB) (int, error) {
 		counts[a.AID] = a.EpisodeCount
 	}
 	for _, e := range es {
-		counts[e.AID]--
+		if e.UserWatched && e.Type == query.EpRegular {
+			counts[e.AID]--
+		}
 	}
 	var res int
 	for _, count := range counts {
