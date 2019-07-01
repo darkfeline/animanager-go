@@ -6,6 +6,10 @@
 
 * Added `-complete` to `unregister` command.
 
+### Changes
+
+* `add` and `unregister` now print the affected AIDs to stdout.
+
 ## 0.16.0 - 2018-12-02
 
 ### Added

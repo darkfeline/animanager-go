@@ -79,6 +79,7 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		aids = append(aids, as...)
 	}
 	for _, aid := range aids {
+		fmt.Println(aid)
 		if err := query.DeleteWatching(db, aid); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			return subcommands.ExitFailure

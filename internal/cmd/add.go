@@ -83,6 +83,7 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 		aids = append(aids, as...)
 	}
 	for i, aid := range aids {
+		fmt.Println(aid)
 		if err := addAnime(db, aid); err != nil {
 			fmt.Fprintf(os.Stderr, "Error adding anime: %s\n", err)
 			return subcommands.ExitFailure
