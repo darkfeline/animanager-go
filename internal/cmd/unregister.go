@@ -27,29 +27,33 @@ import (
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Unregister struct {
+	complete bool
 }
 
 func (*Unregister) Name() string     { return "unregister" }
 func (*Unregister) Synopsis() string { return "Unregister an anime." }
 func (*Unregister) Usage() string {
 	return `Usage: unregister aid...
+       unregister -complete [aids...]
 Unregister an anime.
 `
 }
 
-func (*Unregister) SetFlags(f *flag.FlagSet) {
+func (u *Unregister) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&u.complete, "complete", false, "Unregister complete anime")
 }
 
 func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	if f.NArg() < 1 {
+	if f.NArg() < 1 && !u.complete {
 		fmt.Fprint(os.Stderr, u.Usage())
 		return subcommands.ExitUsageError
 	}
-	var aids []int
+	aids := make([]int, f.NArg())
 	for _, s := range f.Args() {
 		aid, err := strconv.Atoi(s)
 		if err != nil {
@@ -66,6 +70,14 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
+	if u.complete {
+		as, err := obx.GetCompleteAnime(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			return subcommands.ExitFailure
+		}
+		aids = append(aids, as...)
+	}
 	for _, aid := range aids {
 		if err := query.DeleteWatching(db, aid); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)

@@ -1,5 +1,11 @@
 # Changelog
 
+## next
+
+### Added
+
+* Added `-complete` to `unregister` command.
+
 ## 0.16.0 - 2018-12-02
 
 ### Added
