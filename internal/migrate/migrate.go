@@ -67,11 +67,13 @@ func currentVersion() int {
 	return migrations[len(migrations)-1].To
 }
 
-var migrations = []struct {
+type spec struct {
 	From int
 	To   int
 	Func migrateFunc
-}{
+}
+
+var migrations = []spec{
 	{0, 3, migrate3},
 	{3, 4, migrate4},
 	{4, 5, migrate5},
