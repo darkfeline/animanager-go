@@ -27,6 +27,7 @@ import (
 	"go.felesatra.moe/animanager/internal/date"
 )
 
+// Anime values correspond to rows in the anime table.
 type Anime struct {
 	AID          int
 	Title        string
