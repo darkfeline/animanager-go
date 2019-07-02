@@ -23,13 +23,14 @@ import (
 )
 
 type Episode struct {
-	ID          int
-	AID         int
-	Type        EpisodeType
-	Number      int
-	Title       string
-	Length      int
-	UserWatched bool
+	_table      struct{}    `episode`
+	ID          int         `id`
+	AID         int         `aid`
+	Type        EpisodeType `type`
+	Number      int         `number`
+	Title       string      `title`
+	Length      int         `length`
+	UserWatched bool        `user_watched`
 }
 
 // GetEpisodeCount returns the number of episode rows.

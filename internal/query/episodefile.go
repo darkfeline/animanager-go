@@ -6,8 +6,9 @@ import (
 )
 
 type EpisodeFile struct {
-	EpisodeID int
-	Path      string
+	_table    struct{} `episode_file`
+	EpisodeID int      `episode_id`
+	Path      string   `path`
 }
 
 // InsertEpisodeFile inserts episode files into the database.
