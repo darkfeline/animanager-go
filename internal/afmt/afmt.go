@@ -21,7 +21,6 @@ import (
 	"io"
 
 	"go.felesatra.moe/anidb"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -89,7 +88,7 @@ type PrintWatchableOption struct {
 const defaultNumWatchable = 1
 
 // PrintWatchable prints the watchable episodes of an anime.
-func PrintWatchable(w io.Writer, a *query.Anime, efs []obx.EpisodeFiles, o PrintWatchableOption) error {
+func PrintWatchable(w io.Writer, a *query.Anime, efs []query.EpisodeFiles, o PrintWatchableOption) error {
 	if o.NumWatchable == 0 {
 		o.NumWatchable = defaultNumWatchable
 	}

@@ -29,7 +29,6 @@ import (
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -98,7 +97,7 @@ func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o afmt.PrintWatc
 	if err != nil {
 		return err
 	}
-	efs, err := obx.GetAnimeFiles(db, aid)
+	efs, err := query.GetAnimeFiles(db, aid)
 	if err != nil {
 		return err
 	}
