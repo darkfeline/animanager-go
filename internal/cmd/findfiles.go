@@ -31,7 +31,6 @@ import (
 	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -164,7 +163,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 	if err != nil {
 		return nil, xerrors.Errorf("filter files for %d: %w", w.AID, err)
 	}
-	regEps := obx.MakeEpisodeMap(eps)
+	regEps := reindexEpisodeByNumber(eps)
 	for _, f := range files {
 		ms := r.FindStringSubmatch(filepath.Base(f))
 		if ms == nil {
@@ -190,4 +189,27 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 		})
 	}
 	return result, nil
+}
+
+// reindexEpisodeByNumber returns a slice where each index maps to the regular
+// episode with the same number.  The zero index will be empty since
+// episodes cannot be number zero.
+func reindexEpisodeByNumber(eps []query.Episode) []query.Episode {
+	m := make([]query.Episode, maxEpisodeNumber(eps)+1)
+	for _, e := range eps {
+		if e.Type == query.EpRegular {
+			m[e.Number] = e
+		}
+	}
+	return m
+}
+
+func maxEpisodeNumber(eps []query.Episode) int {
+	maxEp := 0
+	for _, e := range eps {
+		if e.Type == query.EpRegular && e.Number > maxEp {
+			maxEp = e.Number
+		}
+	}
+	return maxEp
 }
