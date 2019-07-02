@@ -60,7 +60,6 @@ func Open(ctx context.Context, src string) (db *sql.DB, err error) {
 				return nil, err
 			}
 		}
-
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
 		return nil, errors.Wrap(err, "migrate database")
