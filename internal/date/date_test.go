@@ -29,10 +29,10 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestNewString(t *testing.T) {
+func TestParse(t *testing.T) {
 	t.Parallel()
 	s := "2001-01-02"
-	d, err := NewString(s)
+	d, err := Parse(s)
 	if err != nil {
 		t.Fatalf("Error making date: %s", err)
 	}
@@ -42,10 +42,10 @@ func TestNewString(t *testing.T) {
 	}
 }
 
-func TestNewString_invalid(t *testing.T) {
+func TestParse_invalid(t *testing.T) {
 	t.Parallel()
 	s := "foobar"
-	_, err := NewString(s)
+	_, err := Parse(s)
 	if err == nil {
 		t.Errorf("Got no error")
 	}

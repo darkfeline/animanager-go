@@ -27,9 +27,9 @@ type Date int64
 // Zero is 0000-01-01.
 const Zero Date = -62167219200
 
-// NewString parses and returns a Date from a string in YYYY-MM-DD
+// Parse parses and returns a Date from a string in YYYY-MM-DD
 // format.
-func NewString(s string) (Date, error) {
+func Parse(s string) (Date, error) {
 	t, err := time.Parse("2006-01-02", s)
 	if err != nil {
 		return 0, err

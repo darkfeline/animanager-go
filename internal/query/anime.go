@@ -137,11 +137,11 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 	defer t.Rollback()
 	var startDate interface{}
 	var endDate interface{}
-	startDate, err = date.NewString(a.StartDate)
+	startDate, err = date.Parse(a.StartDate)
 	if err != nil {
 		startDate = nil
 	}
-	endDate, err = date.NewString(a.EndDate)
+	endDate, err = date.Parse(a.EndDate)
 	if err != nil {
 		endDate = nil
 	}
