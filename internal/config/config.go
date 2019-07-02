@@ -27,7 +27,7 @@ import (
 	"go.felesatra.moe/go2/errors"
 )
 
-// Config provides access to configuration.
+// Config is the configuration for Animanager.
 type Config struct {
 	DBPath    string   `toml:"database"`
 	WatchDirs []string `toml:"watch_dirs"`
