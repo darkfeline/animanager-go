@@ -24,33 +24,6 @@ import (
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-// GetCompleteAnime returns the AIDs for complete anime.
-func GetCompleteAnime(db *sql.DB) ([]int, error) {
-	aids, err := query.GetAIDs(db)
-	if err != nil {
-		return nil, fmt.Errorf("get complete anime: %s", err)
-	}
-	var r []int
-	for _, aid := range aids {
-		a, err := query.GetAnime(db, aid)
-		if err != nil {
-			return nil, fmt.Errorf("get complete anime: %s", err)
-		}
-		eps, err := query.GetEpisodes(db, aid)
-		if err != nil {
-			return nil, fmt.Errorf("get complete anime: %s", err)
-		}
-		incomplete, err := isIncomplete(a, eps)
-		if err != nil {
-			return nil, fmt.Errorf("get complete anime: %s", err)
-		}
-		if !incomplete {
-			r = append(r, aid)
-		}
-	}
-	return r, nil
-}
-
 // GetIncompleteAnime returns the AIDs for incomplete anime.  An anime
 // is incomplete if it is still missing some information (e.g.,
 // missing episodes, missing episode titles).

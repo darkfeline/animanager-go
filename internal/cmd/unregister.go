@@ -27,29 +27,28 @@ import (
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Unregister struct {
-	complete bool
+	watched bool
 }
 
 func (*Unregister) Name() string     { return "unregister" }
 func (*Unregister) Synopsis() string { return "Unregister an anime." }
 func (*Unregister) Usage() string {
 	return `Usage: unregister aid...
-       unregister -complete [aids...]
+       unregister -watched [aids...]
 Unregister an anime.
 `
 }
 
 func (u *Unregister) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&u.complete, "complete", false, "Unregister complete anime")
+	f.BoolVar(&u.watched, "watched", false, "Unregister watched anime")
 }
 
 func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	if f.NArg() < 1 && !u.complete {
+	if f.NArg() < 1 && !u.watched {
 		fmt.Fprint(os.Stderr, u.Usage())
 		return subcommands.ExitUsageError
 	}
@@ -70,14 +69,27 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	// BUG: This doesn't work as intended
-	if u.complete && false {
-		as, err := obx.GetCompleteAnime(db)
+	if u.watched && false {
+		watching, err := query.GetAllWatching(db)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			return subcommands.ExitFailure
 		}
-		aids = append(aids, as...)
+		watchingMap := make(map[int]bool)
+		for _, w := range watching {
+			watchingMap[w.AID] = true
+		}
+
+		watched, err := query.GetWatchedAnime(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			return subcommands.ExitFailure
+		}
+		for _, a := range watched {
+			if watchingMap[a.AID] {
+				aids = append(aids, a.AID)
+			}
+		}
 	}
 	for _, aid := range aids {
 		fmt.Println(aid)

@@ -4,7 +4,7 @@
 
 ### Added
 
-* Added `-complete` to `unregister` command.
+* Added `-watched` to `unregister` command.
 
 ### Changes
 
