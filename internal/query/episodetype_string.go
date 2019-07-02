@@ -4,7 +4,7 @@ package query
 
 import "strconv"
 
-const _EpisodeType_name = "EpInvalidEpRegularEpSpecialEpCreditEpTrailerEpParodyEpOther"
+const _EpisodeType_name = "EpUnknownEpRegularEpSpecialEpCreditEpTrailerEpParodyEpOther"
 
 var _EpisodeType_index = [...]uint8{0, 9, 18, 27, 35, 44, 52, 59}
 

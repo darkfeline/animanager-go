@@ -180,7 +180,7 @@ func mainTitle(ts []anidb.Title) string {
 
 func insertEpisode(t *sql.Tx, aid int, e anidb.Episode) error {
 	eptype, n := parseEpNo(e.EpNo)
-	if eptype == EpInvalid {
+	if eptype == EpUnknown {
 		return fmt.Errorf("invalid epno %s", e.EpNo)
 	}
 	title := mainEpTitle(e.Titles)

@@ -26,7 +26,7 @@ import (
 type EpisodeType int
 
 const (
-	EpInvalid EpisodeType = iota
+	EpUnknown EpisodeType = iota
 	EpRegular
 	EpSpecial
 	EpCredit
@@ -61,13 +61,13 @@ var epnoPrefixes = []prefixPair{
 }
 
 // parseEpNo parses episode number information from the AniDB format.
-// If parse fails, EpInvalid is returned for the episode type.
+// If parse fails, EpUnknown is returned for the episode type.
 func parseEpNo(epno string) (EpisodeType, int) {
 	for _, p := range epnoPrefixes {
 		if strings.HasPrefix(epno, p.Prefix) {
 			n, err := strconv.Atoi(epno[len(p.Prefix):])
 			if err != nil {
-				return EpInvalid, 0
+				return EpUnknown, 0
 			}
 			return p.Type, n
 		}

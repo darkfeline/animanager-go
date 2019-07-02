@@ -31,7 +31,7 @@ func TestParseEpNo(t *testing.T) {
 		{"S1", EpSpecial, 1},
 		{"T2", EpTrailer, 2},
 		{"15", EpRegular, 15},
-		{"Clarion", EpInvalid, 0},
+		{"Clarion", EpUnknown, 0},
 	}
 	for _, c := range cases {
 		t.Run(c.EpNo, func(t *testing.T) {
