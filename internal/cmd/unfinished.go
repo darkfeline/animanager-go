@@ -26,6 +26,7 @@ import (
 
 	"github.com/google/subcommands"
 
+	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/obx"
 )
@@ -59,7 +60,7 @@ func (s *Unfinished) innerExecute(ctx context.Context, f *flag.FlagSet, x ...int
 	bw := bufio.NewWriter(os.Stdout)
 	sort.Slice(as, func(i, j int) bool { return as[i].AID < as[j].AID })
 	for _, a := range as {
-		obx.PrintAnimeShort(bw, &a)
+		afmt.PrintAnimeShort(bw, &a)
 	}
 	bw.Flush()
 	return nil

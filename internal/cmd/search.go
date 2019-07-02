@@ -26,8 +26,8 @@ import (
 	"github.com/google/subcommands"
 	"go.felesatra.moe/anidb"
 
+	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/anidb/titles"
-	"go.felesatra.moe/animanager/internal/obx"
 )
 
 type Search struct {
@@ -64,6 +64,6 @@ func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		return subcommands.ExitFailure
 	}
 	ts = titles.Search(ts, terms)
-	obx.PrintAnimeT(os.Stdout, ts)
+	afmt.PrintAnimeT(os.Stdout, ts)
 	return subcommands.ExitSuccess
 }

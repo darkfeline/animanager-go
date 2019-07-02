@@ -27,6 +27,7 @@ import (
 
 	"github.com/google/subcommands"
 
+	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
@@ -63,7 +64,7 @@ func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	o := obx.PrintWatchableOption{
+	o := afmt.PrintWatchableOption{
 		IncludeWatched:      w.all,
 		IncludeMissingFiles: w.missing,
 	}
@@ -77,7 +78,7 @@ func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface
 	return subcommands.ExitSuccess
 }
 
-func showWatchable(db *sql.DB, o obx.PrintWatchableOption) error {
+func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {
 	bw := bufio.NewWriter(os.Stdout)
 	defer bw.Flush()
 	ws, err := query.GetAllWatching(db)
@@ -92,7 +93,7 @@ func showWatchable(db *sql.DB, o obx.PrintWatchableOption) error {
 	return nil
 }
 
-func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o obx.PrintWatchableOption) error {
+func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o afmt.PrintWatchableOption) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return err
@@ -101,5 +102,5 @@ func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o obx.PrintWatch
 	if err != nil {
 		return err
 	}
-	return obx.PrintWatchable(os.Stdout, a, efs, o)
+	return afmt.PrintWatchable(os.Stdout, a, efs, o)
 }

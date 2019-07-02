@@ -30,10 +30,10 @@ import (
 	"github.com/google/subcommands"
 	"go.felesatra.moe/go2/errors"
 
+	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/input"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -88,7 +88,7 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	if err != nil {
 		return errors.Wrap(err, "get episode")
 	}
-	obx.PrintEpisode(os.Stdout, *e)
+	afmt.PrintEpisode(os.Stdout, *e)
 	fs, err := query.GetEpisodeFiles(db, id)
 	if err != nil {
 		return err
@@ -141,7 +141,7 @@ func watchAnime(c config.Config, db *sql.DB, aid int) error {
 	if err != nil {
 		return errors.Wrap(err, "get anime")
 	}
-	obx.PrintAnimeShort(os.Stdout, a)
+	afmt.PrintAnimeShort(os.Stdout, a)
 	eps, err := query.GetEpisodes(db, aid)
 	if err != nil {
 		return err
