@@ -28,7 +28,7 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
@@ -86,7 +86,7 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
-		return errors.Wrap(err, "get episode")
+		return xerrors.Errorf("get episode: %w", err)
 	}
 	afmt.PrintEpisode(os.Stdout, *e)
 	fs, err := query.GetEpisodeFiles(db, id)
@@ -139,7 +139,7 @@ func playFile(c config.Config, p string) error {
 func watchAnime(c config.Config, db *sql.DB, aid int) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
-		return errors.Wrap(err, "get anime")
+		return xerrors.Errorf("get anime: %w", err)
 	}
 	afmt.PrintAnimeShort(os.Stdout, a)
 	eps, err := query.GetEpisodes(db, aid)

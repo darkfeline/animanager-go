@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 )
 
 // Config is the configuration for Animanager.
@@ -42,15 +42,15 @@ func New(p string) (Config, error) {
 	c := Default()
 	f, err := os.Open(p)
 	if err != nil {
-		return c, errors.Wrap(err, "load config")
+		return c, xerrors.Errorf("load config: %w", err)
 	}
 	defer f.Close()
 	d, err := ioutil.ReadAll(f)
 	if err != nil {
-		return c, errors.Wrapf(err, "load config %s", p)
+		return c, xerrors.Errorf("load config %s: %w", p, err)
 	}
 	if err := toml.Unmarshal(d, &c); err != nil {
-		return c, errors.Wrapf(err, "load config %s", p)
+		return c, xerrors.Errorf("load config %s: %w", p, err)
 	}
 	c.DBPath = os.ExpandEnv(c.DBPath)
 	for i, d := range c.WatchDirs {

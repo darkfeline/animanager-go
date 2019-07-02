@@ -3,7 +3,7 @@ package query
 import (
 	"database/sql"
 
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 )
 
 type Watching struct {
@@ -27,7 +27,7 @@ ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
 		w.Regexp, w.Offset, w.AID,
 	)
 	if err != nil {
-		return errors.Wrapf(err, "failed to insert watching %d", w.AID)
+		return xerrors.Errorf("failed to insert watching %d: %w", w.AID, err)
 	}
 	return t.Commit()
 }
@@ -38,7 +38,7 @@ func GetWatching(db *sql.DB, aid int) (Watching, error) {
 	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
 	var w Watching
 	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-		return w, errors.Wrapf(err, "GetWatching %d", aid)
+		return w, xerrors.Errorf("GetWatching %d: %w", aid, err)
 	}
 	return w, nil
 }

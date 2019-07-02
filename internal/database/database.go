@@ -28,7 +28,7 @@ import (
 	"strings"
 
 	sqlite3 "github.com/mattn/go-sqlite3"
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/migrate"
 )
@@ -62,7 +62,7 @@ func Open(ctx context.Context, src string) (db *sql.DB, err error) {
 		}
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
-		return nil, errors.Wrap(err, "migrate database")
+		return nil, xerrors.Errorf("migrate database: %w", err)
 	}
 	return db, nil
 }
@@ -89,17 +89,17 @@ func openDB(ctx context.Context, src string) (*sql.DB, error) {
 func backup(ctx context.Context, db *sql.DB, src, dst string) error {
 	c, err := db.Conn(ctx)
 	if err != nil {
-		return errors.Wrap(err, "backup")
+		return xerrors.Errorf("backup: %w", err)
 	}
 	defer c.Close()
 	_, err = c.ExecContext(ctx, "BEGIN IMMEDIATE")
 	if err != nil {
-		return errors.Wrap(err, "backup")
+		return xerrors.Errorf("backup: %w", err)
 	}
 	defer c.ExecContext(ctx, "ROLLBACK")
 	err = copyFile(src, dst)
 	if err != nil {
-		return errors.Wrap(err, "backup")
+		return xerrors.Errorf("backup: %w", err)
 	}
 	return nil
 }
@@ -107,21 +107,21 @@ func backup(ctx context.Context, db *sql.DB, src, dst string) error {
 func copyFile(src, dst string) error {
 	sf, err := os.Open(src)
 	if err != nil {
-		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	defer sf.Close()
 	df, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
-		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	defer df.Close()
 	_, err = io.Copy(df, sf)
 	if err != nil {
-		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	err = df.Close()
 	if err != nil {
-		return errors.Wrapf(err, "copy file %s to %s", src, dst)
+		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	return nil
 }

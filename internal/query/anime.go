@@ -22,7 +22,7 @@ import (
 	"fmt"
 
 	"go.felesatra.moe/anidb"
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/date"
 )
@@ -158,11 +158,11 @@ WHERE aid=?`,
 		a.AID,
 	)
 	if err != nil {
-		return errors.Wrapf(err, "failed to insert anime %d", a.AID)
+		return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	for _, e := range a.Episodes {
 		if err := insertEpisode(t, a.AID, e); err != nil {
-			return errors.Wrapf(err, "failed to insert episode %s for anime %d",
+			return xerrors.Errorf("failed to insert episode %s for anime %d: %w", err,
 				e.EpNo, a.AID)
 		}
 	}

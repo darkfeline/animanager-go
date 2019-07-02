@@ -28,7 +28,7 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/obx"
@@ -132,10 +132,10 @@ func isVideoFile(path string, fi os.FileInfo) bool {
 func refreshFiles(db *sql.DB, files []string) error {
 	ws, err := query.GetAllWatching(db)
 	if err != nil {
-		return errors.Wrap(err, "refresh files")
+		return xerrors.Errorf("refresh files: %w", err)
 	}
 	if err := query.DeleteEpisodeFiles(db); err != nil {
-		return errors.Wrap(err, "refresh files")
+		return xerrors.Errorf("refresh files: %w", err)
 	}
 	var efs []query.EpisodeFile
 	Logger.Print("Matching files")
@@ -143,18 +143,18 @@ func refreshFiles(db *sql.DB, files []string) error {
 		Logger.Printf("Matching files for %d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
-			return errors.Wrap(err, "refresh files")
+			return xerrors.Errorf("refresh files: %w", err)
 		}
 		efs2, err := filterFiles(w, eps, files)
 		if err != nil {
-			return errors.Wrap(err, "refresh files")
+			return xerrors.Errorf("refresh files: %w", err)
 		}
 		Logger.Printf("Found files for %d: %#v", w.AID, efs2)
 		efs = append(efs, efs2...)
 	}
 	Logger.Print("Inserting files")
 	err = query.InsertEpisodeFiles(db, efs)
-	return errors.Wrap(err, "refresh files")
+	return xerrors.Errorf("refresh files: %w", err)
 }
 
 // filterFiles returns files that match the watching entry.
@@ -162,7 +162,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 	var result []query.EpisodeFile
 	r, err := regexp.Compile("(?i)" + w.Regexp)
 	if err != nil {
-		return nil, errors.Wrapf(err, "filter files for %d", w.AID)
+		return nil, xerrors.Errorf("filter files for %d: %w", w.AID, err)
 	}
 	regEps := obx.MakeEpisodeMap(eps)
 	for _, f := range files {

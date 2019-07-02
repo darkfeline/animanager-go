@@ -25,7 +25,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 )
 
 // Logger is used by this package for logging.
@@ -35,7 +35,7 @@ var Logger = log.New(ioutil.Discard, "migrate: ", log.LstdFlags)
 func Migrate(ctx context.Context, d *sql.DB) error {
 	v, err := getUserVersion(d)
 	if err != nil {
-		return errors.Wrap(err, "get user version")
+		return xerrors.Errorf("get user version: %w", err)
 	}
 	for _, m := range migrations {
 		if v != m.From {
@@ -43,7 +43,7 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 		}
 		Logger.Printf("Migrating from %d to %d", m.From, m.To)
 		if err := m.Func(ctx, d); err != nil {
-			return errors.Wrapf(err, "migrate from %d to %d", m.From, m.To)
+			return xerrors.Errorf("migrate from %d to %d: %w", m.From, m.To, err)
 		}
 		if err := setUserVersion(d, m.To); err != nil {
 			return err
@@ -58,7 +58,7 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 func IsCurrentVersion(d *sql.DB) (bool, error) {
 	v, err := getUserVersion(d)
 	if err != nil {
-		return false, errors.Wrap(err, "get user version")
+		return false, xerrors.Errorf("get user version: %w", err)
 	}
 	return v == currentVersion(), nil
 }

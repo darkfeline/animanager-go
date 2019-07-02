@@ -28,7 +28,7 @@ import (
 	"strconv"
 
 	"github.com/google/subcommands"
-	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/database"
@@ -77,7 +77,7 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 	switch {
 	case err == nil:
 		fmt.Fprintf(bw, "Registered: %#v (offset %d)\n", w.Regexp, w.Offset)
-	case errors.Is(err, sql.ErrNoRows):
+	case xerrors.Is(err, sql.ErrNoRows):
 		io.WriteString(bw, "Not registered\n")
 	default:
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)

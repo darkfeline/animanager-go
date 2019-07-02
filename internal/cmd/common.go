@@ -28,6 +28,7 @@ import (
 	"github.com/google/subcommands"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/go2/errors"
+	"golang.org/x/xerrors"
 )
 
 // Logger is used by this package for logging.
@@ -36,7 +37,7 @@ var Logger = log.New(ioutil.Discard, "cmd: ", log.LstdFlags)
 // PrintError is used by this package for printing user facing errors.
 var PrintError func(error) = func(err error) {
 	var err2 userError
-	if errors.AsValue(&err2, err) {
+	if xerrors.As(err, &err2) {
 		fmt.Fprintln(os.Stderr, err2.UserError())
 	} else {
 		fmt.Fprintln(os.Stderr, errors.Format(err, false))
@@ -58,7 +59,7 @@ func getConfig(x []interface{}) config.Config {
 func executeInner(e innerExecutor, ctx context.Context, f *flag.FlagSet, x []interface{}) subcommands.ExitStatus {
 	err := e.innerExecute(ctx, f, x...)
 	var err2 usageError
-	if errors.AsValue(&err2, err) {
+	if xerrors.As(&err2, err) {
 		PrintError(err)
 		return subcommands.ExitUsageError
 	}
