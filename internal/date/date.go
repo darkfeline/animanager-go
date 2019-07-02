@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package date implements a date type.
+// Package date implements a date type stored as Unix timestamps.
 package date
 
 import "time"
