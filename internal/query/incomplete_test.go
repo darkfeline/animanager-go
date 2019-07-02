@@ -15,5 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package obx provides extra object functions.
-package obx
+package query
+
+import (
+	"testing"
+)
+
+func TestIsUnnamed(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name  string
+		title string
+		want  bool
+	}{
+		{"unnamed", "Episode 1", true},
+		{"named", "挑・発", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			e := Episode{Title: c.title}
+			got := isUnnamed(e)
+			if got != c.want {
+				t.Errorf("isUnnamed(%#v) = %#v; want %#v", e, got, c.want)
+			}
+		})
+	}
+}

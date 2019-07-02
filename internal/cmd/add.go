@@ -30,7 +30,6 @@ import (
 
 	"go.felesatra.moe/animanager/internal/anidb"
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -75,7 +74,7 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 	}
 	defer db.Close()
 	if a.addIncomplete {
-		as, err := obx.GetIncompleteAnime(db)
+		as, err := query.GetIncompleteAnime(db)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			return subcommands.ExitFailure

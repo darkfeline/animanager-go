@@ -15,30 +15,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package obx
+package query
 
 import (
 	"database/sql"
 	"fmt"
-
-	"go.felesatra.moe/animanager/internal/query"
 )
 
 // GetIncompleteAnime returns the AIDs for incomplete anime.  An anime
 // is incomplete if it is still missing some information (e.g.,
 // missing episodes, missing episode titles).
 func GetIncompleteAnime(db *sql.DB) ([]int, error) {
-	aids, err := query.GetAIDs(db)
+	aids, err := GetAIDs(db)
 	if err != nil {
 		return nil, fmt.Errorf("get incomplete anime: %s", err)
 	}
 	var r []int
 	for _, aid := range aids {
-		a, err := query.GetAnime(db, aid)
+		a, err := GetAnime(db, aid)
 		if err != nil {
 			return nil, fmt.Errorf("get incomplete anime: %s", err)
 		}
-		eps, err := query.GetEpisodes(db, aid)
+		eps, err := GetEpisodes(db, aid)
 		if err != nil {
 			return nil, fmt.Errorf("get incomplete anime: %s", err)
 		}
@@ -57,11 +55,11 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 // using some heuristics.  An anime is incomplete if it is still
 // missing some information (e.g., missing episodes, missing episode
 // titles).
-func isIncomplete(a *query.Anime, eps []query.Episode) (bool, error) {
-	var rEps []query.Episode
+func isIncomplete(a *Anime, eps []Episode) (bool, error) {
+	var rEps []Episode
 	var unnamed int
 	for _, e := range eps {
-		if e.Type != query.EpRegular {
+		if e.Type != EpRegular {
 			continue
 		}
 		rEps = append(rEps, e)
@@ -85,6 +83,6 @@ func isIncomplete(a *query.Anime, eps []query.Episode) (bool, error) {
 	return false, nil
 }
 
-func isUnnamed(e query.Episode) bool {
+func isUnnamed(e Episode) bool {
 	return len(e.Title) > 8 && e.Title[:8] == "Episode "
 }
