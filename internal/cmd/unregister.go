@@ -70,7 +70,8 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
-	if u.complete {
+	// BUG: This doesn't work as intended
+	if u.complete && false {
 		as, err := obx.GetCompleteAnime(db)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
