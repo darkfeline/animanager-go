@@ -51,7 +51,9 @@ func GetCompleteAnime(db *sql.DB) ([]int, error) {
 	return r, nil
 }
 
-// GetIncompleteAnime returns the AIDs for incomplete anime.
+// GetIncompleteAnime returns the AIDs for incomplete anime.  An anime
+// is incomplete if it is still missing some information (e.g.,
+// missing episodes, missing episode titles).
 func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 	aids, err := query.GetAIDs(db)
 	if err != nil {
@@ -78,6 +80,10 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 	return r, nil
 }
 
+// isIncomplete returns whether the anime and episodes are incomplete,
+// using some heuristics.  An anime is incomplete if it is still
+// missing some information (e.g., missing episodes, missing episode
+// titles).
 func isIncomplete(a *query.Anime, eps []query.Episode) (bool, error) {
 	var rEps []query.Episode
 	var unnamed int
