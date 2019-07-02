@@ -59,7 +59,7 @@ func getConfig(x []interface{}) config.Config {
 func executeInner(e innerExecutor, ctx context.Context, f *flag.FlagSet, x []interface{}) subcommands.ExitStatus {
 	err := e.innerExecute(ctx, f, x...)
 	var err2 usageError
-	if xerrors.As(&err2, err) {
+	if xerrors.As(err, &err2) {
 		PrintError(err)
 		return subcommands.ExitUsageError
 	}
