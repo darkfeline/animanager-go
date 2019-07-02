@@ -28,7 +28,7 @@ import (
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obx"
+	"go.felesatra.moe/animanager/internal/query"
 )
 
 type Unfinished struct {
@@ -56,7 +56,7 @@ func (s *Unfinished) innerExecute(ctx context.Context, f *flag.FlagSet, x ...int
 		return err
 	}
 	defer db.Close()
-	as, err := obx.GetUnwatchedAnime(db)
+	as, err := query.GetUnwatchedAnime(db)
 	bw := bufio.NewWriter(os.Stdout)
 	sort.Slice(as, func(i, j int) bool { return as[i].AID < as[j].AID })
 	for _, a := range as {

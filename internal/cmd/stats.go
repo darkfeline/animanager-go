@@ -25,7 +25,6 @@ import (
 	"github.com/google/subcommands"
 
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/obx"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -69,7 +68,7 @@ func (s *Stats) innerExecute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return err
 	}
 	fmt.Printf("Watched episodes:\t%d\n", n)
-	as, err := obx.GetWatchedAnime(db)
+	as, err := query.GetWatchedAnime(db)
 	if err != nil {
 		return err
 	}
