@@ -43,6 +43,8 @@ func (e Episode) Key() EpisodeKey {
 	}
 }
 
+// EpisodeKey represents the unique key for an Episode.  This is
+// separate from ID because SQLite treats numeric row IDs specially.
 type EpisodeKey struct {
 	AID    int
 	Type   EpisodeType
