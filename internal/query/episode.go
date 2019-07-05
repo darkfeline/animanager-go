@@ -20,6 +20,8 @@ package query
 import (
 	"database/sql"
 	"fmt"
+
+	"golang.org/x/xerrors"
 )
 
 type Episode struct {
@@ -31,6 +33,20 @@ type Episode struct {
 	Title       string      `title`
 	Length      int         `length`
 	UserWatched bool        `user_watched`
+}
+
+func (e Episode) Key() EpisodeKey {
+	return EpisodeKey{
+		AID:    e.AID,
+		Type:   e.Type,
+		Number: e.Number,
+	}
+}
+
+type EpisodeKey struct {
+	AID    int
+	Type   EpisodeType
+	Number int
 }
 
 // GetEpisodeCount returns the number of episode rows.
@@ -92,6 +108,19 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 		return nil, err
 	}
 	return es, nil
+}
+
+// GetEpisodesMap returns a map of the episodes for an anime.
+func GetEpisodesMap(db *sql.DB, aid int) (map[EpisodeKey]*Episode, error) {
+	es, err := GetEpisodes(db, aid)
+	if err != nil {
+		return nil, xerrors.Errorf("get episodes map %v: %w", aid, err)
+	}
+	m := make(map[EpisodeKey]*Episode, len(es))
+	for i, e := range es {
+		m[e.Key()] = &es[i]
+	}
+	return m, nil
 }
 
 // GetAllEpisodes gets all episodes from the database.
