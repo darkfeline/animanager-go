@@ -87,7 +87,7 @@ FROM episode WHERE id=?`, id)
 }
 
 // GetEpisodes gets the episodes for an anime from the database.
-func GetEpisodes(db *sql.DB, aid int) ([]Episode, error) {
+func GetEpisodes(db Queryer, aid int) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
@@ -111,7 +111,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 }
 
 // GetEpisodesMap returns a map of the episodes for an anime.
-func GetEpisodesMap(db *sql.DB, aid int) (map[EpisodeKey]*Episode, error) {
+func GetEpisodesMap(db Queryer, aid int) (map[EpisodeKey]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, xerrors.Errorf("get episodes map %v: %w", aid, err)
