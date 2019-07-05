@@ -88,6 +88,14 @@ FROM episode WHERE id=?`, id)
 	return &e, nil
 }
 
+// DeleteEpisode deletes the episode from the database.
+func DeleteEpisode(db Execer, id int) error {
+	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {
+		return xerrors.Errorf("delete episode %v: %w", id, err)
+	}
+	return nil
+}
+
 // GetEpisodes gets the episodes for an anime from the database.
 func GetEpisodes(db Queryer, aid int) ([]Episode, error) {
 	r, err := db.Query(`
