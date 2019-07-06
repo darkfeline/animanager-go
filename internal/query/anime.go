@@ -19,7 +19,6 @@ package query
 
 import (
 	"database/sql"
-	"fmt"
 
 	"go.felesatra.moe/anidb"
 	"golang.org/x/xerrors"
@@ -160,10 +159,25 @@ WHERE aid=?`,
 	if err != nil {
 		return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
+	em, err := GetEpisodesMap(t, a.AID)
+	if err != nil {
+		return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
+	}
 	for _, e := range a.Episodes {
-		if err := insertEpisode(t, a.AID, e); err != nil {
-			return xerrors.Errorf("failed to insert episode %s for anime %d: %w", err,
-				e.EpNo, a.AID)
+		k := EpisodeKey{AID: a.AID}
+		k.Type, k.Number = parseEpNo(e.EpNo)
+		if k.Type == EpUnknown {
+			return xerrors.Errorf("failed to insert anime %d: invalid epno %s", a.AID, e.EpNo)
+		}
+		if err := insertEpisode(t, k, e); err != nil {
+			return xerrors.Errorf("failed to insert episode %s for anime %d: %w",
+				e.EpNo, a.AID, err)
+		}
+		delete(em, k)
+	}
+	for _, e := range em {
+		if err := DeleteEpisode(t, e.ID); err != nil {
+			return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
 		}
 	}
 	return t.Commit()
@@ -179,11 +193,7 @@ func mainTitle(ts []anidb.Title) string {
 	return ts[0].Name
 }
 
-func insertEpisode(t *sql.Tx, aid int, e anidb.Episode) error {
-	eptype, n := parseEpNo(e.EpNo)
-	if eptype == EpUnknown {
-		return fmt.Errorf("invalid epno %s", e.EpNo)
-	}
+func insertEpisode(t *sql.Tx, k EpisodeKey, e anidb.Episode) error {
 	title := mainEpTitle(e.Titles)
 	_, err := t.Exec(`
 INSERT INTO episode (aid, type, number, title, length)
@@ -191,9 +201,9 @@ VALUES (?, ?, ?, ?, ?)
 ON CONFLICT (aid, type, number) DO UPDATE SET
 title=?, length=?
 WHERE aid=? AND type=? AND number=?`,
-		aid, eptype, n, title, e.Length,
+		k.AID, k.Type, k.Number, title, e.Length,
 		title, e.Length,
-		aid, eptype, n,
+		k.AID, k.Type, k.Number,
 	)
 	if err != nil {
 		return err

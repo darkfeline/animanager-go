@@ -6,9 +6,10 @@
 
 * Added `-watched` to `unregister` command.
 
-### Changes
+### Changed
 
 * `add` and `unregister` now print the affected AIDs to stdout.
+* `add` now deletes episodes that were removed from AniDB.
 
 ## 0.16.0 - 2018-12-02
 
