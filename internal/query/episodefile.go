@@ -16,7 +16,6 @@ package query
 
 import (
 	"database/sql"
-	"fmt"
 
 	"golang.org/x/xerrors"
 )
@@ -53,7 +52,7 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 func GetEpisodeFiles(db *sql.DB, episodeID int) (es []EpisodeFile, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("get episode %d files: %w", episodeID, err)
+			err = xerrors.Errorf("get episode %d files: %w", episodeID, err)
 		}
 	}()
 	r, err := db.Query(`
