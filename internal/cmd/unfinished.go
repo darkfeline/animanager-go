@@ -24,15 +24,13 @@ import (
 	"os"
 	"sort"
 
-	"github.com/google/subcommands"
-
 	"go.felesatra.moe/animanager/internal/afmt"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type Unfinished struct {
-}
+type Unfinished struct{}
 
 func (*Unfinished) Name() string     { return "unfinished" }
 func (*Unfinished) Synopsis() string { return "Print unfinished anime." }
@@ -42,16 +40,9 @@ Print unfinished anime.
 `
 }
 
-func (s *Unfinished) SetFlags(f *flag.FlagSet) {
-}
-
-func (s *Unfinished) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	return executeInner(s, ctx, f, x)
-}
-
-func (s *Unfinished) innerExecute(ctx context.Context, f *flag.FlagSet, x ...interface{}) error {
-	c := getConfig(x)
-	db, err := database.Open(ctx, c.DBPath)
+func (*Unfinished) SetFlags(f *flag.FlagSet) {}
+func (*Unfinished) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
+	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
 		return err
 	}

@@ -53,7 +53,7 @@ func main() {
 	subcommands.Register(&cmd.SetDone{}, "")
 	subcommands.Register(cmd.Wrapper{&cmd.Stats{}}, "")
 	subcommands.Register(&cmd.UpdateTitles{}, "")
-	subcommands.Register(&cmd.Unfinished{}, "")
+	subcommands.Register(cmd.Wrapper{&cmd.Unfinished{}}, "")
 	subcommands.Register(&cmd.Unregister{}, "")
 	subcommands.Register(&cmd.Watch{}, "")
 	subcommands.Register(&cmd.Watchable{}, "")
