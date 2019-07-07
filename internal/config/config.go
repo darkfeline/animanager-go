@@ -39,7 +39,8 @@ var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
 // Load loads the configuration file.  If an error occurs, an error is
 // returned along with the default configuration.
 func Load(p string) (Config, error) {
-	c := Default()
+	// Copy default config.
+	c := defaultConfig
 	f, err := os.Open(p)
 	if err != nil {
 		return c, xerrors.Errorf("load config: %w", err)
@@ -59,10 +60,7 @@ func Load(p string) (Config, error) {
 	return c, nil
 }
 
-// Default returns the default configuration.
-func Default() Config {
-	return Config{
-		DBPath: filepath.Join(defaultDir, "database.db"),
-		Player: []string{"mpv", "--quiet"},
-	}
+var defaultConfig = Config{
+	DBPath: filepath.Join(defaultDir, "database.db"),
+	Player: []string{"mpv", "--quiet"},
 }
