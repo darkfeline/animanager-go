@@ -106,15 +106,15 @@ func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
 		return nil
 	}
 	br := bufio.NewReader(os.Stdin)
+readInput:
 	for {
 		fmt.Print("Set done? [Y/n] ")
 		ans, err := input.ReadYN(br, true)
-		// TODO: fix how temporary errors is implemented here
-		if err, ok := err.(temporary); ok && err.Temporary() {
-			fmt.Println(err)
-			continue
-		}
 		if err != nil {
+			if input.IsInvalidInput(err) {
+				fmt.Println(err)
+				continue readInput
+			}
 			return err
 		}
 		if !ans {
@@ -125,10 +125,6 @@ func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
 		}
 		return nil
 	}
-}
-
-type temporary interface {
-	Temporary() bool
 }
 
 func playFile(cfg config.Config, p string) error {

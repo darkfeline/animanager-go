@@ -34,6 +34,12 @@ func ReadLine(r Reader) (string, error) {
 	return r.ReadString('\n')
 }
 
+// IsInvalidInput returns true if the error is an invalid input error.
+func IsInvalidInput(err error) bool {
+	_, ok := err.(invalidInput)
+	return ok
+}
+
 type invalidInput struct {
 	input string
 }
@@ -42,13 +48,9 @@ func (e invalidInput) Error() string {
 	return fmt.Sprintf("invalid input: %s", e.input)
 }
 
-func (invalidInput) Temporary() bool {
-	return true
-}
-
 // ReadYN reads a yes or no input.  The provided default value is
-// returned for empty inputs.  If an invalid input is provided, a
-// temporary error is returned.
+// returned for empty inputs.  If an invalid input is provided, the
+// returned error satisfies IsInvalidInput.
 func ReadYN(r Reader, def bool) (bool, error) {
 	line, err := ReadLine(r)
 	if err != nil {
