@@ -24,14 +24,12 @@ import (
 	"os"
 
 	"github.com/google/subcommands"
-	"go.felesatra.moe/anidb"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/anidb/titles"
 )
 
 type Search struct {
-	skipCache bool
 }
 
 func (*Search) Name() string     { return "search" }
@@ -43,7 +41,6 @@ Search for an anime title.
 }
 
 func (s *Search) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&s.skipCache, "skipcache", false, "Ignore local titles cache.")
 }
 
 func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -52,13 +49,7 @@ func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		return subcommands.ExitUsageError
 	}
 	terms := f.Args()
-	var ts []anidb.AnimeT
-	var err error
-	if s.skipCache {
-		ts, err = titles.GetSkipCache()
-	} else {
-		ts, err = titles.Get()
-	}
+	ts, err := titles.Get()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure

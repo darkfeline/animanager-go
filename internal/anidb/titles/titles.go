@@ -27,6 +27,7 @@ import (
 
 	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/anidb/cache/titles"
+	"golang.org/x/xerrors"
 )
 
 // ErrLogger is used by this package to log errors.
@@ -35,6 +36,8 @@ var ErrLogger = log.New(os.Stderr, "titles: ", log.LstdFlags)
 // Logger is used by this package for informational logging.
 var Logger = log.New(ioutil.Discard, "titles: ", log.LstdFlags)
 
+// TODO: these get functions are pointless
+
 // Get returns a slice of anime titles.  This function uses a cache if
 // it exists, getting the data from AniDB and caching it otherwise.
 func Get() ([]anidb.AnimeT, error) {
@@ -42,22 +45,46 @@ func Get() ([]anidb.AnimeT, error) {
 	if err == nil {
 		return ts, nil
 	}
-	Logger.Printf("Failed to load cached titles: %s", err)
-	return GetSkipCache()
+	ErrLogger.Printf("Failed to load cached titles: %s", err)
+	return getSkipCache()
 }
 
-// GetSkipCache returns a slice of anime titles.  This function ignores
+// getSkipCache returns a slice of anime titles.  This function ignores
 // the cache, getting the data from AniDB and caching it.
-func GetSkipCache() ([]anidb.AnimeT, error) {
+func getSkipCache() ([]anidb.AnimeT, error) {
 	ts, err := anidb.RequestTitles()
 	if err != nil {
 		return nil, err
 	}
-	err = titles.SaveDefault(ts)
-	if err != nil {
+
+	if err := titles.SaveDefault(ts); err != nil {
 		ErrLogger.Printf("Error caching titles: %s", err)
 	}
 	return ts, nil
+}
+
+// UpdateCacheFromAPI updates the anime titles cache from the AniDB titles dump.
+func UpdateCacheFromAPI() error {
+	ts, err := anidb.RequestTitles()
+	if err != nil {
+		return xerrors.Errorf("update cache from api: %w", err)
+	}
+	if err := titles.SaveDefault(ts); err != nil {
+		return xerrors.Errorf("update cache from api: %w", err)
+	}
+	return nil
+}
+
+// UpdateCache updates the anime titles cache with an AniDB XML titles dump.
+func UpdateCache(d []byte) error {
+	ts, err := anidb.DecodeTitles(d)
+	if err != nil {
+		return xerrors.Errorf("update cache: %w", err)
+	}
+	if err := titles.SaveDefault(ts); err != nil {
+		return xerrors.Errorf("update cache: %w", err)
+	}
+	return nil
 }
 
 // Search returns a slice of anime whose title matches the given

@@ -5,11 +5,16 @@
 ### Added
 
 * Added `-watched` to `unregister` command.
+* Added `update-titles` command.
 
 ### Changed
 
 * `add` and `unregister` now print the affected AIDs to stdout.
 * `add` now deletes episodes that were removed from AniDB.
+
+### Removed
+
+* `-skipcache` option for `search` command.
 
 ## 0.16.0 - 2018-12-02
 
