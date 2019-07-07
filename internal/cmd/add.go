@@ -22,15 +22,14 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
-	"github.com/google/subcommands"
-
 	"go.felesatra.moe/animanager/internal/anidb"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
+	"golang.org/x/xerrors"
 )
 
 type Add struct {
@@ -46,62 +45,56 @@ Add an anime.
 `
 }
 
-func (a *Add) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&a.addIncomplete, "incomplete", false, "Re-add incomplete anime")
+func (c *Add) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.addIncomplete, "incomplete", false, "Re-add incomplete anime")
 }
 
-func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	// Process arguments.
-	if f.NArg() < 1 && !a.addIncomplete {
-		fmt.Fprint(os.Stderr, a.Usage())
-		return subcommands.ExitUsageError
+	if f.NArg() < 1 && !c.addIncomplete {
+		return usageError{"no AIDs given"}
 	}
 	aids := make([]int, f.NArg())
 	for i, s := range f.Args() {
 		aid, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
-			return subcommands.ExitUsageError
+			return fmt.Errorf("invalid AID %v: %v", aid, err)
 		}
 		aids[i] = aid
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
-	if a.addIncomplete {
+	if c.addIncomplete {
 		as, err := query.GetIncompleteAnime(db)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
+			return err
 		}
 		aids = append(aids, as...)
 	}
 	for i, aid := range aids {
 		fmt.Println(aid)
 		if err := addAnime(db, aid); err != nil {
-			fmt.Fprintf(os.Stderr, "Error adding anime: %s\n", err)
-			return subcommands.ExitFailure
+			return err
 		}
 		if i < len(aids)-1 {
 			time.Sleep(2 * time.Second)
 		}
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
 
 func addAnime(db *sql.DB, aid int) error {
 	Logger.Printf("Adding %d", aid)
-	a, err := anidb.RequestAnime(aid)
+	c, err := anidb.RequestAnime(aid)
 	if err != nil {
-		return err
+		return xerrors.Errorf("add anime %v: %w", aid, err)
 	}
-	if err := query.InsertAnime(db, a); err != nil {
-		return err
+	if err := query.InsertAnime(db, c); err != nil {
+		return xerrors.Errorf("add anime %v: %w", aid, err)
 	}
 	return nil
 }

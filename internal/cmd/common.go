@@ -20,8 +20,10 @@ package cmd
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/google/subcommands"
 	"go.felesatra.moe/animanager/internal/config"
@@ -43,10 +45,6 @@ type command interface {
 	Run(context.Context, *flag.FlagSet, config.Config) error
 }
 
-type wrapper struct {
-	command
-}
-
 func wrap(c command) subcommands.Command {
 	return wrapper{c}
 }
@@ -55,11 +53,29 @@ func wrap2(c subcommands.Command) subcommands.Command {
 	return c
 }
 
+type wrapper struct {
+	command
+}
+
 func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
 	cfg := getConfig(x)
 	if err := w.command.Run(ctx, f, cfg); err != nil {
-		log.Printf("Error: %s", err)
-		return subcommands.ExitFailure
+		switch err.(type) {
+		case usageError:
+			fmt.Fprintf(os.Stderr, w.command.Usage())
+			return subcommands.ExitUsageError
+		default:
+			log.Printf("Error: %s", err)
+			return subcommands.ExitFailure
+		}
 	}
 	return subcommands.ExitSuccess
+}
+
+type usageError struct {
+	message string
+}
+
+func (e usageError) Error() string {
+	return fmt.Sprintf("usage error: %s", e.message)
 }
