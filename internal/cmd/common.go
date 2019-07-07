@@ -47,11 +47,11 @@ type wrapper struct {
 	command
 }
 
-func Wrap(c command) subcommands.Command {
+func wrap(c command) subcommands.Command {
 	return wrapper{c}
 }
 
-func Wrap2(c subcommands.Command) subcommands.Command {
+func wrap2(c subcommands.Command) subcommands.Command {
 	return c
 }
 
