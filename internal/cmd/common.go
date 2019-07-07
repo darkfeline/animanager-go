@@ -77,3 +77,24 @@ type innerExecutor interface {
 type usageError struct {
 	error
 }
+
+type Command interface {
+	Name() string
+	Synopsis() string
+	Usage() string
+	SetFlags(*flag.FlagSet)
+	Run(context.Context, *flag.FlagSet, config.Config) error
+}
+
+type Wrapper struct {
+	Command
+}
+
+func (w Wrapper) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+	cfg := getConfig(x)
+	if err := w.Command.Run(ctx, f, cfg); err != nil {
+		log.Printf("Error: %s", err)
+		return subcommands.ExitFailure
+	}
+	return subcommands.ExitSuccess
+}

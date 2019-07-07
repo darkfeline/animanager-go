@@ -51,7 +51,7 @@ func main() {
 	subcommands.Register(&cmd.ShowFiles{}, "")
 	subcommands.Register(&cmd.Search{}, "")
 	subcommands.Register(&cmd.SetDone{}, "")
-	subcommands.Register(&cmd.Stats{}, "")
+	subcommands.Register(cmd.Wrapper{&cmd.Stats{}}, "")
 	subcommands.Register(&cmd.UpdateTitles{}, "")
 	subcommands.Register(&cmd.Unfinished{}, "")
 	subcommands.Register(&cmd.Unregister{}, "")

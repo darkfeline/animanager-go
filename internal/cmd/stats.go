@@ -22,14 +22,12 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/google/subcommands"
-
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type Stats struct {
-}
+type Stats struct{}
 
 func (*Stats) Name() string     { return "stats" }
 func (*Stats) Synopsis() string { return "Print various stats." }
@@ -39,16 +37,10 @@ Print various stats.
 `
 }
 
-func (s *Stats) SetFlags(f *flag.FlagSet) {
-}
+func (*Stats) SetFlags(f *flag.FlagSet) {}
 
-func (s *Stats) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	return executeInner(s, ctx, f, x)
-}
-
-func (s *Stats) innerExecute(ctx context.Context, f *flag.FlagSet, x ...interface{}) error {
-	c := getConfig(x)
-	db, err := database.Open(ctx, c.DBPath)
+func (*Stats) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
+	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
 		return err
 	}
