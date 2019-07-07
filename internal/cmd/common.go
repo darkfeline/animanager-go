@@ -56,28 +56,6 @@ func getConfig(x []interface{}) config.Config {
 	return x[0].(config.Config)
 }
 
-func executeInner(e innerExecutor, ctx context.Context, f *flag.FlagSet, x []interface{}) subcommands.ExitStatus {
-	err := e.innerExecute(ctx, f, x...)
-	var err2 usageError
-	if xerrors.As(err, &err2) {
-		PrintError(err)
-		return subcommands.ExitUsageError
-	}
-	if err != nil {
-		PrintError(err)
-		return subcommands.ExitFailure
-	}
-	return subcommands.ExitSuccess
-}
-
-type innerExecutor interface {
-	innerExecute(ctx context.Context, f *flag.FlagSet, x ...interface{}) error
-}
-
-type usageError struct {
-	error
-}
-
 type Command interface {
 	Name() string
 	Synopsis() string
