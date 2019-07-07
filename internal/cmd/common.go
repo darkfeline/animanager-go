@@ -35,7 +35,7 @@ func getConfig(x []interface{}) config.Config {
 	return x[0].(config.Config)
 }
 
-type Command interface {
+type command interface {
 	Name() string
 	Synopsis() string
 	Usage() string
@@ -43,13 +43,24 @@ type Command interface {
 	Run(context.Context, *flag.FlagSet, config.Config) error
 }
 
-type Wrapper struct {
-	Command
+type wrapper struct {
+	command
 }
 
-func (w Wrapper) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func Wrap(c interface{}) subcommands.Command {
+	switch c := c.(type) {
+	case subcommands.Command:
+		return c
+	case command:
+		return wrapper{c}
+	default:
+		panic("not command")
+	}
+}
+
+func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
 	cfg := getConfig(x)
-	if err := w.Command.Run(ctx, f, cfg); err != nil {
+	if err := w.command.Run(ctx, f, cfg); err != nil {
 		log.Printf("Error: %s", err)
 		return subcommands.ExitFailure
 	}
