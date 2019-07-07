@@ -17,20 +17,20 @@ type EpisodeFile struct {
 func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 	t, err := db.Begin()
 	if err != nil {
-		return xerrors.Errorf("insert episode files: %v", err)
+		return xerrors.Errorf("insert episode files: %w", err)
 	}
 	defer t.Rollback()
 	s, err := t.Prepare(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`)
 	if err != nil {
-		return xerrors.Errorf("insert episode files: %v", err)
+		return xerrors.Errorf("insert episode files: %w", err)
 	}
 	for _, ef := range efs {
 		if _, err = s.Exec(ef.EpisodeID, ef.Path); err != nil {
-			return xerrors.Errorf("insert episode files: %v", err)
+			return xerrors.Errorf("insert episode files: %w", err)
 		}
 	}
 	if err := t.Commit(); err != nil {
-		return xerrors.Errorf("insert episode files: %v", err)
+		return xerrors.Errorf("insert episode files: %w", err)
 	}
 	return nil
 }
