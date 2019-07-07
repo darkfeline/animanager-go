@@ -20,36 +20,15 @@ package cmd
 import (
 	"context"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/google/subcommands"
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/go2/errors"
-	"golang.org/x/xerrors"
 )
 
 // Logger is used by this package for logging.
 var Logger = log.New(ioutil.Discard, "cmd: ", log.LstdFlags)
-
-// PrintError is used by this package for printing user facing errors.
-var PrintError func(error) = func(err error) {
-	var err2 userError
-	if xerrors.As(err, &err2) {
-		fmt.Fprintln(os.Stderr, err2.UserError())
-	} else {
-		fmt.Fprintln(os.Stderr, errors.Format(err, false))
-	}
-}
-
-// userError is the interface implemented by errors to provide a
-// user-friendly error string used by the default PrintError function.
-type userError interface {
-	error
-	UserError() string
-}
 
 // getConfig gets the Config passed into a subcommand.
 func getConfig(x []interface{}) config.Config {

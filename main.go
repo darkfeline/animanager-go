@@ -26,7 +26,6 @@ import (
 	"path/filepath"
 
 	"github.com/google/subcommands"
-	"go.felesatra.moe/go2/errors"
 
 	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/config"
@@ -73,8 +72,4 @@ func setupDebug() {
 	cmd.Logger.SetOutput(os.Stderr)
 	database.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetOutput(os.Stderr)
-
-	cmd.PrintError = func(err error) {
-		fmt.Fprintln(os.Stderr, errors.Format(err, true))
-	}
 }
