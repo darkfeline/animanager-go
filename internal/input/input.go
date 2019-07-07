@@ -57,13 +57,9 @@ func ReadYN(r Reader, def bool) (bool, error) {
 	s := strings.TrimSpace(line)
 	s = strings.ToLower(s)
 	switch s {
-	case "y":
-		fallthrough
-	case "yes":
+	case "y", "yes":
 		return true, nil
-	case "n":
-		fallthrough
-	case "no":
+	case "n", "no":
 		return false, nil
 	case "":
 		return def, nil
