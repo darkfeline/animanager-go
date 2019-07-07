@@ -19,8 +19,6 @@
 package titles
 
 import (
-	"log"
-	"os"
 	"regexp"
 	"strings"
 
@@ -28,9 +26,6 @@ import (
 	"go.felesatra.moe/anidb/cache/titles"
 	"golang.org/x/xerrors"
 )
-
-// ErrLogger is used by this package to log errors.
-var ErrLogger = log.New(os.Stderr, "titles: ", log.LstdFlags)
 
 // TODO: these get functions are pointless
 
