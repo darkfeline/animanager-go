@@ -37,26 +37,7 @@ var ErrLogger = log.New(os.Stderr, "titles: ", log.LstdFlags)
 // Get returns a slice of anime titles.  This function uses a cache if
 // it exists, getting the data from AniDB and caching it otherwise.
 func Get() ([]anidb.AnimeT, error) {
-	ts, err := titles.LoadDefault()
-	if err == nil {
-		return ts, nil
-	}
-	ErrLogger.Printf("Failed to load cached titles: %s", err)
-	return getSkipCache()
-}
-
-// getSkipCache returns a slice of anime titles.  This function ignores
-// the cache, getting the data from AniDB and caching it.
-func getSkipCache() ([]anidb.AnimeT, error) {
-	ts, err := anidb.RequestTitles()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := titles.SaveDefault(ts); err != nil {
-		ErrLogger.Printf("Error caching titles: %s", err)
-	}
-	return ts, nil
+	return titles.LoadDefault()
 }
 
 // UpdateCacheFromAPI updates the anime titles cache from the AniDB titles dump.
