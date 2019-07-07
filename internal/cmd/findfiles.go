@@ -180,7 +180,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 				w.AID, w.Regexp)
 		}
 		n += w.Offset
-		if n >= len(regEps) {
+		if n >= len(regEps) || n < 1 {
 			continue
 		}
 		result = append(result, query.EpisodeFile{
