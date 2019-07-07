@@ -109,6 +109,7 @@ func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
 	for {
 		fmt.Print("Set done? [Y/n] ")
 		ans, err := input.ReadYN(br, true)
+		// TODO: fix how temporary errors is implemented here
 		if err, ok := err.(temporary); ok && err.Temporary() {
 			fmt.Println(err)
 			continue
