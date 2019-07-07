@@ -47,15 +47,12 @@ type wrapper struct {
 	command
 }
 
-func Wrap(c interface{}) subcommands.Command {
-	switch c := c.(type) {
-	case subcommands.Command:
-		return c
-	case command:
-		return wrapper{c}
-	default:
-		panic("not command")
-	}
+func Wrap(c command) subcommands.Command {
+	return wrapper{c}
+}
+
+func Wrap2(c subcommands.Command) subcommands.Command {
+	return c
 }
 
 func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
