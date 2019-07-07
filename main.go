@@ -61,7 +61,7 @@ func main() {
 		setupDebug()
 	}
 	ctx := context.Background()
-	c, err := config.New(configPath)
+	c, err := config.Load(configPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading config: %s\n", err)
 	}

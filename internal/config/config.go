@@ -36,9 +36,9 @@ type Config struct {
 
 var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
 
-// New loads the configuration file.  If an error occurs, an error is
+// Load loads the configuration file.  If an error occurs, an error is
 // returned along with the default configuration.
-func New(p string) (Config, error) {
+func Load(p string) (Config, error) {
 	c := Default()
 	f, err := os.Open(p)
 	if err != nil {
