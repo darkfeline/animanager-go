@@ -22,11 +22,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/google/subcommands"
 
+	"go.felesatra.moe/anidb"
+	"go.felesatra.moe/anidb/cache/titles"
 	"go.felesatra.moe/animanager/internal/afmt"
-	"go.felesatra.moe/animanager/internal/anidb/titles"
 )
 
 type Search struct {
@@ -49,12 +52,50 @@ func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		return subcommands.ExitUsageError
 	}
 	terms := f.Args()
-	ts, err := titles.Get()
+	ts, err := titles.LoadDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
 	}
-	ts = titles.Search(ts, terms)
+	ts = search(ts, terms)
 	afmt.PrintAnimeT(os.Stdout, ts)
 	return subcommands.ExitSuccess
+}
+
+// search returns a slice of anime whose title matches the given
+// terms.  A title is matched if it contains all terms in order,
+// ignoring case and intervening characters.
+func search(at []anidb.AnimeT, terms []string) []anidb.AnimeT {
+	r := globTerms(terms)
+	return filterTitles(r, at)
+}
+
+// globTerms returns a regexp that matches strings containing the
+// terms in order, ignoring case and intervening characters.
+func globTerms(terms []string) *regexp.Regexp {
+	for i, t := range terms {
+		terms[i] = regexp.QuoteMeta(t)
+	}
+	return regexp.MustCompile("(?i)" + strings.Join(terms, ".*"))
+}
+
+// filterTitles returns a slice of anime whose title matches the regexp.
+func filterTitles(r *regexp.Regexp, ts []anidb.AnimeT) []anidb.AnimeT {
+	var matched []anidb.AnimeT
+	for _, at := range ts {
+		if titleMatches(r, at.Titles) {
+			matched = append(matched, at)
+		}
+	}
+	return matched
+}
+
+// titleMatches returns true if any of the titles matches the regexp.
+func titleMatches(r *regexp.Regexp, ts []anidb.Title) bool {
+	for _, t := range ts {
+		if r.FindStringIndex(t.Name) != nil {
+			return true
+		}
+	}
+	return false
 }
