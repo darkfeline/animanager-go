@@ -19,7 +19,6 @@
 package titles
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -32,9 +31,6 @@ import (
 
 // ErrLogger is used by this package to log errors.
 var ErrLogger = log.New(os.Stderr, "titles: ", log.LstdFlags)
-
-// Logger is used by this package for informational logging.
-var Logger = log.New(ioutil.Discard, "titles: ", log.LstdFlags)
 
 // TODO: these get functions are pointless
 
