@@ -39,7 +39,7 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 func GetEpisodeFiles(db *sql.DB, episodeID int) (es []EpisodeFile, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("get episode %d files: %s", episodeID, err)
+			err = fmt.Errorf("get episode %d files: %w", episodeID, err)
 		}
 	}()
 	r, err := db.Query(`
