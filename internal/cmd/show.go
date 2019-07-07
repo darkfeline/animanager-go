@@ -59,8 +59,8 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 		fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
 		return subcommands.ExitUsageError
 	}
-	c := getConfig(x)
-	db, err := database.Open(ctx, c.DBPath)
+	cfg := getConfig(x)
+	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure

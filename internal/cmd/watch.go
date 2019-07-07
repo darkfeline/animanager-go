@@ -64,17 +64,17 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 		return subcommands.ExitUsageError
 	}
 
-	c := getConfig(x)
-	db, err := database.Open(ctx, c.DBPath)
+	cfg := getConfig(x)
+	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
 	if w.episode {
-		err = watchEpisode(c, db, id)
+		err = watchEpisode(cfg, db, id)
 	} else {
-		err = watchAnime(c, db, id)
+		err = watchAnime(cfg, db, id)
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
@@ -83,7 +83,7 @@ func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) 
 	return subcommands.ExitSuccess
 }
 
-func watchEpisode(c config.Config, db *sql.DB, id int) error {
+func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
 		return xerrors.Errorf("get episode: %w", err)
@@ -98,7 +98,7 @@ func watchEpisode(c config.Config, db *sql.DB, id int) error {
 	}
 	f := fs[0]
 	fmt.Println(f.Path)
-	if err := playFile(c, f.Path); err != nil {
+	if err := playFile(cfg, f.Path); err != nil {
 		return err
 	}
 	if e.UserWatched {
@@ -130,13 +130,13 @@ type temporary interface {
 	Temporary() bool
 }
 
-func playFile(c config.Config, p string) error {
-	cmd := exec.Command(c.Player[0], append(c.Player[1:], p)...)
+func playFile(cfg config.Config, p string) error {
+	cmd := exec.Command(cfg.Player[0], append(cfg.Player[1:], p)...)
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
-func watchAnime(c config.Config, db *sql.DB, aid int) error {
+func watchAnime(cfg config.Config, db *sql.DB, aid int) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return xerrors.Errorf("get anime: %w", err)
@@ -150,7 +150,7 @@ func watchAnime(c config.Config, db *sql.DB, aid int) error {
 		if e.UserWatched {
 			continue
 		}
-		return watchEpisode(c, db, e.ID)
+		return watchEpisode(cfg, db, e.ID)
 	}
 	return fmt.Errorf("no unwatched episodes for %d", aid)
 }

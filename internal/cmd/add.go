@@ -66,8 +66,8 @@ func (a *Add) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) su
 		aids[i] = aid
 	}
 
-	c := getConfig(x)
-	db, err := database.Open(ctx, c.DBPath)
+	cfg := getConfig(x)
+	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure

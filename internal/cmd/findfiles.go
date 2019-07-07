@@ -54,15 +54,15 @@ func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		return subcommands.ExitUsageError
 	}
 
-	c := getConfig(x)
-	db, err := database.Open(ctx, c.DBPath)
+	cfg := getConfig(x)
+	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
 		return subcommands.ExitFailure
 	}
 	defer db.Close()
 	Logger.Printf("Finding video files")
-	files, err := findVideoFilesMany(c.WatchDirs)
+	files, err := findVideoFilesMany(cfg.WatchDirs)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return subcommands.ExitFailure
