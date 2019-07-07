@@ -152,8 +152,10 @@ func refreshFiles(db *sql.DB, files []string) error {
 		efs = append(efs, efs2...)
 	}
 	Logger.Print("Inserting files")
-	err = query.InsertEpisodeFiles(db, efs)
-	return xerrors.Errorf("refresh files: %w", err)
+	if err = query.InsertEpisodeFiles(db, efs); err != nil {
+		return xerrors.Errorf("refresh files: %w", err)
+	}
+	return nil
 }
 
 // filterFiles returns files that match the watching entry.
