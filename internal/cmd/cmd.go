@@ -25,7 +25,7 @@ func AddCommands(c *subcommands.Commander) {
 	c.Register(wrap(&Search{}), "")
 	c.Register(wrap(&SetDone{}), "")
 	c.Register(wrap(&Stats{}), "")
-	c.Register(wrap2(&UpdateTitles{}), "")
+	c.Register(wrap(&UpdateTitles{}), "")
 	c.Register(wrap(&Unfinished{}), "")
 	c.Register(wrap2(&Unregister{}), "")
 	c.Register(wrap2(&Watch{}), "")

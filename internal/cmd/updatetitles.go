@@ -21,13 +21,11 @@ import (
 	"compress/gzip"
 	"context"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
 
-	"github.com/google/subcommands"
-
 	"go.felesatra.moe/animanager/internal/anidb/titles"
+	"go.felesatra.moe/animanager/internal/config"
 )
 
 type UpdateTitles struct {
@@ -47,34 +45,26 @@ func (c *UpdateTitles) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.file, "file", "", "Titles file to use.")
 }
 
-func (c *UpdateTitles) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (c *UpdateTitles) Run(_ context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if c.file == "" {
-		if err := titles.UpdateCacheFromAPI(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
-		}
-	} else {
-		f, err := os.Open(c.file)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
-		}
-		defer f.Close()
-		r, err := gzip.NewReader(f)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
-		}
-		defer r.Close()
-		d, err := ioutil.ReadAll(r)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
-		}
-		if err := titles.UpdateCache(d); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
-		}
+		return titles.UpdateCacheFromAPI()
 	}
-	return subcommands.ExitSuccess
+	f2, err := os.Open(c.file)
+	if err != nil {
+		return err
+	}
+	defer f2.Close()
+	r, err := gzip.NewReader(f2)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	d, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	if err := titles.UpdateCache(d); err != nil {
+		return err
+	}
+	return nil
 }
