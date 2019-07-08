@@ -27,15 +27,14 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/google/subcommands"
 	"golang.org/x/xerrors"
 
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type FindFiles struct {
-}
+type FindFiles struct{}
 
 func (*FindFiles) Name() string     { return "findfiles" }
 func (*FindFiles) Synopsis() string { return "Find episode files." }
@@ -45,34 +44,27 @@ Find episode files.
 `
 }
 
-func (*FindFiles) SetFlags(f *flag.FlagSet) {
-}
+func (*FindFiles) SetFlags(f *flag.FlagSet) {}
 
-func (ff *FindFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (*FindFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 0 {
-		fmt.Fprint(os.Stderr, ff.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"no arguments allowed"}
 	}
-
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
 	Logger.Printf("Finding video files")
 	files, err := findVideoFilesMany(cfg.WatchDirs)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	Logger.Printf("Finished finding video files")
 	if err := refreshFiles(db, files); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
 
 func findVideoFilesMany(dirs []string) ([]string, error) {
