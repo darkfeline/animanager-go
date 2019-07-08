@@ -19,7 +19,7 @@ import "github.com/google/subcommands"
 func AddCommands(c *subcommands.Commander) {
 	c.Register(wrap(&Add{}), "")
 	c.Register(wrap(&FindFiles{}), "")
-	c.Register(wrap2(&Register{}), "")
+	c.Register(wrap(&Register{}), "")
 	c.Register(wrap2(&Show{}), "")
 	c.Register(wrap2(&ShowFiles{}), "")
 	c.Register(wrap2(&Search{}), "")

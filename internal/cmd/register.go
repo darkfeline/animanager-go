@@ -23,12 +23,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
 	"strconv"
 
-	"github.com/google/subcommands"
-
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -46,47 +44,41 @@ Register an anime.
 `
 }
 
-func (r *Register) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&r.pattern, "pattern", "", "File pattern")
-	f.IntVar(&r.offset, "offset", 0, "Episode offset")
+func (c *Register) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&c.pattern, "pattern", "", "File pattern")
+	f.IntVar(&c.offset, "offset", 0, "Episode offset")
 }
 
-func (r *Register) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (c *Register) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 1 {
-		fmt.Fprint(os.Stderr, r.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"must pass exactly one argument"}
 	}
 	aid, err := strconv.Atoi(f.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
-		return subcommands.ExitUsageError
+		return fmt.Errorf("invalid AID %v: %v", aid, err)
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
-	if r.pattern == "" {
+	if c.pattern == "" {
 		a, err := query.GetAnime(db, aid)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
+			return err
 		}
-		r.pattern = animeDefaultRegexp(a)
+		c.pattern = animeDefaultRegexp(a)
 	}
 	w := query.Watching{
 		AID:    aid,
-		Regexp: r.pattern,
-		Offset: r.offset,
+		Regexp: c.pattern,
+		Offset: c.offset,
 	}
 	if err := query.InsertWatching(db, w); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
 
 var nonAlphaNum = regexp.MustCompile("[^a-zA-Z0-9]+")
