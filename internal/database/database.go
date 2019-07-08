@@ -89,9 +89,10 @@ func withLock(ctx context.Context, db *sql.DB, f func() error) error {
 // backup the database file.
 func backup(ctx context.Context, db *sql.DB, src string) error {
 	dst := src + ".bak"
-	if err := withLock(ctx, db, func() error {
+	f := func() error {
 		return copyFile(src, dst)
-	}); err != nil {
+	}
+	if err := withLock(ctx, db, f); err != nil {
 		return xerrors.Errorf("backup: %w", err)
 	}
 	return nil
