@@ -22,12 +22,10 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"os"
 
-	"github.com/google/subcommands"
-
 	"go.felesatra.moe/animanager/internal/afmt"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -45,36 +43,32 @@ Show watchable anime.
 `
 }
 
-func (w *Watchable) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&w.all, "all", false, "Show all files")
-	f.BoolVar(&w.missing, "missing", false, "Show next episodes missing files")
+func (c *Watchable) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.all, "all", false, "Show all files")
+	f.BoolVar(&c.missing, "missing", false, "Show next episodes missing files")
 }
 
-func (w *Watchable) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (c *Watchable) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 0 {
-		fmt.Fprint(os.Stderr, w.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"no arguments allowed"}
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
 	o := afmt.PrintWatchableOption{
-		IncludeWatched:      w.all,
-		IncludeMissingFiles: w.missing,
+		IncludeWatched:      c.all,
+		IncludeMissingFiles: c.missing,
 	}
-	if w.all {
+	if c.all {
 		o.NumWatchable = -1
 	}
 	if err := showWatchable(db, o); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
 
 func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {
@@ -84,8 +78,8 @@ func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {
 	if err != nil {
 		return err
 	}
-	for _, w := range ws {
-		if err := showWatchableSingle(db, bw, w.AID, o); err != nil {
+	for _, c := range ws {
+		if err := showWatchableSingle(db, bw, c.AID, o); err != nil {
 			return err
 		}
 	}

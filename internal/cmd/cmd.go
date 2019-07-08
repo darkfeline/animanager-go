@@ -29,5 +29,5 @@ func AddCommands(c *subcommands.Commander) {
 	c.Register(wrap(&Unfinished{}), "")
 	c.Register(wrap(&Unregister{}), "")
 	c.Register(wrap(&Watch{}), "")
-	c.Register(wrap2(&Watchable{}), "")
+	c.Register(wrap(&Watchable{}), "")
 }
