@@ -21,11 +21,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"strconv"
 
-	"github.com/google/subcommands"
-
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -43,37 +41,32 @@ Unregister an anime.
 `
 }
 
-func (u *Unregister) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&u.watched, "watched", false, "Unregister watched anime")
+func (c *Unregister) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.watched, "watched", false, "Unregister watched anime")
 }
 
-func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	if f.NArg() < 1 && !u.watched {
-		fmt.Fprint(os.Stderr, u.Usage())
-		return subcommands.ExitUsageError
+func (c *Unregister) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
+	if f.NArg() < 1 && !c.watched {
+		return usageError{"no anime specified"}
 	}
 	aids := make([]int, f.NArg())
 	for _, s := range f.Args() {
 		aid, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
-			return subcommands.ExitUsageError
+			return fmt.Errorf("invalid AID %v: %v", aid, err)
 		}
 		aids = append(aids, aid)
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
-	if u.watched && false {
+	if c.watched && false {
 		watching, err := query.GetAllWatching(db)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
+			return err
 		}
 		watchingMap := make(map[int]bool)
 		for _, w := range watching {
@@ -82,8 +75,7 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 
 		watched, err := query.GetWatchedAnime(db)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
+			return err
 		}
 		for _, a := range watched {
 			if watchingMap[a.AID] {
@@ -94,9 +86,8 @@ func (u *Unregister) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 	for _, aid := range aids {
 		fmt.Println(aid)
 		if err := query.DeleteWatching(db, aid); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-			return subcommands.ExitFailure
+			return err
 		}
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
