@@ -24,8 +24,6 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// TODO: move these where used
-
 // UpdateCacheFromAPI updates the anime titles cache from the AniDB titles dump.
 func UpdateCacheFromAPI() error {
 	ts, err := anidb.RequestTitles()
