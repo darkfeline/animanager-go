@@ -22,14 +22,10 @@ package migrate
 import (
 	"context"
 	"database/sql"
-	"io/ioutil"
 	"log"
 
 	"golang.org/x/xerrors"
 )
-
-// Logger is used by this package for logging.
-var Logger = log.New(ioutil.Discard, "migrate: ", log.LstdFlags)
 
 // Migrate migrates the database to the newest version.
 func Migrate(ctx context.Context, d *sql.DB) error {
@@ -41,7 +37,7 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 		if v != m.From {
 			continue
 		}
-		Logger.Printf("Migrating from %d to %d", m.From, m.To)
+		log.Printf("Migrating database from %d to %d", m.From, m.To)
 		if err := m.Func(ctx, d); err != nil {
 			return xerrors.Errorf("migrate from %d to %d: %w", m.From, m.To, err)
 		}

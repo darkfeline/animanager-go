@@ -29,34 +29,22 @@ import (
 
 	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/database/migrate"
 )
 
 var defaultConfig = filepath.Join(os.Getenv("HOME"), ".animanager", "config.toml")
 
 func main() {
-	var debug bool
 	var configPath string
-	flag.BoolVar(&debug, "debug", false, "Debug mode")
 	flag.StringVar(&configPath, "config", defaultConfig, "Config file")
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	cmd.AddCommands(subcommands.DefaultCommander)
 	flag.Parse()
-	if debug {
-		setupDebug()
-	}
 	ctx := context.Background()
 	c, err := config.Load(configPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading config: %s\n", err)
 	}
 	os.Exit(int(subcommands.Execute(ctx, c)))
-}
-
-func setupDebug() {
-	database.Logger.SetOutput(os.Stderr)
-	migrate.Logger.SetOutput(os.Stderr)
 }
