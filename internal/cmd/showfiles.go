@@ -27,9 +27,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/google/subcommands"
-
 	"go.felesatra.moe/animanager/internal/afmt"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -50,22 +49,18 @@ func (sf *ShowFiles) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&sf.episode, "episode", false, "Show files for episode")
 }
 
-func (sf *ShowFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (sf *ShowFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 1 {
-		fmt.Fprint(os.Stderr, sf.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"must pass exactly one argument"}
 	}
 	id, err := strconv.Atoi(f.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid ID: %s\n", err)
-		return subcommands.ExitUsageError
+		return fmt.Errorf("invalid ID %v: %v", id, err)
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
 	bw := bufio.NewWriter(os.Stdout)
@@ -75,11 +70,7 @@ func (sf *ShowFiles) Execute(ctx context.Context, f *flag.FlagSet, x ...interfac
 		err = showAnimeFiles(bw, db, id)
 	}
 	bw.Flush()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
-	}
-	return subcommands.ExitSuccess
+	return err
 }
 
 func showAnimeFiles(w io.Writer, db *sql.DB, aid int) error {
