@@ -41,7 +41,7 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 func Open(ctx context.Context, src string) (db *sql.DB, err error) {
 	db, err = openDB(ctx, src)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("open database %v: %w", src, err)
 	}
 	defer func(db *sql.DB) {
 		if err != nil {
@@ -51,18 +51,18 @@ func Open(ctx context.Context, src string) (db *sql.DB, err error) {
 	if !isMemorySource(src) {
 		ok, err := migrate.IsCurrentVersion(db)
 		if err != nil {
-			return nil, err
+			return nil, xerrors.Errorf("open database %v: %w", src, err)
 		}
 		if !ok {
 			sp := sourcePath(src)
 			dp := sourcePath(src) + ".bak"
 			if err := backup(ctx, db, sp, dp); err != nil {
-				return nil, err
+				return nil, xerrors.Errorf("open database %v: backup: %w", src, err)
 			}
 		}
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
-		return nil, xerrors.Errorf("migrate database: %w", err)
+		return nil, xerrors.Errorf("open database %v: %w", src, err)
 	}
 	return db, nil
 }
