@@ -30,7 +30,7 @@ import (
 	sqlite3 "github.com/mattn/go-sqlite3"
 	"golang.org/x/xerrors"
 
-	"go.felesatra.moe/animanager/internal/migrate"
+	"go.felesatra.moe/animanager/internal/database/migrate"
 )
 
 // Logger is used by this package for logging.

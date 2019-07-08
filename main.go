@@ -30,7 +30,7 @@ import (
 	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
-	"go.felesatra.moe/animanager/internal/migrate"
+	"go.felesatra.moe/animanager/internal/database/migrate"
 )
 
 var defaultConfig = filepath.Join(os.Getenv("HOME"), ".animanager", "config.toml")
