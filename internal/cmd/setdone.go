@@ -21,11 +21,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"strconv"
 
-	"github.com/google/subcommands"
-
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -46,33 +44,28 @@ func (d *SetDone) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&d.notDone, "not", false, "Set status to not done")
 }
 
-func (d *SetDone) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (d *SetDone) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() < 1 {
-		fmt.Fprint(os.Stderr, d.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"no arguments provided"}
 	}
 	ids := make([]int, f.NArg())
 	for i, s := range f.Args() {
 		id, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: invalid ID: %s\n", err)
-			return subcommands.ExitUsageError
+			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
 		ids[i] = id
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
 	for _, id := range ids {
 		if err := query.UpdateEpisodeDone(db, id, !d.notDone); err != nil {
-			fmt.Fprintf(os.Stderr, "Error updating episode %d: %s\n", id, err)
-			return subcommands.ExitFailure
+			return err
 		}
 	}
-	return subcommands.ExitSuccess
+	return nil
 }
