@@ -78,19 +78,25 @@ func OpenMem(ctx context.Context) (*sql.DB, error) {
 	return Open(ctx, "file::memory:?mode=memory&cache=shared")
 }
 
-func backup(ctx context.Context, db *sql.DB, src, dst string) error {
+// withLock calls the provided function with a write transaction lock
+// on the database.
+func withLock(ctx context.Context, db *sql.DB, f func() error) error {
 	c, err := db.Conn(ctx)
 	if err != nil {
-		return xerrors.Errorf("backup: %w", err)
+		return xerrors.Errorf("with lock: %w", err)
 	}
 	defer c.Close()
-	_, err = c.ExecContext(ctx, "BEGIN IMMEDIATE")
-	if err != nil {
+	if _, err = c.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
 		return xerrors.Errorf("backup: %w", err)
 	}
 	defer c.ExecContext(ctx, "ROLLBACK")
-	err = copyFile(src, dst)
-	if err != nil {
+	return f()
+}
+
+func backup(ctx context.Context, db *sql.DB, src, dst string) error {
+	if err := withLock(ctx, db, func() error {
+		return copyFile(src, dst)
+	}); err != nil {
 		return xerrors.Errorf("backup: %w", err)
 	}
 	return nil
