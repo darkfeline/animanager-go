@@ -32,11 +32,6 @@ import (
 // Logger is used by this package for logging.
 var Logger = log.New(ioutil.Discard, "cmd: ", log.LstdFlags)
 
-// getConfig gets the Config passed into a subcommand.
-func getConfig(x []interface{}) config.Config {
-	return x[0].(config.Config)
-}
-
 type command interface {
 	Name() string
 	Synopsis() string
@@ -53,8 +48,8 @@ type wrapper struct {
 	command
 }
 
-func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
-	cfg := getConfig(x)
+func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	cfg := args[0].(config.Config)
 	if err := w.command.Run(ctx, f, cfg); err != nil {
 		switch err.(type) {
 		case usageError:
