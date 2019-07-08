@@ -39,7 +39,9 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
 func Open(ctx context.Context, src string) (db *sql.DB, err error) {
-	db, err = openDB(ctx, src)
+	logSQLiteVersion()
+	src = addParam(src, "_fk", "1")
+	db, err = sql.Open("sqlite3", src)
 	if err != nil {
 		return nil, xerrors.Errorf("open database %v: %w", src, err)
 	}
@@ -74,16 +76,6 @@ func Open(ctx context.Context, src string) (db *sql.DB, err error) {
 // must be closed out between tests.
 func OpenMem(ctx context.Context) (*sql.DB, error) {
 	return Open(ctx, "file::memory:?mode=memory&cache=shared")
-}
-
-func openDB(ctx context.Context, src string) (*sql.DB, error) {
-	logSQLiteVersion()
-	src = addParam(src, "_fk", "1")
-	db, err := sql.Open("sqlite3", src)
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
 }
 
 func backup(ctx context.Context, db *sql.DB, src, dst string) error {
