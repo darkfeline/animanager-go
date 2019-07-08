@@ -27,7 +27,6 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/google/subcommands"
 	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/afmt"
@@ -49,44 +48,36 @@ Watch anime.
 `
 }
 
-func (w *Watch) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&w.episode, "episode", false, "Treat argument as episode ID")
+func (c *Watch) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.episode, "episode", false, "Treat argument as episode ID")
 }
 
-func (w *Watch) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (c *Watch) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 1 {
-		fmt.Fprint(os.Stderr, w.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"must pass exactly one argument"}
 	}
 	id, err := strconv.Atoi(f.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid ID: %s\n", err)
-		return subcommands.ExitUsageError
+		return fmt.Errorf("invalid ID %v: %v", id, err)
 	}
 
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
-	if w.episode {
+	if c.episode {
 		err = watchEpisode(cfg, db, id)
 	} else {
 		err = watchAnime(cfg, db, id)
 	}
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
-	}
-	return subcommands.ExitSuccess
+	return err
 }
 
 func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
-		return xerrors.Errorf("get episode: %w", err)
+		return xerrors.Errorf("get episode: %c", err)
 	}
 	afmt.PrintEpisode(os.Stdout, *e)
 	fs, err := query.GetEpisodeFiles(db, id)
@@ -136,7 +127,7 @@ func playFile(cfg config.Config, p string) error {
 func watchAnime(cfg config.Config, db *sql.DB, aid int) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
-		return xerrors.Errorf("get anime: %w", err)
+		return xerrors.Errorf("get anime: %c", err)
 	}
 	afmt.PrintAnimeShort(os.Stdout, a)
 	eps, err := query.GetEpisodes(db, aid)
