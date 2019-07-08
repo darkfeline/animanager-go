@@ -27,10 +27,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/google/subcommands"
 	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/afmt"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -49,27 +49,22 @@ Show information about a series.
 func (*Show) SetFlags(f *flag.FlagSet) {
 }
 
-func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) subcommands.ExitStatus {
+func (*Show) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 1 {
-		fmt.Fprint(os.Stderr, s.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"must pass exactly one argument"}
 	}
 	aid, err := strconv.Atoi(f.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid AID: %s\n", err)
-		return subcommands.ExitUsageError
+		return fmt.Errorf("invalid AID %v: %v", aid, err)
 	}
-	cfg := getConfig(x)
 	db, err := database.Open(ctx, cfg.DBPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	defer db.Close()
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	bw := bufio.NewWriter(os.Stdout)
 	afmt.PrintAnime(bw, a)
@@ -80,17 +75,15 @@ func (s *Show) Execute(ctx context.Context, f *flag.FlagSet, x ...interface{}) s
 	case xerrors.Is(err, sql.ErrNoRows):
 		io.WriteString(bw, "Not registered\n")
 	default:
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	es, err := query.GetEpisodes(db, aid)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	for _, e := range es {
 		afmt.PrintEpisode(bw, e)
 	}
 	bw.Flush()
-	return subcommands.ExitSuccess
+	return nil
 }
