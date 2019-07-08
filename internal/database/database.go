@@ -50,15 +50,16 @@ func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 			db.Close()
 		}
 	}(db)
+	current, err := migrate.IsCurrentVersion(db)
+	if err != nil {
+		return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
+	}
+	if current {
+		return db, nil
+	}
 	if !isMemorySource(dataSrc) {
-		ok, err := migrate.IsCurrentVersion(db)
-		if err != nil {
-			return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
-		}
-		if !ok {
-			if err := backup(ctx, db, sourcePath(dataSrc)); err != nil {
-				return nil, xerrors.Errorf("open database %v: backup: %w", dataSrc, err)
-			}
+		if err := backup(ctx, db, sourcePath(dataSrc)); err != nil {
+			return nil, xerrors.Errorf("open database %v: backup: %w", dataSrc, err)
 		}
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
