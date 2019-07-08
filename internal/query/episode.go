@@ -19,7 +19,6 @@ package query
 
 import (
 	"database/sql"
-	"fmt"
 
 	"golang.org/x/xerrors"
 )
@@ -173,10 +172,10 @@ func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
 	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE id=?`,
 		watched, id)
 	if err != nil {
-		return fmt.Errorf("update episode %d done: %s", id, err)
+		return xerrors.Errorf("update episode %d done: %w", id, err)
 	}
 	if err := t.Commit(); err != nil {
-		return fmt.Errorf("update episode %d done: %s", id, err)
+		return xerrors.Errorf("update episode %d done: %w", id, err)
 	}
 	return nil
 }
