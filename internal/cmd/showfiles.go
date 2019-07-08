@@ -45,11 +45,11 @@ Show episode files.
 `
 }
 
-func (sf *ShowFiles) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&sf.episode, "episode", false, "Show files for episode")
+func (c *ShowFiles) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.episode, "episode", false, "Show files for episode")
 }
 
-func (sf *ShowFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
+func (c *ShowFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() != 1 {
 		return usageError{"must pass exactly one argument"}
 	}
@@ -64,7 +64,7 @@ func (sf *ShowFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config
 	}
 	defer db.Close()
 	bw := bufio.NewWriter(os.Stdout)
-	if sf.episode {
+	if c.episode {
 		err = showEpisodeFiles(bw, db, id)
 	} else {
 		err = showAnimeFiles(bw, db, id)

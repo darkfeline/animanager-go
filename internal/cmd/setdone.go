@@ -40,11 +40,11 @@ Set an episode's done status.
 `
 }
 
-func (d *SetDone) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&d.notDone, "not", false, "Set status to not done")
+func (c *SetDone) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&c.notDone, "not", false, "Set status to not done")
 }
 
-func (d *SetDone) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
+func (c *SetDone) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() < 1 {
 		return usageError{"no arguments provided"}
 	}
@@ -63,7 +63,7 @@ func (d *SetDone) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) e
 	}
 	defer db.Close()
 	for _, id := range ids {
-		if err := query.UpdateEpisodeDone(db, id, !d.notDone); err != nil {
+		if err := query.UpdateEpisodeDone(db, id, !c.notDone); err != nil {
 			return err
 		}
 	}
