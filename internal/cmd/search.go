@@ -20,16 +20,14 @@ package cmd
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"regexp"
 	"strings"
 
-	"github.com/google/subcommands"
-
 	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/anidb/cache/titles"
 	"go.felesatra.moe/animanager/internal/afmt"
+	"go.felesatra.moe/animanager/internal/config"
 )
 
 type Search struct {
@@ -43,23 +41,21 @@ Search for an anime title.
 `
 }
 
-func (s *Search) SetFlags(f *flag.FlagSet) {
+func (*Search) SetFlags(f *flag.FlagSet) {
 }
 
-func (s *Search) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (*Search) Run(_ context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if f.NArg() == 0 {
-		fmt.Fprint(os.Stderr, s.Usage())
-		return subcommands.ExitUsageError
+		return usageError{"no search terms"}
 	}
 	terms := f.Args()
 	ts, err := titles.LoadDefault()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return subcommands.ExitFailure
+		return err
 	}
 	ts = search(ts, terms)
 	afmt.PrintAnimeT(os.Stdout, ts)
-	return subcommands.ExitSuccess
+	return nil
 }
 
 // search returns a slice of anime whose title matches the given

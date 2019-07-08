@@ -22,7 +22,7 @@ func AddCommands(c *subcommands.Commander) {
 	c.Register(wrap(&Register{}), "")
 	c.Register(wrap(&Show{}), "")
 	c.Register(wrap(&ShowFiles{}), "")
-	c.Register(wrap2(&Search{}), "")
+	c.Register(wrap(&Search{}), "")
 	c.Register(wrap2(&SetDone{}), "")
 	c.Register(wrap(&Stats{}), "")
 	c.Register(wrap2(&UpdateTitles{}), "")
