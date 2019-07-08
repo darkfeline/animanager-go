@@ -49,10 +49,6 @@ func wrap(c command) subcommands.Command {
 	return wrapper{c}
 }
 
-func wrap2(c subcommands.Command) subcommands.Command {
-	return c
-}
-
 type wrapper struct {
 	command
 }
