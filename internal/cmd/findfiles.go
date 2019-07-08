@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -55,12 +56,12 @@ func (*FindFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) e
 		return err
 	}
 	defer db.Close()
-	Logger.Printf("Finding video files")
+	log.Printf("Finding video files")
 	files, err := findVideoFilesMany(cfg.WatchDirs)
 	if err != nil {
 		return err
 	}
-	Logger.Printf("Finished finding video files")
+	log.Printf("Finished finding video files")
 	if err := refreshFiles(db, files); err != nil {
 		return err
 	}
@@ -129,9 +130,9 @@ func refreshFiles(db *sql.DB, files []string) error {
 		return xerrors.Errorf("refresh files: %w", err)
 	}
 	var efs []query.EpisodeFile
-	Logger.Print("Matching files")
+	log.Print("Matching files")
 	for _, w := range ws {
-		Logger.Printf("Matching files for %d", w.AID)
+		log.Printf("Matching files for %d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
 			return xerrors.Errorf("refresh files: %w", err)
@@ -140,10 +141,10 @@ func refreshFiles(db *sql.DB, files []string) error {
 		if err != nil {
 			return xerrors.Errorf("refresh files: %w", err)
 		}
-		Logger.Printf("Found files for %d: %#v", w.AID, efs2)
+		log.Printf("Found files for %d: %#v", w.AID, efs2)
 		efs = append(efs, efs2...)
 	}
-	Logger.Print("Inserting files")
+	log.Print("Inserting files")
 	if err = query.InsertEpisodeFiles(db, efs); err != nil {
 		return xerrors.Errorf("refresh files: %w", err)
 	}

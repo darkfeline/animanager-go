@@ -57,7 +57,6 @@ func main() {
 }
 
 func setupDebug() {
-	cmd.Logger.SetOutput(os.Stderr)
 	database.Logger.SetOutput(os.Stderr)
 	migrate.Logger.SetOutput(os.Stderr)
 }

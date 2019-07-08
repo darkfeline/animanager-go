@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -88,7 +89,7 @@ func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error
 }
 
 func addAnime(db *sql.DB, aid int) error {
-	Logger.Printf("Adding %d", aid)
+	log.Printf("Adding %d", aid)
 	c, err := anidb.RequestAnime(aid)
 	if err != nil {
 		return xerrors.Errorf("add anime %v: %w", aid, err)

@@ -14,7 +14,16 @@
 
 package cmd
 
-import "github.com/google/subcommands"
+import (
+	"context"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/google/subcommands"
+	"go.felesatra.moe/animanager/internal/config"
+)
 
 func AddCommands(c *subcommands.Commander) {
 	c.Register(wrap(&Add{}), "")
@@ -30,4 +39,43 @@ func AddCommands(c *subcommands.Commander) {
 	c.Register(wrap(&Unregister{}), "")
 	c.Register(wrap(&Watch{}), "")
 	c.Register(wrap(&Watchable{}), "")
+}
+
+type command interface {
+	Name() string
+	Synopsis() string
+	Usage() string
+	SetFlags(*flag.FlagSet)
+	Run(context.Context, *flag.FlagSet, config.Config) error
+}
+
+func wrap(c command) subcommands.Command {
+	return wrapper{c}
+}
+
+type wrapper struct {
+	command
+}
+
+func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	cfg := args[0].(config.Config)
+	if err := w.command.Run(ctx, f, cfg); err != nil {
+		switch err.(type) {
+		case usageError:
+			fmt.Fprintf(os.Stderr, w.command.Usage())
+			return subcommands.ExitUsageError
+		default:
+			log.Printf("Error: %s", err)
+			return subcommands.ExitFailure
+		}
+	}
+	return subcommands.ExitSuccess
+}
+
+type usageError struct {
+	message string
+}
+
+func (e usageError) Error() string {
+	return fmt.Sprintf("usage error: %s", e.message)
 }
