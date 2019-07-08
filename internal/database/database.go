@@ -114,12 +114,11 @@ func copyFile(src, dst string) error {
 		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	defer df.Close()
-	_, err = io.Copy(df, sf)
-	if err != nil {
+	if _, err := io.Copy(df, sf); err != nil {
 		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
-	err = df.Close()
-	if err != nil {
+
+	if err := df.Close(); err != nil {
 		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	return nil
