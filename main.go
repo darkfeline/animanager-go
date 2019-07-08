@@ -32,17 +32,16 @@ import (
 )
 
 var defaultConfig = filepath.Join(os.Getenv("HOME"), ".animanager", "config.toml")
+var configPath = flag.String("config", defaultConfig, "Config file")
 
 func main() {
-	var configPath string
-	flag.StringVar(&configPath, "config", defaultConfig, "Config file")
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	cmd.AddCommands(subcommands.DefaultCommander)
 	flag.Parse()
 	ctx := context.Background()
-	c, err := config.Load(configPath)
+	c, err := config.Load(*configPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading config: %s\n", err)
 	}
