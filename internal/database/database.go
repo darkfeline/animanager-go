@@ -38,33 +38,31 @@ var Logger = log.New(ioutil.Discard, "database: ", log.LstdFlags)
 
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
-func Open(ctx context.Context, src string) (db *sql.DB, err error) {
+func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 	logSQLiteVersion()
-	src = addParam(src, "_fk", "1")
-	db, err = sql.Open("sqlite3", src)
+	dataSrc = addParam(dataSrc, "_fk", "1")
+	db, err = sql.Open("sqlite3", dataSrc)
 	if err != nil {
-		return nil, xerrors.Errorf("open database %v: %w", src, err)
+		return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
 	}
 	defer func(db *sql.DB) {
 		if err != nil {
 			db.Close()
 		}
 	}(db)
-	if !isMemorySource(src) {
+	if !isMemorySource(dataSrc) {
 		ok, err := migrate.IsCurrentVersion(db)
 		if err != nil {
-			return nil, xerrors.Errorf("open database %v: %w", src, err)
+			return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
 		}
 		if !ok {
-			sp := sourcePath(src)
-			dp := sourcePath(src) + ".bak"
-			if err := backup(ctx, db, sp, dp); err != nil {
-				return nil, xerrors.Errorf("open database %v: backup: %w", src, err)
+			if err := backup(ctx, db, sourcePath(dataSrc)); err != nil {
+				return nil, xerrors.Errorf("open database %v: backup: %w", dataSrc, err)
 			}
 		}
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
-		return nil, xerrors.Errorf("open database %v: %w", src, err)
+		return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
 	}
 	return db, nil
 }
@@ -93,7 +91,9 @@ func withLock(ctx context.Context, db *sql.DB, f func() error) error {
 	return f()
 }
 
-func backup(ctx context.Context, db *sql.DB, src, dst string) error {
+// backup the database file.
+func backup(ctx context.Context, db *sql.DB, src string) error {
+	dst := src + ".bak"
 	if err := withLock(ctx, db, func() error {
 		return copyFile(src, dst)
 	}); err != nil {
