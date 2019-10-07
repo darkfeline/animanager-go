@@ -11,6 +11,7 @@
 
 * `add` and `unregister` now print the affected AIDs to stdout.
 * `add` now deletes episodes that were removed from AniDB.
+* `register` now checks if the pattern is valid.
 
 ### Removed
 
