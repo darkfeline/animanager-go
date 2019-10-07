@@ -13,3 +13,4 @@ go.felesatra.moe/xdg v0.0.0-20180916213731-249cb5fe4f69 h1:ypwJJaXoWOILIxpwGevO/
 go.felesatra.moe/xdg v0.0.0-20180916213731-249cb5fe4f69/go.mod h1:PA/TEhZdEMC3MpbKiuYdx3i8QbsiXhzQPBZLT557LVg=
 golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522 h1:bhOzK9QyoD0ogCnFro1m2mz41+Ib0oOhfJnBp5MR4K4=
 golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
+golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=

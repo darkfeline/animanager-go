@@ -6,5 +6,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.9.0
 	go.felesatra.moe/anidb v1.0.0
 	go.felesatra.moe/xdg v0.0.0-20180916213731-249cb5fe4f69 // indirect
-	golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522
+	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 )
+
+go 1.13

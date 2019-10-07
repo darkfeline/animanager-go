@@ -2,6 +2,7 @@ package query
 
 import (
 	"database/sql"
+	"regexp"
 
 	"golang.org/x/xerrors"
 )
@@ -15,6 +16,9 @@ type Watching struct {
 
 // InsertWatching inserts or updates a watching entry into the database.
 func InsertWatching(db *sql.DB, w Watching) error {
+	if _, err := regexp.Compile(w.Regexp); err != nil {
+		return xerrors.Errorf("insert watching %d: %w", w.AID, err)
+	}
 	t, err := db.Begin()
 	if err != nil {
 		return err
@@ -27,7 +31,7 @@ ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
 		w.Regexp, w.Offset, w.AID,
 	)
 	if err != nil {
-		return xerrors.Errorf("failed to insert watching %d: %w", w.AID, err)
+		return xerrors.Errorf("insert watching %d: %w", w.AID, err)
 	}
 	return t.Commit()
 }
