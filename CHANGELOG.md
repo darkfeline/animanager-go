@@ -1,6 +1,6 @@
 # Changelog
 
-## next
+## 0.17.0 - 2019-10-06
 
 ### Added
 
