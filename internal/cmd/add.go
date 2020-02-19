@@ -30,7 +30,6 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
-	"golang.org/x/xerrors"
 )
 
 type Add struct {
@@ -92,10 +91,10 @@ func addAnime(db *sql.DB, aid int) error {
 	log.Printf("Adding %d", aid)
 	c, err := anidb.RequestAnime(aid)
 	if err != nil {
-		return xerrors.Errorf("add anime %v: %w", aid, err)
+		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
 	if err := query.InsertAnime(db, c); err != nil {
-		return xerrors.Errorf("add anime %v: %w", aid, err)
+		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
 	return nil
 }

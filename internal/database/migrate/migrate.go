@@ -22,16 +22,15 @@ package migrate
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
-
-	"golang.org/x/xerrors"
 )
 
 // Migrate migrates the database to the newest version.
 func Migrate(ctx context.Context, d *sql.DB) error {
 	v, err := getUserVersion(d)
 	if err != nil {
-		return xerrors.Errorf("get user version: %w", err)
+		return fmt.Errorf("get user version: %w", err)
 	}
 	for _, m := range migrations {
 		if v != m.From {
@@ -39,7 +38,7 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 		}
 		log.Printf("Migrating database from %d to %d", m.From, m.To)
 		if err := m.Func(ctx, d); err != nil {
-			return xerrors.Errorf("migrate from %d to %d: %w", m.From, m.To, err)
+			return fmt.Errorf("migrate from %d to %d: %w", m.From, m.To, err)
 		}
 		if err := setUserVersion(d, m.To); err != nil {
 			return err
@@ -54,7 +53,7 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 func IsCurrentVersion(d *sql.DB) (bool, error) {
 	v, err := getUserVersion(d)
 	if err != nil {
-		return false, xerrors.Errorf("get user version: %w", err)
+		return false, fmt.Errorf("get user version: %w", err)
 	}
 	return v == currentVersion(), nil
 }

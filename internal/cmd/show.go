@@ -21,13 +21,12 @@ import (
 	"bufio"
 	"context"
 	"database/sql"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
-
-	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
@@ -72,7 +71,7 @@ func (*Show) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error 
 	switch {
 	case err == nil:
 		fmt.Fprintf(bw, "Registered: %#v (offset %d)\n", w.Regexp, w.Offset)
-	case xerrors.Is(err, sql.ErrNoRows):
+	case errors.Is(err, sql.ErrNoRows):
 		io.WriteString(bw, "Not registered\n")
 	default:
 		return err

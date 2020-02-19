@@ -16,15 +16,14 @@ package query
 
 import (
 	"database/sql"
-
-	"golang.org/x/xerrors"
+	"fmt"
 )
 
 // GetAnimeFiles gets the episode files for all of the anime's episodes.
 func GetAnimeFiles(db *sql.DB, aid int) ([]EpisodeFiles, error) {
 	eps, err := GetEpisodes(db, aid)
 	if err != nil {
-		return nil, xerrors.Errorf("get anime %d files: %w", aid, err)
+		return nil, fmt.Errorf("get anime %d files: %w", aid, err)
 	}
 	var efs []EpisodeFiles
 	for _, e := range eps {
@@ -33,7 +32,7 @@ func GetAnimeFiles(db *sql.DB, aid int) ([]EpisodeFiles, error) {
 		}
 		fs, err := GetEpisodeFiles(db, e.ID)
 		if err != nil {
-			return nil, xerrors.Errorf("get anime %d files: %w", aid, err)
+			return nil, fmt.Errorf("get anime %d files: %w", aid, err)
 		}
 		ef.Files = fs
 		efs = append(efs, ef)

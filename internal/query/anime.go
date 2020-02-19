@@ -19,9 +19,9 @@ package query
 
 import (
 	"database/sql"
+	"fmt"
 
 	"go.felesatra.moe/anidb"
-	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/date"
 )
@@ -157,27 +157,27 @@ WHERE aid=?`,
 		a.AID,
 	)
 	if err != nil {
-		return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
+		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	em, err := GetEpisodesMap(t, a.AID)
 	if err != nil {
-		return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
+		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	for _, e := range a.Episodes {
 		k := EpisodeKey{AID: a.AID}
 		k.Type, k.Number = parseEpNo(e.EpNo)
 		if k.Type == EpUnknown {
-			return xerrors.Errorf("failed to insert anime %d: invalid epno %s", a.AID, e.EpNo)
+			return fmt.Errorf("failed to insert anime %d: invalid epno %s", a.AID, e.EpNo)
 		}
 		if err := insertEpisode(t, k, e); err != nil {
-			return xerrors.Errorf("failed to insert episode %s for anime %d: %w",
+			return fmt.Errorf("failed to insert episode %s for anime %d: %w",
 				e.EpNo, a.AID, err)
 		}
 		delete(em, k)
 	}
 	for _, e := range em {
 		if err := DeleteEpisode(t, e.ID); err != nil {
-			return xerrors.Errorf("failed to insert anime %d: %w", a.AID, err)
+			return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 		}
 	}
 	return t.Commit()

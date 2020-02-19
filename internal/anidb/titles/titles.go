@@ -19,19 +19,20 @@
 package titles
 
 import (
+	"fmt"
+
 	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/anidb/cache/titles"
-	"golang.org/x/xerrors"
 )
 
 // UpdateCacheFromAPI updates the anime titles cache from the AniDB titles dump.
 func UpdateCacheFromAPI() error {
 	ts, err := anidb.RequestTitles()
 	if err != nil {
-		return xerrors.Errorf("update cache from api: %w", err)
+		return fmt.Errorf("update cache from api: %w", err)
 	}
 	if err := titles.SaveDefault(ts); err != nil {
-		return xerrors.Errorf("update cache from api: %w", err)
+		return fmt.Errorf("update cache from api: %w", err)
 	}
 	return nil
 }
@@ -40,10 +41,10 @@ func UpdateCacheFromAPI() error {
 func UpdateCache(d []byte) error {
 	ts, err := anidb.DecodeTitles(d)
 	if err != nil {
-		return xerrors.Errorf("update cache: %w", err)
+		return fmt.Errorf("update cache: %w", err)
 	}
 	if err := titles.SaveDefault(ts); err != nil {
-		return xerrors.Errorf("update cache: %w", err)
+		return fmt.Errorf("update cache: %w", err)
 	}
 	return nil
 }

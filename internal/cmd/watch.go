@@ -27,8 +27,6 @@ import (
 	"os/exec"
 	"strconv"
 
-	"golang.org/x/xerrors"
-
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
@@ -77,7 +75,7 @@ func (c *Watch) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) err
 func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
-		return xerrors.Errorf("get episode: %c", err)
+		return fmt.Errorf("get episode: %c", err)
 	}
 	afmt.PrintEpisode(os.Stdout, *e)
 	fs, err := query.GetEpisodeFiles(db, id)
@@ -127,7 +125,7 @@ func playFile(cfg config.Config, p string) error {
 func watchAnime(cfg config.Config, db *sql.DB, aid int) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
-		return xerrors.Errorf("get anime: %c", err)
+		return fmt.Errorf("get anime: %c", err)
 	}
 	afmt.PrintAnimeShort(os.Stdout, a)
 	eps, err := query.GetEpisodes(db, aid)

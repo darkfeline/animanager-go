@@ -21,12 +21,12 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"os"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/xerrors"
 
 	"go.felesatra.moe/animanager/internal/database/migrate"
 )
@@ -37,7 +37,7 @@ func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 	dataSrc = addParam(dataSrc, "_fk", "1")
 	db, err = sql.Open("sqlite3", dataSrc)
 	if err != nil {
-		return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
+		return nil, fmt.Errorf("open database %v: %w", dataSrc, err)
 	}
 	defer func(db *sql.DB) {
 		if err != nil {
@@ -46,18 +46,18 @@ func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 	}(db)
 	current, err := migrate.IsCurrentVersion(db)
 	if err != nil {
-		return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
+		return nil, fmt.Errorf("open database %v: %w", dataSrc, err)
 	}
 	if current {
 		return db, nil
 	}
 	if !isMemorySource(dataSrc) {
 		if err := backup(ctx, db, sourcePath(dataSrc)); err != nil {
-			return nil, xerrors.Errorf("open database %v: backup: %w", dataSrc, err)
+			return nil, fmt.Errorf("open database %v: backup: %w", dataSrc, err)
 		}
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
-		return nil, xerrors.Errorf("open database %v: %w", dataSrc, err)
+		return nil, fmt.Errorf("open database %v: %w", dataSrc, err)
 	}
 	return db, nil
 }
@@ -76,11 +76,11 @@ func OpenMem(ctx context.Context) (*sql.DB, error) {
 func withLock(ctx context.Context, db *sql.DB, f func() error) error {
 	c, err := db.Conn(ctx)
 	if err != nil {
-		return xerrors.Errorf("with lock: %w", err)
+		return fmt.Errorf("with lock: %w", err)
 	}
 	defer c.Close()
 	if _, err = c.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
-		return xerrors.Errorf("backup: %w", err)
+		return fmt.Errorf("backup: %w", err)
 	}
 	defer c.ExecContext(ctx, "ROLLBACK")
 	return f()
@@ -93,7 +93,7 @@ func backup(ctx context.Context, db *sql.DB, src string) error {
 		return copyFile(src, dst)
 	}
 	if err := withLock(ctx, db, f); err != nil {
-		return xerrors.Errorf("backup: %w", err)
+		return fmt.Errorf("backup: %w", err)
 	}
 	return nil
 }
@@ -101,20 +101,20 @@ func backup(ctx context.Context, db *sql.DB, src string) error {
 func copyFile(src, dst string) error {
 	sf, err := os.Open(src)
 	if err != nil {
-		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
+		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	defer sf.Close()
 	df, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
-		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
+		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	defer df.Close()
 	if _, err := io.Copy(df, sf); err != nil {
-		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
+		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 
 	if err := df.Close(); err != nil {
-		return xerrors.Errorf("copy file %s to %s: %w", src, dst, err)
+		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
 	}
 	return nil
 }

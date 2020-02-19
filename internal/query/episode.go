@@ -19,8 +19,7 @@ package query
 
 import (
 	"database/sql"
-
-	"golang.org/x/xerrors"
+	"fmt"
 )
 
 type Episode struct {
@@ -90,7 +89,7 @@ FROM episode WHERE id=?`, id)
 // DeleteEpisode deletes the episode from the database.
 func DeleteEpisode(db Execer, id int) error {
 	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {
-		return xerrors.Errorf("delete episode %v: %w", id, err)
+		return fmt.Errorf("delete episode %v: %w", id, err)
 	}
 	return nil
 }
@@ -123,7 +122,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 func GetEpisodesMap(db Queryer, aid int) (map[EpisodeKey]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
-		return nil, xerrors.Errorf("get episodes map %v: %w", aid, err)
+		return nil, fmt.Errorf("get episodes map %v: %w", aid, err)
 	}
 	m := make(map[EpisodeKey]*Episode, len(es))
 	for i, e := range es {
@@ -172,10 +171,10 @@ func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
 	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE id=?`,
 		watched, id)
 	if err != nil {
-		return xerrors.Errorf("update episode %d done: %w", id, err)
+		return fmt.Errorf("update episode %d done: %w", id, err)
 	}
 	if err := t.Commit(); err != nil {
-		return xerrors.Errorf("update episode %d done: %w", id, err)
+		return fmt.Errorf("update episode %d done: %w", id, err)
 	}
 	return nil
 }
