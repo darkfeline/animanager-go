@@ -21,10 +21,11 @@ import (
 	"compress/gzip"
 	"context"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"os"
 
-	"go.felesatra.moe/animanager/internal/anidb/titles"
+	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/animanager/internal/config"
 )
 
@@ -47,7 +48,7 @@ func (c *UpdateTitles) SetFlags(f *flag.FlagSet) {
 
 func (c *UpdateTitles) Run(_ context.Context, f *flag.FlagSet, cfg config.Config) error {
 	if c.file == "" {
-		return titles.UpdateCacheFromAPI()
+		return updateCacheFromAPI()
 	}
 	f2, err := os.Open(c.file)
 	if err != nil {
@@ -63,8 +64,38 @@ func (c *UpdateTitles) Run(_ context.Context, f *flag.FlagSet, cfg config.Config
 	if err != nil {
 		return err
 	}
-	if err := titles.UpdateCache(d); err != nil {
+	if err := updateCache(d); err != nil {
 		return err
+	}
+	return nil
+}
+
+func updateCacheFromAPI() error {
+	c, err := anidb.DefaultTitlesCache()
+	if err != nil {
+		return fmt.Errorf("update cache from api: %w", err)
+	}
+	if _, err := c.GetFreshTitles(); err != nil {
+		return fmt.Errorf("update cache from api: %w", err)
+	}
+	if err := c.Save(); err != nil {
+		return fmt.Errorf("update cache from api: %w", err)
+	}
+	return nil
+}
+
+func updateCache(d []byte) error {
+	ts, err := anidb.DecodeTitles(d)
+	if err != nil {
+		return fmt.Errorf("update cache: %w", err)
+	}
+	c, err := anidb.DefaultTitlesCache()
+	if err != nil {
+		return fmt.Errorf("update cache from api: %w", err)
+	}
+	c.Titles = ts
+	if err := c.Save(); err != nil {
+		return fmt.Errorf("update cache from api: %w", err)
 	}
 	return nil
 }

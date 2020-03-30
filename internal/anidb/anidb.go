@@ -28,5 +28,5 @@ var Client = anidb.Client{
 
 // RequestAnime calls anidb.RequestAnime with the Animanager Client.
 func RequestAnime(aid int) (*anidb.Anime, error) {
-	return anidb.RequestAnime(Client, aid)
+	return Client.RequestAnime(aid)
 }
