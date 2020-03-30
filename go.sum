@@ -6,3 +6,5 @@ github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/
 github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 go.felesatra.moe/anidb v1.1.0 h1:mFTC3rBhOo7WXESU9QA+G39FHfPiemzm6rrqS5ZscWA=
 go.felesatra.moe/anidb v1.1.0/go.mod h1:EkysQcX3L5hVn0nmihPjDSBMJG7zv4boojmaQFkQoZM=
+golang.org/x/time v0.0.0-20191024005414-555d28b269f0 h1:/5xXl8Y5W96D+TtHSlonuFqGHIWVuyCkGJLwGh9JJFs=
+golang.org/x/time v0.0.0-20191024005414-555d28b269f0/go.mod h1:tRJNPiyCQ0inRvYxbN9jk5I+vvW/OXSQhTDSoE431IQ=

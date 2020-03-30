@@ -18,12 +18,18 @@
 // Package anidb provides AniDB client functions for Animanager.
 package anidb
 
-import "go.felesatra.moe/anidb"
+import (
+	"time"
+
+	"go.felesatra.moe/anidb"
+	"golang.org/x/time/rate"
+)
 
 // Client is the AniDB client for Animanager.
 var Client = anidb.Client{
 	Name:    "kfanimanager",
 	Version: 1,
+	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
 }
 
 // RequestAnime calls anidb.RequestAnime with the Animanager Client.

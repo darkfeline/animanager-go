@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"time"
 
 	"go.felesatra.moe/animanager/internal/anidb"
 	"go.felesatra.moe/animanager/internal/config"
@@ -75,13 +74,10 @@ func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error
 		}
 		aids = append(aids, as...)
 	}
-	for i, aid := range aids {
+	for _, aid := range aids {
 		fmt.Println(aid)
 		if err := addAnime(db, aid); err != nil {
 			return err
-		}
-		if i < len(aids)-1 {
-			time.Sleep(2 * time.Second)
 		}
 	}
 	return nil
