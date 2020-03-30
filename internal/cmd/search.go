@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"go.felesatra.moe/anidb"
-	"go.felesatra.moe/anidb/cache/titles"
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
 )
@@ -49,7 +48,11 @@ func (*Search) Run(_ context.Context, f *flag.FlagSet, cfg config.Config) error 
 		return usageError{"no search terms"}
 	}
 	terms := f.Args()
-	ts, err := titles.LoadDefault()
+	c, err := anidb.DefaultTitlesCache()
+	if err != nil {
+		return err
+	}
+	ts, err := c.GetTitles()
 	if err != nil {
 		return err
 	}
