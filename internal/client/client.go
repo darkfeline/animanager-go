@@ -1,4 +1,4 @@
-// Copyright (C) 2018  Allen Li
+// Copyright (C) 2020  Allen Li
 //
 // This file is part of Animanager.
 //
@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package anidb provides AniDB client functions for Animanager.
-package anidb
+// Package client provides AniDB client access.
+package client
 
 import (
 	"time"
@@ -25,14 +25,8 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Client is the AniDB client for Animanager.
-var Client = anidb.Client{
+var Client = &anidb.Client{
 	Name:    "kfanimanager",
 	Version: 1,
 	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
-}
-
-// RequestAnime calls anidb.RequestAnime with the Animanager Client.
-func RequestAnime(aid int) (*anidb.Anime, error) {
-	return Client.RequestAnime(aid)
 }

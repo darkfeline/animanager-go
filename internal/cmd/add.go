@@ -25,7 +25,7 @@ import (
 	"log"
 	"strconv"
 
-	"go.felesatra.moe/animanager/internal/anidb"
+	"go.felesatra.moe/animanager/internal/client"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
@@ -85,7 +85,7 @@ func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error
 
 func addAnime(db *sql.DB, aid int) error {
 	log.Printf("Adding %d", aid)
-	c, err := anidb.RequestAnime(aid)
+	c, err := client.Client.RequestAnime(aid)
 	if err != nil {
 		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
