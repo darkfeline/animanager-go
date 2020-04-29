@@ -52,6 +52,7 @@ func (*Search) Run(_ context.Context, f *flag.FlagSet, cfg config.Config) error 
 	if err != nil {
 		return err
 	}
+	defer c.SaveIfUpdated()
 	ts, err := c.GetTitles()
 	if err != nil {
 		return err
