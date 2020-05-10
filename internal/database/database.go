@@ -34,30 +34,31 @@ import (
 // Open opens and returns the SQLite database.  The database is
 // migrated to the newest version.
 func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
+	// Enable foreign keys.
 	dataSrc = addParam(dataSrc, "_fk", "1")
 	db, err = sql.Open("sqlite3", dataSrc)
 	if err != nil {
-		return nil, fmt.Errorf("open database %v: %w", dataSrc, err)
+		return nil, fmt.Errorf("open database %s: %s", dataSrc, err)
 	}
 	defer func(db *sql.DB) {
 		if err != nil {
 			db.Close()
 		}
 	}(db)
-	current, err := migrate.IsCurrentVersion(db)
+	current, err := migrate.IsLatestVersion(db)
 	if err != nil {
-		return nil, fmt.Errorf("open database %v: %w", dataSrc, err)
+		return nil, fmt.Errorf("open database %s: %s", dataSrc, err)
 	}
 	if current {
 		return db, nil
 	}
 	if !isMemorySource(dataSrc) {
 		if err := backup(ctx, db, sourcePath(dataSrc)); err != nil {
-			return nil, fmt.Errorf("open database %v: backup: %w", dataSrc, err)
+			return nil, fmt.Errorf("open database %s: %s", dataSrc, err)
 		}
 	}
 	if err := migrate.Migrate(ctx, db); err != nil {
-		return nil, fmt.Errorf("open database %v: %w", dataSrc, err)
+		return nil, fmt.Errorf("open database %s: %s", dataSrc, err)
 	}
 	return db, nil
 }
@@ -73,26 +74,31 @@ func OpenMem(ctx context.Context) (*sql.DB, error) {
 
 // withLock calls the provided function with a write transaction lock
 // on the database.
-func withLock(ctx context.Context, db *sql.DB, f func() error) error {
+func withLock(ctx context.Context, db *sql.DB, f func()) error {
 	c, err := db.Conn(ctx)
 	if err != nil {
-		return fmt.Errorf("with lock: %w", err)
+		return fmt.Errorf("with lock: %s", err)
 	}
 	defer c.Close()
 	if _, err = c.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
-		return fmt.Errorf("backup: %w", err)
+		return fmt.Errorf("with lock: %s", err)
 	}
 	defer c.ExecContext(ctx, "ROLLBACK")
-	return f()
+	f()
+	return nil
 }
 
 // backup the database file.
 func backup(ctx context.Context, db *sql.DB, src string) error {
 	dst := src + ".bak"
-	f := func() error {
-		return copyFile(src, dst)
+	var err error
+	f := func() {
+		err = copyFile(src, dst)
 	}
 	if err := withLock(ctx, db, f); err != nil {
+		return fmt.Errorf("backup: %w", err)
+	}
+	if err != nil {
 		return fmt.Errorf("backup: %w", err)
 	}
 	return nil
@@ -101,20 +107,20 @@ func backup(ctx context.Context, db *sql.DB, src string) error {
 func copyFile(src, dst string) error {
 	sf, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
+		return err
 	}
 	defer sf.Close()
 	df, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
-		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
+		return err
 	}
 	defer df.Close()
 	if _, err := io.Copy(df, sf); err != nil {
-		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
+		return err
 	}
 
 	if err := df.Close(); err != nil {
-		return fmt.Errorf("copy file %s to %s: %w", src, dst, err)
+		return err
 	}
 	return nil
 }

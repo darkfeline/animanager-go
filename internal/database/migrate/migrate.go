@@ -26,11 +26,11 @@ import (
 	"log"
 )
 
-// Migrate migrates the database to the newest version.
+// Migrate migrates the database to the latest version.
 func Migrate(ctx context.Context, d *sql.DB) error {
 	v, err := getUserVersion(d)
 	if err != nil {
-		return fmt.Errorf("get user version: %w", err)
+		return fmt.Errorf("migrate: %w", err)
 	}
 	for _, m := range migrations {
 		if v != m.From {
@@ -38,28 +38,24 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 		}
 		log.Printf("Migrating database from %d to %d", m.From, m.To)
 		if err := m.Func(ctx, d); err != nil {
-			return fmt.Errorf("migrate from %d to %d: %w", m.From, m.To, err)
+			return fmt.Errorf("migrate from %d to %d: %s", m.From, m.To, err)
 		}
 		if err := setUserVersion(d, m.To); err != nil {
-			return err
+			return fmt.Errorf("migrate: %w", err)
 		}
 		v = m.To
 	}
 	return nil
 }
 
-// IsCurrentVersion returns true if the database is the current
+// IsLatestVersion returns true if the database is the latest
 // version.
-func IsCurrentVersion(d *sql.DB) (bool, error) {
+func IsLatestVersion(d *sql.DB) (bool, error) {
 	v, err := getUserVersion(d)
 	if err != nil {
-		return false, fmt.Errorf("get user version: %w", err)
+		return false, fmt.Errorf("is latest version: %s", err)
 	}
-	return v == currentVersion(), nil
-}
-
-func currentVersion() int {
-	return migrations[len(migrations)-1].To
+	return v == latestVersion, nil
 }
 
 type spec struct {
@@ -73,5 +69,7 @@ var migrations = []spec{
 	{3, 4, migrate4},
 	{4, 5, migrate5},
 }
+
+var latestVersion = migrations[len(migrations)-1].To
 
 type migrateFunc func(context.Context, *sql.DB) error

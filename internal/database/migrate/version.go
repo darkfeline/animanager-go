@@ -25,20 +25,20 @@ import (
 func getUserVersion(d *sql.DB) (int, error) {
 	r, err := d.Query("PRAGMA user_version")
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("get user version: %s", err)
 	}
 	defer r.Close()
 	ok := r.Next()
 	if !ok {
-		return 0, r.Err()
+		return 0, fmt.Errorf("get user version: %s", r.Err())
 	}
 	var v int
 	if err := r.Scan(&v); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("get user version: %s", err)
 	}
 	r.Close()
 	if err := r.Err(); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("get user version: %s", err)
 	}
 	return v, nil
 }
@@ -46,7 +46,7 @@ func getUserVersion(d *sql.DB) (int, error) {
 func setUserVersion(d *sql.DB, v int) error {
 	_, err := d.Exec(fmt.Sprintf("PRAGMA user_version=%d", v))
 	if err != nil {
-		return err
+		return fmt.Errorf("set user version %d: %s", v, err)
 	}
 	return nil
 }
