@@ -24,11 +24,13 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
-	"go.felesatra.moe/animanager/internal/client"
+	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
+	"golang.org/x/time/rate"
 )
 
 type Add struct {
@@ -83,9 +85,15 @@ func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error
 	return nil
 }
 
+var client = &anidb.Client{
+	Name:    "kfanimanager",
+	Version: 1,
+	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
+}
+
 func addAnime(db *sql.DB, aid int) error {
 	log.Printf("Adding %d", aid)
-	c, err := client.Client.RequestAnime(aid)
+	c, err := client.RequestAnime(aid)
 	if err != nil {
 		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
