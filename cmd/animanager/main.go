@@ -26,8 +26,9 @@ import (
 
 	"github.com/google/subcommands"
 
-	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/config"
+
+	"go.felesatra.moe/animanager/cmd/animanager/internal/cmd"
 )
 
 var configPath = flag.String("config", config.DefaultPath, "Config file")
