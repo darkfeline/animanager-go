@@ -41,17 +41,12 @@ var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
 func Load(p string) (Config, error) {
 	// Copy default config.
 	c := defaultConfig
-	f, err := os.Open(p)
+	d, err := ioutil.ReadFile(p)
 	if err != nil {
-		return c, fmt.Errorf("load config: %w", err)
-	}
-	defer f.Close()
-	d, err := ioutil.ReadAll(f)
-	if err != nil {
-		return c, fmt.Errorf("load config %s: %w", p, err)
+		return c, fmt.Errorf("load config: %s", err)
 	}
 	if err := toml.Unmarshal(d, &c); err != nil {
-		return c, fmt.Errorf("load config %s: %w", p, err)
+		return c, fmt.Errorf("load config %s: %s", p, err)
 	}
 	c.DBPath = os.ExpandEnv(c.DBPath)
 	for i, d := range c.WatchDirs {
