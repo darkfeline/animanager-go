@@ -36,6 +36,9 @@ type Config struct {
 
 var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
 
+// DefaultPath is the default config file path.
+var DefaultPath = filepath.Join(defaultDir, "config.toml")
+
 // Load loads the configuration file.  If an error occurs, an error is
 // returned along with the default configuration.
 func Load(p string) (Config, error) {

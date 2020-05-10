@@ -23,7 +23,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/google/subcommands"
 
@@ -31,8 +30,7 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 )
 
-var defaultConfig = filepath.Join(os.Getenv("HOME"), ".animanager", "config.toml")
-var configPath = flag.String("config", defaultConfig, "Config file")
+var configPath = flag.String("config", config.DefaultPath, "Config file")
 
 func main() {
 	subcommands.Register(subcommands.HelpCommand(), "")
