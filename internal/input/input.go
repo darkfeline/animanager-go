@@ -19,6 +19,7 @@
 package input
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -34,23 +35,12 @@ func ReadLine(r Reader) (string, error) {
 	return r.ReadString('\n')
 }
 
-// IsInvalidInput returns true if the error is an invalid input error.
-func IsInvalidInput(err error) bool {
-	_, ok := err.(invalidInput)
-	return ok
-}
-
-type invalidInput struct {
-	input string
-}
-
-func (e invalidInput) Error() string {
-	return fmt.Sprintf("invalid input: %s", e.input)
-}
+// ErrInvalid is returned for invalid input.
+var ErrInvalid = errors.New("invalid input")
 
 // ReadYN reads a yes or no input.  The provided default value is
 // returned for empty inputs.  If an invalid input is provided, the
-// returned error satisfies IsInvalidInput.
+// returned error is ErrInvalid.
 func ReadYN(r Reader, def bool) (bool, error) {
 	line, err := ReadLine(r)
 	if err != nil {
@@ -66,6 +56,6 @@ func ReadYN(r Reader, def bool) (bool, error) {
 	case "":
 		return def, nil
 	default:
-		return def, invalidInput{s}
+		return def, fmt.Errorf("%w %s", ErrInvalid, s)
 	}
 }

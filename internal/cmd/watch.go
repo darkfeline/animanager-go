@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"context"
 	"database/sql"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -100,7 +101,7 @@ readInput:
 		fmt.Print("Set done? [Y/n] ")
 		ans, err := input.ReadYN(br, true)
 		if err != nil {
-			if input.IsInvalidInput(err) {
+			if errors.Is(err, input.ErrInvalid) {
 				fmt.Println(err)
 				continue readInput
 			}
