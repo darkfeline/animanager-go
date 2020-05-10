@@ -22,6 +22,14 @@ import (
 	"fmt"
 )
 
+// An Executor executes queries.
+// This interface is used for functions that can be used by both
+// sql.DB and sql.Tx.
+type Executor interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
 type Episode struct {
 	_table      struct{}    `episode`
 	ID          int         `id`
@@ -87,7 +95,7 @@ FROM episode WHERE id=?`, id)
 }
 
 // DeleteEpisode deletes the episode from the database.
-func DeleteEpisode(db Execer, id int) error {
+func DeleteEpisode(db Executor, id int) error {
 	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {
 		return fmt.Errorf("delete episode %v: %w", id, err)
 	}
@@ -95,7 +103,7 @@ func DeleteEpisode(db Execer, id int) error {
 }
 
 // GetEpisodes gets the episodes for an anime from the database.
-func GetEpisodes(db Queryer, aid int) ([]Episode, error) {
+func GetEpisodes(db Executor, aid int) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT id, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
@@ -119,7 +127,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 }
 
 // GetEpisodesMap returns a map of the episodes for an anime.
-func GetEpisodesMap(db Queryer, aid int) (map[EpisodeKey]*Episode, error) {
+func GetEpisodesMap(db Executor, aid int) (map[EpisodeKey]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("get episodes map %v: %w", aid, err)
