@@ -18,7 +18,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/google/subcommands"
@@ -60,12 +59,13 @@ type wrapper struct {
 func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
 	cfg := args[0].(config.Config)
 	if err := w.command.Run(ctx, f, cfg); err != nil {
-		switch err.(type) {
+		switch err := err.(type) {
 		case usageError:
+			fmt.Fprintf(os.Stderr, "Usage error: %s\n", err.message)
 			fmt.Fprintf(os.Stderr, w.Usage())
 			return subcommands.ExitUsageError
 		default:
-			log.Printf("Error: %s", err)
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			return subcommands.ExitFailure
 		}
 	}
