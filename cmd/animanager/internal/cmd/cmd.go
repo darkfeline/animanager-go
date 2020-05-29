@@ -62,7 +62,7 @@ func (w wrapper) Execute(ctx context.Context, f *flag.FlagSet, args ...interface
 	if err := w.command.Run(ctx, f, cfg); err != nil {
 		switch err.(type) {
 		case usageError:
-			fmt.Fprintf(os.Stderr, w.command.Usage())
+			fmt.Fprintf(os.Stderr, w.Usage())
 			return subcommands.ExitUsageError
 		default:
 			log.Printf("Error: %s", err)
