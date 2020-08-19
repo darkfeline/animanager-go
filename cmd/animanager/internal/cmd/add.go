@@ -87,7 +87,7 @@ func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error
 
 var client = &anidb.Client{
 	Name:    "kfanimanager",
-	Version: 1,
+	Version: 2,
 	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
 }
 
