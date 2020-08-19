@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.18.0
+
+Internal refactoring.
+
 ## 0.17.0 - 2019-10-06
 
 ### Added
