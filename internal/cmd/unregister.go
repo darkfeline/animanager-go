@@ -63,6 +63,7 @@ func (c *Unregister) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config
 		return err
 	}
 	defer db.Close()
+	// XXXXXXXXX Fix this
 	if c.watched && false {
 		watching, err := query.GetAllWatching(db)
 		if err != nil {
