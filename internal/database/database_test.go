@@ -23,8 +23,8 @@ import (
 )
 
 func TestOpenMem(t *testing.T) {
-	d, err := OpenMem(context.Background())
-	defer d.Close()
+	_, close, err := OpenMem(context.Background())
+	defer close()
 	if err != nil {
 		t.Errorf("Error opening database: %s", err)
 	}

@@ -21,10 +21,12 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
+	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -63,13 +65,43 @@ func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 	return db, nil
 }
 
+type Closer func() error
+
 // OpenMem opens and returns a SQLite database from memory.  The
 // database is migrated to the newest version.
 //
 // The database is shared between all concurrent connections, so it
 // must be closed out between tests.
-func OpenMem(ctx context.Context) (*sql.DB, error) {
-	return Open(ctx, "file::memory:?mode=memory&cache=shared")
+//
+// Use the provided Closer to close the DB as it also releases the
+// global lock.
+func OpenMem(ctx context.Context) (*sql.DB, Closer, error) {
+	memDBLock.Lock()
+	defer memDBLock.Unlock()
+	if memDBLock.inUse {
+		return nil, nil, errors.New("concurrent memory database creation")
+	}
+	db, err := Open(ctx, "file::memory:?mode=memory&cache=shared")
+	if err != nil {
+		return nil, nil, err
+	}
+	memDBLock.inUse = true
+	return db, func() error {
+		memDBLock.Lock()
+		defer memDBLock.Unlock()
+		if !memDBLock.inUse {
+			panic("global memory database lock missing")
+		}
+		memDBLock.inUse = false
+		return db.Close()
+	}, nil
+}
+
+// Global lock on creating SQLite databases from memory, as memory
+// databases are shared between all concurrent connections.
+var memDBLock struct {
+	sync.Mutex
+	inUse bool
 }
 
 // withLock calls the provided function with a write transaction lock
