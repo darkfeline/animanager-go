@@ -15,12 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
-	"context"
 	"database/sql"
-	"flag"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -29,41 +28,39 @@ import (
 	"strconv"
 
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type FindFiles struct{}
+var findFilesCmd = command{
+	usageLine: "findfiles",
+	shortDesc: "find episode files",
+	longDesc:  "Find episode files.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		if err := f.Parse(args); err != nil {
+			return err
+		}
 
-func (*FindFiles) Name() string     { return "findfiles" }
-func (*FindFiles) Synopsis() string { return "Find episode files." }
-func (*FindFiles) Usage() string {
-	return `Usage: findfiles
-Find episode files.
-`
-}
+		if f.NArg() != 0 {
+			return errors.New("no arguments allowed")
+		}
 
-func (*FindFiles) SetFlags(f *flag.FlagSet) {}
-
-func (*FindFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
-	if f.NArg() != 0 {
-		return usageError{"no arguments allowed"}
-	}
-	db, err := database.Open(ctx, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	log.Printf("Finding video files")
-	files, err := findVideoFilesMany(cfg.WatchDirs)
-	if err != nil {
-		return err
-	}
-	log.Printf("Finished finding video files")
-	if err := refreshFiles(db, files); err != nil {
-		return err
-	}
-	return nil
+		db, err := openDB(cfg)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		log.Printf("Finding video files")
+		files, err := findVideoFilesMany(cfg.WatchDirs)
+		if err != nil {
+			return err
+		}
+		log.Printf("Finished finding video files")
+		if err := refreshFiles(db, files); err != nil {
+			return err
+		}
+		return nil
+	},
 }
 
 func findVideoFilesMany(dirs []string) ([]string, error) {

@@ -1,7 +1,5 @@
 github.com/BurntSushi/toml v0.3.0 h1:e1/Ivsx3Z0FVTV0NSOv/aVgbUWyQuzj7DDnFblkRvsY=
 github.com/BurntSushi/toml v0.3.0/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/google/subcommands v0.0.0-20180618214453-5bae204cdfb2 h1:xT8XvBDdhTRgh/lZ94y4WLPjbIMh4Gsxcho5SyBMIaM=
-github.com/google/subcommands v0.0.0-20180618214453-5bae204cdfb2/go.mod h1:ZjhPrFU+Olkh9WazFPsl27BQ4UPiG37m3yTrtFlrHVk=
 github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/4=
 github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 go.felesatra.moe/anidb v1.2.0 h1:+3RnT+2V9Ib3AUTG8bvwHTJVqtR5oIv6ftM23c2GeNQ=

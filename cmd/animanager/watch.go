@@ -15,14 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
 	"bufio"
-	"context"
 	"database/sql"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -30,50 +28,44 @@ import (
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/input"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type Watch struct {
-	episode bool
-}
+var watchCmd = command{
+	usageLine: "watch [-episode] [aid | episodeID]",
+	shortDesc: "watch anime",
+	longDesc:  "Watch anime.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		episode := f.Bool("episode", false, "Treat argument as episode ID")
+		if err := f.Parse(args); err != nil {
+			return err
+		}
 
-func (*Watch) Name() string     { return "watch" }
-func (*Watch) Synopsis() string { return "Watch anime." }
-func (*Watch) Usage() string {
-	return `Usage: watch [-episode] AID|episodeID
-Watch anime.
-`
-}
+		if f.NArg() != 1 {
+			return errors.New("must pass exactly one argument")
+		}
+		id, err := strconv.Atoi(f.Arg(0))
+		if err != nil {
+			return fmt.Errorf("invalid ID %v: %v", id, err)
+		}
 
-func (c *Watch) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&c.episode, "episode", false, "Treat argument as episode ID")
-}
-
-func (c *Watch) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
-	if f.NArg() != 1 {
-		return usageError{"must pass exactly one argument"}
-	}
-	id, err := strconv.Atoi(f.Arg(0))
-	if err != nil {
-		return fmt.Errorf("invalid ID %v: %v", id, err)
-	}
-
-	db, err := database.Open(ctx, cfg.DBPath)
-	if err != nil {
+		db, err := openDB(cfg)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		if *episode {
+			err = watchEpisode(cfg, db, id)
+		} else {
+			err = watchAnime(cfg, db, id)
+		}
 		return err
-	}
-	defer db.Close()
-	if c.episode {
-		err = watchEpisode(cfg, db, id)
-	} else {
-		err = watchAnime(cfg, db, id)
-	}
-	return err
+	},
 }
 
-func watchEpisode(cfg config.Config, db *sql.DB, id int) error {
+func watchEpisode(cfg *config.Config, db *sql.DB, id int) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
 		return fmt.Errorf("get episode: %c", err)
@@ -117,13 +109,13 @@ readInput:
 	}
 }
 
-func playFile(cfg config.Config, p string) error {
+func playFile(cfg *config.Config, p string) error {
 	cmd := exec.Command(cfg.Player[0], append(cfg.Player[1:], p)...)
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
-func watchAnime(cfg config.Config, db *sql.DB, aid int) error {
+func watchAnime(cfg *config.Config, db *sql.DB, aid int) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return fmt.Errorf("get anime: %c", err)

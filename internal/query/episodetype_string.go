@@ -4,6 +4,19 @@ package query
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[EpUnknown-0]
+	_ = x[EpRegular-1]
+	_ = x[EpSpecial-2]
+	_ = x[EpCredit-3]
+	_ = x[EpTrailer-4]
+	_ = x[EpParody-5]
+	_ = x[EpOther-6]
+}
+
 const _EpisodeType_name = "EpUnknownEpRegularEpSpecialEpCreditEpTrailerEpParodyEpOther"
 
 var _EpisodeType_index = [...]uint8{0, 9, 18, 27, 35, 44, 52, 59}

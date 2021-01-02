@@ -41,21 +41,21 @@ var DefaultPath = filepath.Join(defaultDir, "config.toml")
 
 // Load loads the configuration file.  If an error occurs, an error is
 // returned along with the default configuration.
-func Load(p string) (Config, error) {
+func Load(p string) (*Config, error) {
 	// Copy default config.
 	c := defaultConfig
 	d, err := ioutil.ReadFile(p)
 	if err != nil {
-		return c, fmt.Errorf("load config: %s", err)
+		return &c, fmt.Errorf("load config: %s", err)
 	}
 	if err := toml.Unmarshal(d, &c); err != nil {
-		return c, fmt.Errorf("load config %s: %s", p, err)
+		return &c, fmt.Errorf("load config %s: %s", p, err)
 	}
 	c.DBPath = os.ExpandEnv(c.DBPath)
 	for i, d := range c.WatchDirs {
 		c.WatchDirs[i] = os.ExpandEnv(d)
 	}
-	return c, nil
+	return &c, nil
 }
 
 var defaultConfig = Config{

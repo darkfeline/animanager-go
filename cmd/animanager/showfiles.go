@@ -15,13 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
 	"bufio"
-	"context"
 	"database/sql"
-	"flag"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -29,48 +28,42 @@ import (
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type ShowFiles struct {
-	episode bool
-}
+var showFilesCmd = command{
+	usageLine: "showfiles [-episode] [AIDs | episodeIDs]",
+	shortDesc: "show episode files",
+	longDesc:  "Show episode files.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		episode := f.Bool("episode", false, "Show files for episode.")
+		if err := f.Parse(args); err != nil {
+			return err
+		}
 
-func (*ShowFiles) Name() string     { return "showfiles" }
-func (*ShowFiles) Synopsis() string { return "Show episode files." }
-func (*ShowFiles) Usage() string {
-	return `Usage: showfiles [-episode] AID|episodeID
-Show episode files.
-`
-}
+		if f.NArg() != 1 {
+			return errors.New("must pass exactly one argument")
+		}
+		id, err := strconv.Atoi(f.Arg(0))
+		if err != nil {
+			return fmt.Errorf("invalid ID %v: %v", id, err)
+		}
 
-func (c *ShowFiles) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&c.episode, "episode", false, "Show files for episode")
-}
-
-func (c *ShowFiles) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
-	if f.NArg() != 1 {
-		return usageError{"must pass exactly one argument"}
-	}
-	id, err := strconv.Atoi(f.Arg(0))
-	if err != nil {
-		return fmt.Errorf("invalid ID %v: %v", id, err)
-	}
-
-	db, err := database.Open(ctx, cfg.DBPath)
-	if err != nil {
+		db, err := openDB(cfg)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		bw := bufio.NewWriter(os.Stdout)
+		if *episode {
+			err = showEpisodeFiles(bw, db, id)
+		} else {
+			err = showAnimeFiles(bw, db, id)
+		}
+		bw.Flush()
 		return err
-	}
-	defer db.Close()
-	bw := bufio.NewWriter(os.Stdout)
-	if c.episode {
-		err = showEpisodeFiles(bw, db, id)
-	} else {
-		err = showAnimeFiles(bw, db, id)
-	}
-	bw.Flush()
-	return err
+	},
 }
 
 func showAnimeFiles(w io.Writer, db *sql.DB, aid int) error {

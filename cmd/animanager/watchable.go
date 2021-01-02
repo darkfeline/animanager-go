@@ -15,60 +15,52 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
 	"bufio"
-	"context"
 	"database/sql"
-	"flag"
+	"errors"
 	"os"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type Watchable struct {
-	all     bool
-	missing bool
-}
+var watchableCmd = command{
+	usageLine: "watchable [-all] [-missing]",
+	shortDesc: "show watchable anime",
+	longDesc:  "Show watchable anime.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		all := f.Bool("all", false, "Show all files.")
+		missing := f.Bool("missing", false, "Show next episodes missing files.")
+		if err := f.Parse(args); err != nil {
+			return err
+		}
 
-func (*Watchable) Name() string     { return "watchable" }
-func (*Watchable) Synopsis() string { return "Show watchable anime." }
-func (*Watchable) Usage() string {
-	return `Usage: watchable [-all] [-missing]
-Show watchable anime.
-`
-}
+		if f.NArg() != 0 {
+			return errors.New("no arguments allowed")
+		}
 
-func (c *Watchable) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&c.all, "all", false, "Show all files")
-	f.BoolVar(&c.missing, "missing", false, "Show next episodes missing files")
-}
-
-func (c *Watchable) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
-	if f.NArg() != 0 {
-		return usageError{"no arguments allowed"}
-	}
-
-	db, err := database.Open(ctx, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	o := afmt.PrintWatchableOption{
-		IncludeWatched:      c.all,
-		IncludeMissingFiles: c.missing,
-	}
-	if c.all {
-		o.NumWatchable = -1
-	}
-	if err := showWatchable(db, o); err != nil {
-		return err
-	}
-	return nil
+		db, err := openDB(cfg)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		o := afmt.PrintWatchableOption{
+			IncludeWatched:      *all,
+			IncludeMissingFiles: *missing,
+		}
+		if *all {
+			o.NumWatchable = -1
+		}
+		if err := showWatchable(db, o); err != nil {
+			return err
+		}
+		return nil
+	},
 }
 
 func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {

@@ -19,29 +19,92 @@
 package main
 
 import (
-	"context"
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"os"
+	"strings"
 
-	"github.com/google/subcommands"
-
-	"go.felesatra.moe/animanager/internal/cmd"
 	"go.felesatra.moe/animanager/internal/config"
 )
 
 var configPath = flag.String("config", config.DefaultPath, "Config file")
 
 func main() {
-	subcommands.Register(subcommands.HelpCommand(), "")
-	subcommands.Register(subcommands.FlagsCommand(), "")
-	subcommands.Register(subcommands.CommandsCommand(), "")
-	cmd.AddCommands(subcommands.DefaultCommander)
-	flag.Parse()
-	ctx := context.Background()
-	c, err := config.Load(*configPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading config: %s\n", err)
+	log.SetPrefix("animanager: ")
+	if len(os.Args) < 2 {
+		printUsage(os.Stdout)
+		os.Exit(0)
 	}
-	os.Exit(int(subcommands.Execute(ctx, c)))
+	cmd, args := os.Args[1], os.Args[2:]
+	for _, c := range commands {
+		if cmd == c.name() {
+			cfg, err := config.Load(*configPath)
+			if err != nil {
+				log.Printf("error loading config: %s\n", err)
+			}
+			if err := c.run(&c, cfg, args); err != nil {
+				log.Fatal(err)
+			}
+			os.Exit(0)
+		}
+	}
+	log.Printf("unknown command %s", cmd)
+	printUsage(os.Stderr)
+	os.Exit(2)
+}
+
+func printUsage(w io.Writer) error {
+	bw := bufio.NewWriter(w)
+	fmt.Fprintf(bw, `Usage: animanager <command> [arguments]
+
+The commands are:
+
+`)
+	for _, c := range commands {
+		fmt.Fprintf(bw, "\t%s\t%s\n", c.name(), c.shortDesc)
+	}
+	fmt.Fprintf(bw, `
+Use "go help <command>" for more information about a command.
+`)
+	return bw.Flush()
+}
+
+var commands = []command{
+	addCmd,
+	findFilesCmd,
+	registerCmd,
+	showCmd,
+	showFilesCmd,
+	searchCmd,
+	setDoneCmd,
+	statsCmd,
+	updateTitlesCmd,
+	unfinishedCmd,
+	unregisterCmd,
+	watchCmd,
+	watchableCmd,
+}
+
+type command struct {
+	usageLine string
+	shortDesc string
+	longDesc  string
+	run       func(*command, *config.Config, []string) error
+}
+
+func (c *command) name() string {
+	return strings.SplitN(c.usageLine, " ", 2)[0]
+}
+
+func (c *command) flagSet() *flag.FlagSet {
+	fs := flag.NewFlagSet(c.name(), flag.ContinueOnError)
+	fs.Usage = func() {
+		fmt.Fprintf(fs.Output(), "Usage: animanager %s\n\n", c.usageLine)
+		fmt.Fprintf(fs.Output(), "%s\n", c.longDesc)
+		fs.PrintDefaults()
+	}
+	return fs
 }

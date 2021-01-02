@@ -15,11 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
-	"context"
-	"flag"
+	"errors"
 	"os"
 	"regexp"
 	"strings"
@@ -29,37 +28,34 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 )
 
-type Search struct {
-}
+var searchCmd = command{
+	usageLine: "search [terms]",
+	shortDesc: "search for an anime by title",
+	longDesc:  "search for an anime by title.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		if err := f.Parse(args); err != nil {
+			return err
+		}
 
-func (*Search) Name() string     { return "search" }
-func (*Search) Synopsis() string { return "Search for an anime title." }
-func (*Search) Usage() string {
-	return `Usage: search terms...
-Search for an anime title.
-`
-}
+		if f.NArg() == 0 {
+			return errors.New("no search terms")
+		}
+		terms := f.Args()
+		tc, err := anidb.DefaultTitlesCache()
+		if err != nil {
+			return err
+		}
+		defer tc.SaveIfUpdated()
+		ts, err := tc.GetTitles()
+		if err != nil {
+			return err
+		}
+		ts = search(ts, terms)
+		afmt.PrintAnimeT(os.Stdout, ts)
+		return nil
 
-func (*Search) SetFlags(f *flag.FlagSet) {
-}
-
-func (*Search) Run(_ context.Context, f *flag.FlagSet, cfg config.Config) error {
-	if f.NArg() == 0 {
-		return usageError{"no search terms"}
-	}
-	terms := f.Args()
-	c, err := anidb.DefaultTitlesCache()
-	if err != nil {
-		return err
-	}
-	defer c.SaveIfUpdated()
-	ts, err := c.GetTitles()
-	if err != nil {
-		return err
-	}
-	ts = search(ts, terms)
-	afmt.PrintAnimeT(os.Stdout, ts)
-	return nil
+	},
 }
 
 // search returns a slice of anime whose title matches the given

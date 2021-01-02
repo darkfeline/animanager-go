@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
 	"context"
 	"database/sql"
-	"flag"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -33,56 +33,45 @@ import (
 	"golang.org/x/time/rate"
 )
 
-type Add struct {
-	addIncomplete bool
-}
-
-func (*Add) Name() string     { return "add" }
-func (*Add) Synopsis() string { return "Add an anime." }
-func (*Add) Usage() string {
-	return `Usage: add aids...
-       add -incomplete [aids...]
-Add an anime.
-`
-}
-
-func (c *Add) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&c.addIncomplete, "incomplete", false, "Re-add incomplete anime")
-}
-
-func (c *Add) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
-	// Process arguments.
-	if f.NArg() < 1 && !c.addIncomplete {
-		return usageError{"no AIDs given"}
-	}
-	aids := make([]int, f.NArg())
-	for i, s := range f.Args() {
-		aid, err := strconv.Atoi(s)
-		if err != nil {
-			return fmt.Errorf("invalid AID %v: %v", aid, err)
+var addCmd = command{
+	usageLine: "add [-incomplete] [aids]",
+	shortDesc: "add an anime",
+	longDesc:  "Add an anime.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
+		if err := f.Parse(args); err != nil {
+			return err
 		}
-		aids[i] = aid
-	}
 
-	db, err := database.Open(ctx, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	if c.addIncomplete {
-		as, err := query.GetIncompleteAnime(db)
+		if f.NArg() < 1 && !*addIncomplete {
+			return errors.New("no AIDs given")
+		}
+		aids, err := parseIDs(f.Args())
 		if err != nil {
 			return err
 		}
-		aids = append(aids, as...)
-	}
-	for _, aid := range aids {
-		fmt.Println(aid)
-		if err := addAnime(db, aid); err != nil {
+
+		db, err := openDB(cfg)
+		if err != nil {
 			return err
 		}
-	}
-	return nil
+		defer db.Close()
+		if *addIncomplete {
+			as, err := query.GetIncompleteAnime(db)
+			if err != nil {
+				return err
+			}
+			aids = append(aids, as...)
+		}
+		for _, aid := range aids {
+			fmt.Println(aid)
+			if err := addAnime(db, aid); err != nil {
+				return err
+			}
+		}
+		return nil
+	},
 }
 
 var client = &anidb.Client{
@@ -101,4 +90,20 @@ func addAnime(db *sql.DB, aid int) error {
 		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
 	return nil
+}
+
+func openDB(cfg *config.Config) (*sql.DB, error) {
+	return database.Open(context.Background(), cfg.DBPath)
+}
+
+func parseIDs(args []string) ([]int, error) {
+	ids := make([]int, len(args))
+	for i, s := range args {
+		id, err := strconv.Atoi(s)
+		if err != nil {
+			return nil, fmt.Errorf("invalid ID %v: %v", s, err)
+		}
+		ids[i] = id
+	}
+	return ids, nil
 }

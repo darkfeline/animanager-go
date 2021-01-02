@@ -15,44 +15,40 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package cmd
+package main
 
 import (
 	"bufio"
-	"context"
-	"flag"
 	"os"
 	"sort"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-type Unfinished struct{}
+var unfinishedCmd = command{
+	usageLine: "unfinished",
+	shortDesc: "print unfinished anime",
+	longDesc:  "Print unfinished anime.",
+	run: func(c *command, cfg *config.Config, args []string) error {
+		f := c.flagSet()
+		if err := f.Parse(args); err != nil {
+			return err
+		}
 
-func (*Unfinished) Name() string     { return "unfinished" }
-func (*Unfinished) Synopsis() string { return "Print unfinished anime." }
-func (*Unfinished) Usage() string {
-	return `Usage: unfinished
-Print unfinished anime.
-`
-}
-
-func (*Unfinished) SetFlags(f *flag.FlagSet) {}
-func (*Unfinished) Run(ctx context.Context, f *flag.FlagSet, cfg config.Config) error {
-	db, err := database.Open(ctx, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	as, err := query.GetUnwatchedAnime(db)
-	bw := bufio.NewWriter(os.Stdout)
-	sort.Slice(as, func(i, j int) bool { return as[i].AID < as[j].AID })
-	for _, a := range as {
-		afmt.PrintAnimeShort(bw, &a)
-	}
-	bw.Flush()
-	return nil
+		db, err := openDB(cfg)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		as, err := query.GetUnwatchedAnime(db)
+		bw := bufio.NewWriter(os.Stdout)
+		sort.Slice(as, func(i, j int) bool { return as[i].AID < as[j].AID })
+		for _, a := range as {
+			afmt.PrintAnimeShort(bw, &a)
+		}
+		bw.Flush()
+		return nil
+	},
 }
