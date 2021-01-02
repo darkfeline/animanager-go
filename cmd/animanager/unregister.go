@@ -26,18 +26,18 @@ import (
 )
 
 var unregisterCmd = command{
-	usageLine: "unregister [-watched] [aids]",
+	usageLine: "unregister [-finished] [aids]",
 	shortDesc: "unregister anime",
 	longDesc: `Unregister anime.
 `,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
-		watched := f.Bool("watched", false, "Unregister watched anime.")
+		finished := f.Bool("finished", false, "Unregister finished anime.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 
-		if f.NArg() < 1 && !*watched {
+		if f.NArg() < 1 && !*finished {
 			return errors.New("no anime specified")
 		}
 		aids, err := parseIDs(f.Args())
@@ -50,7 +50,7 @@ var unregisterCmd = command{
 			return err
 		}
 		defer db.Close()
-		if *watched {
+		if *finished {
 			watching, err := query.GetAllWatching(db)
 			if err != nil {
 				return err
@@ -60,11 +60,11 @@ var unregisterCmd = command{
 				watchingMap[w.AID] = true
 			}
 
-			watched, err := query.GetFinishedAnime(db)
+			finished, err := query.GetFinishedAnime(db)
 			if err != nil {
 				return err
 			}
-			for _, a := range watched {
+			for _, a := range finished {
 				if watchingMap[a.AID] {
 					aids = append(aids, a.AID)
 				}
