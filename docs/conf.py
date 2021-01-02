@@ -22,7 +22,7 @@ copyright = '2020, Allen Li'
 author = 'Allen Li'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.17.0'
+release = 'v0.18.0'
 
 
 # -- General configuration ---------------------------------------------------
