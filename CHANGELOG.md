@@ -2,7 +2,9 @@
 
 ## 0.18.0
 
-Internal refactoring.
+### Changed
+
+* End date is now considered by `add -incomplete`.
 
 ## 0.17.0 - 2019-10-06
 

@@ -20,6 +20,8 @@ package query
 import (
 	"database/sql"
 	"fmt"
+
+	"go.felesatra.moe/animanager/internal/date"
 )
 
 // GetIncompleteAnime returns the AIDs for incomplete anime.  An anime
@@ -56,6 +58,9 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 // missing some information (e.g., missing episodes, missing episode
 // titles).
 func isIncomplete(a *Anime, eps []Episode) (bool, error) {
+	if d := a.EndDate(); d == date.Zero || d > date.Today() {
+		return true, nil
+	}
 	var rEps []Episode
 	var unnamed int
 	for _, e := range eps {
