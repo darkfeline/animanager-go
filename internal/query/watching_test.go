@@ -18,7 +18,6 @@
 package query
 
 import (
-	"context"
 	"reflect"
 	"testing"
 
@@ -27,7 +26,7 @@ import (
 )
 
 func TestInsertAndGetWatching(t *testing.T) {
-	db, close, err := database.OpenMem(context.Background())
+	db, close, err := database.OpenMem()
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
@@ -65,7 +64,7 @@ func TestInsertAndGetWatching(t *testing.T) {
 }
 
 func TestInsertInvalidRegexp(t *testing.T) {
-	db, close, err := database.OpenMem(context.Background())
+	db, close, err := database.OpenMem()
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
@@ -96,7 +95,7 @@ func TestInsertInvalidRegexp(t *testing.T) {
 }
 
 func TestInsertAndGetAllWatching(t *testing.T) {
-	db, close, err := database.OpenMem(context.Background())
+	db, close, err := database.OpenMem()
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}

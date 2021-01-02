@@ -75,13 +75,13 @@ type Closer func() error
 //
 // Use the provided Closer to close the DB as it also releases the
 // global lock.
-func OpenMem(ctx context.Context) (*sql.DB, Closer, error) {
+func OpenMem() (*sql.DB, Closer, error) {
 	memDBLock.Lock()
 	defer memDBLock.Unlock()
 	if memDBLock.inUse {
 		return nil, nil, errors.New("concurrent memory database creation")
 	}
-	db, err := Open(ctx, "file::memory:?mode=memory&cache=shared")
+	db, err := Open(context.Background(), "file::memory:?mode=memory&cache=shared")
 	if err != nil {
 		return nil, nil, err
 	}

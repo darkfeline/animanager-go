@@ -18,12 +18,11 @@
 package database
 
 import (
-	"context"
 	"testing"
 )
 
 func TestOpenMem(t *testing.T) {
-	_, close, err := OpenMem(context.Background())
+	_, close, err := OpenMem()
 	defer close()
 	if err != nil {
 		t.Errorf("Error opening database: %s", err)

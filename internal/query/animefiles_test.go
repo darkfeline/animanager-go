@@ -15,7 +15,6 @@
 package query
 
 import (
-	"context"
 	"reflect"
 	"testing"
 
@@ -24,7 +23,7 @@ import (
 )
 
 func TestGetAnimeFiles(t *testing.T) {
-	db, close, err := database.OpenMem(context.Background())
+	db, close, err := database.OpenMem()
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}

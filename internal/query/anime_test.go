@@ -18,7 +18,6 @@
 package query
 
 import (
-	"context"
 	"database/sql"
 	"reflect"
 	"testing"
@@ -28,7 +27,7 @@ import (
 )
 
 func TestInsertAndGetAnime(t *testing.T) {
-	db, close, err := database.OpenMem(context.Background())
+	db, close, err := database.OpenMem()
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
@@ -112,7 +111,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 }
 
 func TestInsertAndGetAnime_nullFields(t *testing.T) {
-	db, close, err := database.OpenMem(context.Background())
+	db, close, err := database.OpenMem()
 	if err != nil {
 		t.Fatalf("Error opening database: %s", err)
 	}
