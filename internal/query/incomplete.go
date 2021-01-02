@@ -34,15 +34,7 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 	}
 	var r []int
 	for _, aid := range aids {
-		a, err := GetAnime(db, aid)
-		if err != nil {
-			return nil, fmt.Errorf("get incomplete anime: %s", err)
-		}
-		eps, err := GetEpisodes(db, aid)
-		if err != nil {
-			return nil, fmt.Errorf("get incomplete anime: %s", err)
-		}
-		ok, err := isIncomplete(a, eps)
+		ok, err := isIncomplete(db, aid)
 		if err != nil {
 			return nil, fmt.Errorf("get incomplete anime: %s", err)
 		}
@@ -57,7 +49,16 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 // using some heuristics.  An anime is incomplete if it is still
 // missing some information (e.g., missing episodes, missing episode
 // titles).
-func isIncomplete(a *Anime, eps []Episode) (bool, error) {
+func isIncomplete(db *sql.DB, aid int) (bool, error) {
+	a, err := GetAnime(db, aid)
+	if err != nil {
+		return false, fmt.Errorf("is incomplete: %s", err)
+	}
+	eps, err := GetEpisodes(db, aid)
+	if err != nil {
+		return false, fmt.Errorf("is incomplete: %s", err)
+	}
+
 	if d := a.EndDate(); d == date.Zero || d > date.Today() {
 		return true, nil
 	}
