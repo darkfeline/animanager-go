@@ -30,21 +30,21 @@ func GetUnwatchedAnime(db *sql.DB) ([]Anime, error) {
 
 // getAnimeByWatched returns anime by episode user_watched status.
 func getAnimeByWatched(db *sql.DB, watched bool) ([]Anime, error) {
-	as, err := GetAllAnime(db)
+	anime, err := GetAllAnime(db)
 	if err != nil {
 		return nil, err
 	}
-	es, err := GetAllEpisodes(db)
+	episodes, err := GetAllEpisodes(db)
 	if err != nil {
 		return nil, err
 	}
 	am := make(map[int]*Anime)
 	counts := make(map[int]int)
-	for i, a := range as {
+	for i, a := range anime {
 		counts[a.AID] = a.EpisodeCount
-		am[a.AID] = &as[i]
+		am[a.AID] = &anime[i]
 	}
-	for _, e := range es {
+	for _, e := range episodes {
 		if e.UserWatched && e.Type == EpRegular {
 			counts[e.AID]--
 		}
@@ -59,7 +59,6 @@ func getAnimeByWatched(db *sql.DB, watched bool) ([]Anime, error) {
 	for aid, count := range counts {
 		if test(count) {
 			res = append(res, *am[aid])
-
 		}
 	}
 	return res, nil
