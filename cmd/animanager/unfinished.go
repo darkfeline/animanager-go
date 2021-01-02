@@ -30,7 +30,8 @@ import (
 var unfinishedCmd = command{
 	usageLine: "unfinished",
 	shortDesc: "print unfinished anime",
-	longDesc:  "Print unfinished anime.",
+	longDesc: `Print unfinished anime.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		if err := f.Parse(args); err != nil {

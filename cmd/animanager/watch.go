@@ -35,7 +35,8 @@ import (
 var watchCmd = command{
 	usageLine: "watch [-episode] [aid | episodeID]",
 	shortDesc: "watch anime",
-	longDesc:  "Watch anime.",
+	longDesc: `Watch anime.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		episode := f.Bool("episode", false, "Treat argument as episode ID")

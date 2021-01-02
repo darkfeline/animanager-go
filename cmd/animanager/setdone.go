@@ -27,7 +27,8 @@ import (
 var setDoneCmd = command{
 	usageLine: "setdone [episodeIDs]",
 	shortDesc: "set an episode's done status",
-	longDesc:  "Set an episode's done status.",
+	longDesc: `Set an episode's done status.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		notDone := f.Bool("not", false, "Set status to not done.")

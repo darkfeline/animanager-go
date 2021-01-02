@@ -27,7 +27,8 @@ import (
 var statsCmd = command{
 	usageLine: "stats",
 	shortDesc: "print various stats",
-	longDesc:  "Print various stats.",
+	longDesc: `Print various stats.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		if err := f.Parse(args); err != nil {

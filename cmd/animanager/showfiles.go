@@ -34,7 +34,8 @@ import (
 var showFilesCmd = command{
 	usageLine: "showfiles [-episode] [AIDs | episodeIDs]",
 	shortDesc: "show episode files",
-	longDesc:  "Show episode files.",
+	longDesc: `Show episode files.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		episode := f.Bool("episode", false, "Show files for episode.")

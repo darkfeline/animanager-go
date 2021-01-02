@@ -31,7 +31,8 @@ import (
 var watchableCmd = command{
 	usageLine: "watchable [-all] [-missing]",
 	shortDesc: "show watchable anime",
-	longDesc:  "Show watchable anime.",
+	longDesc: `Show watchable anime.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		all := f.Bool("all", false, "Show all files.")

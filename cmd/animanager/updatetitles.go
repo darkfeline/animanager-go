@@ -30,7 +30,8 @@ import (
 var updateTitlesCmd = command{
 	usageLine: "update-titles [-file name]",
 	shortDesc: "update AniDB titles database",
-	longDesc:  "Update AniDB titles database.",
+	longDesc: `Update AniDB titles database.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		file := f.String("file", "", "Titles file to use.")

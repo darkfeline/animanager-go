@@ -34,7 +34,8 @@ import (
 var showCmd = command{
 	usageLine: "show aid",
 	shortDesc: "show information about a show",
-	longDesc:  "Show information about a show.",
+	longDesc: `Show information about a show.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		if err := f.Parse(args); err != nil {

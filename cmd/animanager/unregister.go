@@ -28,7 +28,8 @@ import (
 var unregisterCmd = command{
 	usageLine: "unregister [-watched] [aids]",
 	shortDesc: "unregister anime",
-	longDesc:  "Unregister anime.",
+	longDesc: `Unregister anime.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		watched := f.Bool("watched", false, "Unregister watched anime.")

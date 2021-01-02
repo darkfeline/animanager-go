@@ -36,7 +36,8 @@ import (
 var addCmd = command{
 	usageLine: "add [-incomplete] [aids]",
 	shortDesc: "add an anime",
-	longDesc:  "Add an anime.",
+	longDesc: `Add an anime.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")

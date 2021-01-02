@@ -32,7 +32,8 @@ import (
 var registerCmd = command{
 	usageLine: "register [-pattern pattern] [-offset int] aid",
 	shortDesc: "register an anime",
-	longDesc:  "Register an anime.",
+	longDesc: `Register an anime.
+`,
 	run: func(c *command, cfg *config.Config, args []string) error {
 		f := c.flagSet()
 		pattern := f.String("pattern", "", "File pattern.")
