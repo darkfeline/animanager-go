@@ -94,6 +94,20 @@ FROM episode WHERE id=?`, id)
 	return &e, nil
 }
 
+// GetEpisodeByKey gets an episode from the database by unique key.
+func GetEpisodeByKey(db *sql.DB, k EpisodeKey) (*Episode, error) {
+	r := db.QueryRow(`
+SELECT id, aid, type, number, title, length, user_watched
+FROM episode WHERE aid=? AND type=? AND number=?`, k.AID, k.Type, k.Number)
+	var e Episode
+	if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+		&e.Title, &e.Length, &e.UserWatched); err != nil {
+		return nil, err
+	}
+	return &e, nil
+
+}
+
 // DeleteEpisode deletes the episode from the database.
 func DeleteEpisode(db Executor, id int) error {
 	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {

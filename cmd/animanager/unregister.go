@@ -49,8 +49,7 @@ var unregisterCmd = command{
 			return err
 		}
 		defer db.Close()
-		// XXXXXXXXX Fix this
-		if *watched && false {
+		if *watched {
 			watching, err := query.GetAllWatching(db)
 			if err != nil {
 				return err
@@ -60,7 +59,7 @@ var unregisterCmd = command{
 				watchingMap[w.AID] = true
 			}
 
-			watched, err := query.GetWatchedAnime(db)
+			watched, err := query.GetFinishedAnime(db)
 			if err != nil {
 				return err
 			}

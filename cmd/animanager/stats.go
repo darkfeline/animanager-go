@@ -54,11 +54,11 @@ var statsCmd = command{
 			return err
 		}
 		fmt.Printf("Watched episodes:\t%d\n", n)
-		as, err := query.GetWatchedAnime(db)
+		as, err := query.GetFinishedAnime(db)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Watched anime:\t%d\n", len(as))
+		fmt.Printf("Finished anime:\t%d\n", len(as))
 
 		m, err := query.GetWatchedMinutes(db)
 		if err != nil {

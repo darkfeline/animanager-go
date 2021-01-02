@@ -18,7 +18,10 @@
 // Package date implements a date type stored as Unix timestamps.
 package date
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // Date represents a date as a Unix timestamp at 00:00 UTC of the
 // date.
@@ -42,6 +45,14 @@ func (d Date) Time() time.Time {
 	return time.Unix(int64(d), 0).UTC()
 }
 
+// NullInt64 returns the SQL representation of the date.
+func (d Date) NullInt64() sql.NullInt64 {
+	return sql.NullInt64{
+		Int64: int64(d),
+		Valid: true,
+	}
+}
+
 // String returns the date formatted as YYYY-MM-DD.
 func (d Date) String() string {
 	t := d.Time()
@@ -53,6 +64,12 @@ func FromTime(t time.Time) Date {
 	return Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC).Unix())
 }
 
+// New returns a new date.
+func New(year int, month time.Month, day int) Date {
+	return FromTime(time.Date(year, month, day, 0, 0, 0, 0, time.UTC))
+}
+
+// Today returns the date for today.
 func Today() Date {
 	return FromTime(time.Now())
 }

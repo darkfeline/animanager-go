@@ -16,50 +16,88 @@ package query
 
 import (
 	"database/sql"
+	"fmt"
 )
 
-// GetWatchedAnime returns watched anime (all episodes watched).
-func GetWatchedAnime(db *sql.DB) ([]Anime, error) {
-	return getAnimeByWatched(db, true)
-}
-
-// GetUnwatchedAnime returns unwatched anime (not all episodes watched).
-func GetUnwatchedAnime(db *sql.DB) ([]Anime, error) {
-	return getAnimeByWatched(db, false)
-}
-
-// getAnimeByWatched returns anime by episode user_watched status.
-func getAnimeByWatched(db *sql.DB, watched bool) ([]Anime, error) {
-	anime, err := GetAllAnime(db)
+// GetFinishedAnime returns finished anime.
+// Finished anime have all EpRegular episodes marked as user_watched.
+func GetFinishedAnime(db *sql.DB) ([]*Anime, error) {
+	anime, err := GetAnimeFinished(db)
 	if err != nil {
 		return nil, err
 	}
-	episodes, err := GetAllEpisodes(db)
-	if err != nil {
-		return nil, err
-	}
-	am := make(map[int]*Anime)
-	counts := make(map[int]int)
-	for i, a := range anime {
-		counts[a.AID] = a.EpisodeCount
-		am[a.AID] = &anime[i]
-	}
-	for _, e := range episodes {
-		if e.UserWatched && e.Type == EpRegular {
-			counts[e.AID]--
-		}
-	}
-	var res []Anime
-	var test func(int) bool
-	if watched {
-		test = func(count int) bool { return count <= 0 }
-	} else {
-		test = func(count int) bool { return count > 0 }
-	}
-	for aid, count := range counts {
-		if test(count) {
-			res = append(res, *am[aid])
+	res := make([]*Anime, 0, len(anime))
+	for _, v := range anime {
+		if v.Value {
+			res = append(res, v.Anime)
 		}
 	}
 	return res, nil
+}
+
+// GetUnfinishedAnime returns unfinished anime.
+// Unfinished anime either are incomplete or don't have all EpRegular
+// episodes marked as user_watched.
+func GetUnfinishedAnime(db *sql.DB) ([]*Anime, error) {
+	anime, err := GetAnimeFinished(db)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*Anime, 0, len(anime))
+	for _, v := range anime {
+		if !v.Value {
+			res = append(res, v.Anime)
+		}
+	}
+	return res, nil
+}
+
+// An AnimeBool is just an anime with a bool field extension.
+// Used as a result from functions that partition anime into two buckets.
+type AnimeBool struct {
+	*Anime
+	Value bool
+}
+
+func (b AnimeBool) GoString() string {
+	return fmt.Sprintf("query.AnimeBool{Anime:%#v, Value:%t}", b.Anime, b.Value)
+}
+
+// GetAnimeFinished returns all anime annotated with whether they are finished.
+// Finished anime have all EpRegular episodes marked as user_watched.
+func GetAnimeFinished(db *sql.DB) ([]AnimeBool, error) {
+	anime, err := GetAllAnime(db)
+	if err != nil {
+		return nil, fmt.Errorf("get anime finished: %s", err)
+	}
+	res := make([]AnimeBool, 0, len(anime))
+	for i := range anime {
+		eps, err := GetEpisodes(db, anime[i].AID)
+		if err != nil {
+			return nil, fmt.Errorf("get anime finished: %s", err)
+		}
+		res = append(res, AnimeBool{
+			Anime: &anime[i],
+			Value: isAnimeFinished(&anime[i], eps),
+		})
+	}
+	return res, nil
+}
+
+// Returns whether anime is finished.
+// Finished anime have all EpRegular episodes marked as user_watched.
+func isAnimeFinished(a *Anime, eps []Episode) bool {
+	if isIncomplete2(a, eps) {
+		return false
+	}
+	watched := 0
+	for _, e := range eps {
+		if e.UserWatched && e.Type == EpRegular {
+			watched++
+		}
+	}
+	if watched < a.EpisodeCount {
+		return false
+	}
+	return true
 }

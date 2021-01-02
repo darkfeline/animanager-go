@@ -42,11 +42,11 @@ var unfinishedCmd = command{
 			return err
 		}
 		defer db.Close()
-		as, err := query.GetUnwatchedAnime(db)
+		as, err := query.GetUnfinishedAnime(db)
 		bw := bufio.NewWriter(os.Stdout)
 		sort.Slice(as, func(i, j int) bool { return as[i].AID < as[j].AID })
 		for _, a := range as {
-			afmt.PrintAnimeShort(bw, &a)
+			afmt.PrintAnimeShort(bw, a)
 		}
 		bw.Flush()
 		return nil
