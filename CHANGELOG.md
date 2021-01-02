@@ -6,6 +6,7 @@
 
 * End date is now considered by `add -incomplete`.
 * The `unregister` command `-watched` flag is renamed to `-finished`.
+* Changed `stats` output a bit.
 
 ### Fixed
 
