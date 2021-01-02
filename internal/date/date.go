@@ -47,3 +47,12 @@ func (d Date) String() string {
 	t := d.Time()
 	return t.Format("2006-01-02")
 }
+
+// FromTime returns the date of the given time.
+func FromTime(t time.Time) Date {
+	return Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC).Unix())
+}
+
+func Today() Date {
+	return FromTime(time.Now())
+}

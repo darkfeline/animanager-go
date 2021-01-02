@@ -17,7 +17,10 @@
 
 package date
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestString(t *testing.T) {
 	t.Parallel()
@@ -55,5 +58,15 @@ func TestZero(t *testing.T) {
 	t.Parallel()
 	if Zero.String() != "0000-01-01" {
 		t.Errorf("Zero is not 0000-01-01")
+	}
+}
+
+func TestFromTime(t *testing.T) {
+	t.Parallel()
+	input := time.Date(2000, 12, 31, 23, 59, 59, 1_000_000, time.FixedZone("CET", 60*60))
+	got := FromTime(input)
+	want := Date(time.Date(2000, 12, 31, 0, 0, 0, 0, time.UTC).Unix())
+	if got != want {
+		t.Errorf("FromTime(%v) = %v; want %v", input, got, want)
 	}
 }
