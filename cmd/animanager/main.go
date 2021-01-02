@@ -20,6 +20,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -46,6 +47,9 @@ func main() {
 				log.Printf("error loading config: %s\n", err)
 			}
 			if err := c.run(&c, cfg, args); err != nil {
+				if errors.Is(err, flag.ErrHelp) {
+					os.Exit(0)
+				}
 				log.Fatal(err)
 			}
 			os.Exit(0)
