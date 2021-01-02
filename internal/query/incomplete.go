@@ -58,9 +58,14 @@ func isIncomplete(db *sql.DB, aid int) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("is incomplete: %s", err)
 	}
+	return isIncomplete2(a, eps), nil
+}
 
+// Like isIncomplete, but without database interaction.
+// Can be used for testing or to reduce database access.
+func isIncomplete2(a *Anime, eps []Episode) bool {
 	if d := a.EndDate(); d == date.Zero || d > date.Today() {
-		return true, nil
+		return true
 	}
 	var rEps []Episode
 	var unnamed int
@@ -79,14 +84,14 @@ func isIncomplete(db *sql.DB, aid int) (bool, error) {
 		}
 	}
 	if len(rEps) < a.EpisodeCount {
-		return true, nil
+		return true
 	}
 	// This is just a heuristic, some shows only have titles for
 	// first/last episode.
 	if unnamed > 0 && unnamed < a.EpisodeCount-2 {
-		return true, nil
+		return true
 	}
-	return false, nil
+	return false
 }
 
 func isUnnamed(e Episode) bool {
