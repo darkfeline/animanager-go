@@ -5,6 +5,12 @@
 ### Changed
 
 * End date is now considered by `add -incomplete`.
+* The `unregister` command `-watched` flag is renamed to `-finished`.
+
+### Fixed
+
+* The `unregister` command `-finished` flag (renamed from `-watched`)
+  actually works now.
 
 ## 0.17.0 - 2019-10-06
 
