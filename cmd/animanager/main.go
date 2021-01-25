@@ -71,7 +71,7 @@ The commands are:
 		fmt.Fprintf(bw, "\t%s\t%s\n", c.name(), c.shortDesc)
 	}
 	fmt.Fprintf(bw, `
-Use "go help <command>" for more information about a command.
+Use "animanager help <command>" for more information about a command.
 `)
 	return bw.Flush()
 }
