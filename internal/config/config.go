@@ -29,11 +29,18 @@ import (
 
 // Config is the configuration for Animanager.
 type Config struct {
-	DBPath    string   `toml:"database"`
-	WatchDirs []string `toml:"watch_dirs"`
-	Player    []string `toml:"player"`
+	DBPath    string      `toml:"database"`
+	WatchDirs []string    `toml:"watch_dirs"`
+	Player    []string    `toml:"player"`
+	AniDB     AniDBConfig `toml:"anidb"`
 }
 
+// AniDBConfig is the configuration for AniDB (mainly UDP API).
+type AniDBConfig struct {
+	Username string `toml:"username"`
+	Password string `toml:"password"`
+	APIKey   string `toml:"api_key"`
+}
 
 // DefaultPath is the default config file path.
 var DefaultPath string
