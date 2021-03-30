@@ -29,8 +29,8 @@ var setDoneCmd = command{
 	shortDesc: "set an episode's done status",
 	longDesc: `Set an episode's done status.
 `,
-	run: func(c *command, cfg *config.Config, args []string) error {
-		f := c.flagSet()
+	run: func(cmd *command, cfg *config.Config, args []string) error {
+		f := cmd.flagSet()
 		notDone := f.Bool("not", false, "Set status to not done.")
 		if err := f.Parse(args); err != nil {
 			return err

@@ -37,8 +37,8 @@ var watchCmd = command{
 	shortDesc: "watch anime",
 	longDesc: `Watch anime.
 `,
-	run: func(c *command, cfg *config.Config, args []string) error {
-		f := c.flagSet()
+	run: func(cmd *command, cfg *config.Config, args []string) error {
+		f := cmd.flagSet()
 		episode := f.Bool("episode", false, "Treat argument as episode ID")
 		if err := f.Parse(args); err != nil {
 			return err

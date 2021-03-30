@@ -36,8 +36,8 @@ var showFilesCmd = command{
 	shortDesc: "show episode files",
 	longDesc: `Show episode files.
 `,
-	run: func(c *command, cfg *config.Config, args []string) error {
-		f := c.flagSet()
+	run: func(cmd *command, cfg *config.Config, args []string) error {
+		f := cmd.flagSet()
 		episode := f.Bool("episode", false, "Show files for episode.")
 		if err := f.Parse(args); err != nil {
 			return err

@@ -36,8 +36,8 @@ var showCmd = command{
 	shortDesc: "show information about a show",
 	longDesc: `Show information about a show.
 `,
-	run: func(c *command, cfg *config.Config, args []string) error {
-		f := c.flagSet()
+	run: func(cmd *command, cfg *config.Config, args []string) error {
+		f := cmd.flagSet()
 		if err := f.Parse(args); err != nil {
 			return err
 		}

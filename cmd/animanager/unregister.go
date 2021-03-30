@@ -30,8 +30,8 @@ var unregisterCmd = command{
 	shortDesc: "unregister anime",
 	longDesc: `Unregister anime.
 `,
-	run: func(c *command, cfg *config.Config, args []string) error {
-		f := c.flagSet()
+	run: func(cmd *command, cfg *config.Config, args []string) error {
+		f := cmd.flagSet()
 		finished := f.Bool("finished", false, "Unregister finished anime.")
 		if err := f.Parse(args); err != nil {
 			return err

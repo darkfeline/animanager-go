@@ -32,8 +32,8 @@ var updateTitlesCmd = command{
 	shortDesc: "update AniDB titles database",
 	longDesc: `Update AniDB titles database.
 `,
-	run: func(c *command, cfg *config.Config, args []string) error {
-		f := c.flagSet()
+	run: func(cmd *command, cfg *config.Config, args []string) error {
+		f := cmd.flagSet()
 		file := f.String("file", "", "Titles file to use.")
 		if err := f.Parse(args); err != nil {
 			return err
