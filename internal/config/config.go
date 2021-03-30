@@ -34,10 +34,27 @@ type Config struct {
 	Player    []string `toml:"player"`
 }
 
-var defaultDir = filepath.Join(os.Getenv("HOME"), ".animanager")
 
 // DefaultPath is the default config file path.
-var DefaultPath = filepath.Join(defaultDir, "config.toml")
+var DefaultPath string
+
+var defaultConfig = Config{
+	Player: []string{"mpv", "--quiet"},
+}
+
+func init() {
+	d := os.Getenv("XDG_CONFIG_HOME")
+	if d == "" {
+		d = filepath.Join(os.Getenv("HOME"), ".config")
+	}
+	DefaultPath = filepath.Join(d, "animanager", "config.toml")
+
+	d = os.Getenv("XDG_DATA_HOME")
+	if d == "" {
+		d = filepath.Join(os.Getenv("HOME"), ".local", "share")
+	}
+	defaultConfig.DBPath = filepath.Join(d, "animanager", "database.db")
+}
 
 // Load loads the configuration file.  If an error occurs, an error is
 // returned along with the default configuration.
@@ -56,9 +73,4 @@ func Load(p string) (*Config, error) {
 		c.WatchDirs[i] = os.ExpandEnv(d)
 	}
 	return &c, nil
-}
-
-var defaultConfig = Config{
-	DBPath: filepath.Join(defaultDir, "database.db"),
-	Player: []string{"mpv", "--quiet"},
 }

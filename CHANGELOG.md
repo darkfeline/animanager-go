@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.19.0
+
+### Changed
+
+- Changed default config file path to respect `XDG_CONFIG_HOME`.
+- Changed default database path to respect `XDG_DATA_HOME`.
+
 ## 0.18.0 - 2020-01-02
 
 ### Changed
