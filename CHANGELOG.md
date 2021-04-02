@@ -2,6 +2,10 @@
 
 ## 0.20.0
 
+WARNING: If you're using a older version, you **must** update to this
+version and run `add -all` to populate the new `eid` field, which will
+replace the old episode `id` field in future versions.
+
 ### Added
 
 - Added `-all` flag to `add` command.
