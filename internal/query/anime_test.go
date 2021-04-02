@@ -34,6 +34,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 	defer close()
 	e := []anidb.Episode{
 		{
+			EID:    113,
 			EpNo:   "1",
 			Length: 25,
 			Titles: []anidb.EpTitle{
@@ -43,6 +44,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 			},
 		},
 		{
+			EID:    28864,
 			EpNo:   "S1",
 			Length: 75,
 			Titles: []anidb.EpTitle{
@@ -89,6 +91,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 		want := []Episode{
 			{
 				ID:     1,
+				EID:    113,
 				AID:    22,
 				Type:   EpRegular,
 				Number: 1,
@@ -97,6 +100,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 			},
 			{
 				ID:     2,
+				EID:    28864,
 				AID:    22,
 				Type:   EpSpecial,
 				Number: 1,

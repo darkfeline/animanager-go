@@ -33,6 +33,7 @@ type Executor interface {
 type Episode struct {
 	_table      struct{}    `episode`
 	ID          int         `id`
+	EID         int         `eid`
 	AID         int         `aid`
 	Type        EpisodeType `type`
 	Number      int         `number`
@@ -84,10 +85,10 @@ func GetWatchedMinutes(db *sql.DB) (int, error) {
 // GetEpisode gets the episode from the database.
 func GetEpisode(db *sql.DB, id int) (*Episode, error) {
 	r := db.QueryRow(`
-SELECT id, aid, type, number, title, length, user_watched
+SELECT id, eid, aid, type, number, title, length, user_watched
 FROM episode WHERE id=?`, id)
 	var e Episode
-	if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+	if err := r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
 		&e.Title, &e.Length, &e.UserWatched); err != nil {
 		return nil, err
 	}
@@ -97,10 +98,10 @@ FROM episode WHERE id=?`, id)
 // GetEpisodeByKey gets an episode from the database by unique key.
 func GetEpisodeByKey(db *sql.DB, k EpisodeKey) (*Episode, error) {
 	r := db.QueryRow(`
-SELECT id, aid, type, number, title, length, user_watched
+SELECT id, eid, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? AND type=? AND number=?`, k.AID, k.Type, k.Number)
 	var e Episode
-	if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+	if err := r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
 		&e.Title, &e.Length, &e.UserWatched); err != nil {
 		return nil, err
 	}
@@ -119,7 +120,7 @@ func DeleteEpisode(db Executor, id int) error {
 // GetEpisodes gets the episodes for an anime from the database.
 func GetEpisodes(db Executor, aid int) ([]Episode, error) {
 	r, err := db.Query(`
-SELECT id, aid, type, number, title, length, user_watched
+SELECT id, eid, aid, type, number, title, length, user_watched
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
 	if err != nil {
 		return nil, err
@@ -128,7 +129,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 	var es []Episode
 	for r.Next() {
 		var e Episode
-		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+		if err := r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
 			&e.Title, &e.Length, &e.UserWatched); err != nil {
 			return nil, err
 		}
@@ -156,7 +157,7 @@ func GetEpisodesMap(db Executor, aid int) (map[EpisodeKey]*Episode, error) {
 // GetAllEpisodes gets all episodes from the database.
 func GetAllEpisodes(db *sql.DB) ([]Episode, error) {
 	r, err := db.Query(`
-SELECT id, aid, type, number, title, length, user_watched
+SELECT id, eid, aid, type, number, title, length, user_watched
 FROM episode`)
 	if err != nil {
 		return nil, err
@@ -165,7 +166,7 @@ FROM episode`)
 	var es []Episode
 	for r.Next() {
 		var e Episode
-		if err := r.Scan(&e.ID, &e.AID, &e.Type, &e.Number,
+		if err := r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
 			&e.Title, &e.Length, &e.UserWatched); err != nil {
 			return nil, err
 		}

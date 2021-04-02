@@ -68,6 +68,7 @@ var migrations = []spec{
 	{0, 3, migrate3},
 	{3, 4, migrate4},
 	{4, 5, migrate5},
+	{5, 6, migrate6},
 }
 
 var latestVersion = migrations[len(migrations)-1].To

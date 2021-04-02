@@ -196,12 +196,12 @@ func mainTitle(ts []anidb.Title) string {
 func insertEpisode(t *sql.Tx, k EpisodeKey, e anidb.Episode) error {
 	title := mainEpTitle(e.Titles)
 	_, err := t.Exec(`
-INSERT INTO episode (aid, type, number, title, length)
-VALUES (?, ?, ?, ?, ?)
+INSERT INTO episode (eid, aid, type, number, title, length)
+VALUES (?, ?, ?, ?, ?, ?)
 ON CONFLICT (aid, type, number) DO UPDATE SET
 title=?, length=?
 WHERE aid=? AND type=? AND number=?`,
-		k.AID, k.Type, k.Number, title, e.Length,
+		e.EID, k.AID, k.Type, k.Number, title, e.Length,
 		title, e.Length,
 		k.AID, k.Type, k.Number,
 	)

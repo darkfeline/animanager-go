@@ -5,6 +5,7 @@
 ### Added
 
 - Added `-all` flag to `add` command.
+- Added `eid` field.
 
 ## 0.19.0 - 2021-04-01
 
