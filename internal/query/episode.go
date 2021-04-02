@@ -31,9 +31,10 @@ type Executor interface {
 }
 
 type Episode struct {
-	_table      struct{}    `episode`
-	ID          int         `id`
-	EID         int         `eid`
+	_table struct{} `episode`
+	ID     int      `id`
+	// EID is a pointer because it can be NULL for now.
+	EID         *int        `eid`
 	AID         int         `aid`
 	Type        EpisodeType `type`
 	Number      int         `number`
