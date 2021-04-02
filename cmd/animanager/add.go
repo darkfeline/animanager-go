@@ -46,7 +46,7 @@ var addCmd = command{
 			return err
 		}
 
-		if f.NArg() < 1 && !*addIncomplete {
+		if f.NArg() < 1 && !(*addIncomplete || *addAll) {
 			return errors.New("no AIDs given")
 		}
 		aids, err := parseIDs(f.Args())
