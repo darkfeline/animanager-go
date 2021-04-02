@@ -197,6 +197,23 @@ func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
 	return nil
 }
 
+// GetAIDsMissingEIDs is a temporary function to support EID backfill.
+func GetAIDsMissingEIDs(db *sql.DB) ([]int, error) {
+	r, err := db.Query(`SELECT DISTINCT aid FROM episode WHERE eid IS NULL`)
+	if err != nil {
+		return nil, err
+	}
+	var aids []int
+	for r.Next() {
+		var aid int
+		if err := r.Scan(&aid); err != nil {
+			return nil, err
+		}
+		aids = append(aids, aid)
+	}
+	return aids, nil
+}
+
 const selectEpisodeFields = `id, eid, aid, type, number, title, length, user_watched`
 
 // A Scanner supports both sql.Row and sql.Rows.

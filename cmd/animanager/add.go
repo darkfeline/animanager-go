@@ -34,19 +34,19 @@ import (
 )
 
 var addCmd = command{
-	usageLine: "add [-incomplete] [-all] [aids]",
+	usageLine: "add [-incomplete] [-no-eid] [aids]",
 	shortDesc: "add an anime",
 	longDesc: `Add an anime.
 `,
 	run: func(cmd *command, cfg *config.Config, args []string) error {
 		f := cmd.flagSet()
-		addAll := f.Bool("all", false, "Re-add all anime (expensive).")
+		addNoEID := f.Bool("no-eid", false, "Add anime missing EIDs.")
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 
-		if f.NArg() < 1 && !(*addIncomplete || *addAll) {
+		if f.NArg() < 1 && !(*addIncomplete || *addNoEID) {
 			return errors.New("no AIDs given")
 		}
 		aids, err := parseIDs(f.Args())
@@ -59,10 +59,14 @@ var addCmd = command{
 			return err
 		}
 		defer db.Close()
-		if *addAll {
-			as, err := query.GetAIDs(db)
+		if *addNoEID {
+			as, err := query.GetAIDsMissingEIDs(db)
 			if err != nil {
 				return err
+			}
+			// Limit entries to not get banned.
+			if len(as) > 200 {
+				as = as[:200]
 			}
 			aids = append(aids, as...)
 		} else if *addIncomplete {

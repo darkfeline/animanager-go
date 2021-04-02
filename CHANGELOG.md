@@ -3,12 +3,14 @@
 ## 0.20.0
 
 WARNING: If you're using a older version, you **must** update to this
-version and run `add -all` to populate the new `eid` field, which will
-replace the old episode `id` field in future versions.
+version and run `add -no-eid` to populate the new `eid` field, which
+will replace the old episode `id` field in future versions.  You will
+need to run this once every 24 hours until it fills in all the fields
+(there is a limit per run to not get banned).
 
 ### Added
 
-- Added `-all` flag to `add` command.
+- Added `-no-eid` flag to `add` command.
 - Added `eid` field.
 
 ## 0.19.0 - 2021-04-01
