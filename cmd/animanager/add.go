@@ -34,12 +34,13 @@ import (
 )
 
 var addCmd = command{
-	usageLine: "add [-incomplete] [aids]",
+	usageLine: "add [-incomplete] [-all] [aids]",
 	shortDesc: "add an anime",
 	longDesc: `Add an anime.
 `,
 	run: func(cmd *command, cfg *config.Config, args []string) error {
 		f := cmd.flagSet()
+		addAll := f.Bool("all", false, "Re-add all anime (expensive).")
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
 		if err := f.Parse(args); err != nil {
 			return err
@@ -58,7 +59,13 @@ var addCmd = command{
 			return err
 		}
 		defer db.Close()
-		if *addIncomplete {
+		if *addAll {
+			as, err := query.GetAIDs(db)
+			if err != nil {
+				return err
+			}
+			aids = append(aids, as...)
+		} else if *addIncomplete {
 			as, err := query.GetIncompleteAnime(db)
 			if err != nil {
 				return err

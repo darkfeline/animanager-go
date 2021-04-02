@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.20.0
+
+### Added
+
+- Added `-all` flag to `add` command.
+
 ## 0.19.0 - 2021-04-01
 
 ### Changed
