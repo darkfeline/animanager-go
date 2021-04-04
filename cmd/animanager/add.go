@@ -66,7 +66,7 @@ var addCmd = command{
 			}
 			// Limit entries to not get banned.
 			if len(as) > 100 {
-				as = as[:100]
+				as = as[:20]
 			}
 			aids = append(aids, as...)
 		} else if *addIncomplete {
