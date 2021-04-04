@@ -64,6 +64,7 @@ var addCmd = command{
 			if err != nil {
 				return err
 			}
+			log.Printf("%d anime missing EIDs", len(as))
 			// Limit entries to not get banned.
 			if len(as) > 100 {
 				as = as[:20]
