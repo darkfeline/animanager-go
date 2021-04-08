@@ -78,7 +78,6 @@ var addCmd = command{
 			aids = append(aids, as...)
 		}
 		for _, aid := range aids {
-			fmt.Println(aid)
 			if err := addAnime(db, aid); err != nil {
 				return err
 			}

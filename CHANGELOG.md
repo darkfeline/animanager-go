@@ -10,15 +10,20 @@ need to run this once every 24 hours until it fills in all the fields
 
 ### Added
 
-- Added `-no-eid` flag to `add` command.
-- Added `eid` field.
+* Added `-no-eid` flag to `add` command.
+* Added `eid` field.
+
+## Changed
+
+* `add` command no longer prints AIDs to stdout since it already
+  prints the AIDs to stderr logs.
 
 ## 0.19.0 - 2021-04-01
 
 ### Changed
 
-- Changed default config file path to respect `XDG_CONFIG_HOME`.
-- Changed default database path to respect `XDG_DATA_HOME`.
+* Changed default config file path to respect `XDG_CONFIG_HOME`.
+* Changed default database path to respect `XDG_DATA_HOME`.
 
 ## 0.18.0 - 2020-01-02
 
