@@ -15,6 +15,7 @@
 package query
 
 import (
+	"database/sql"
 	"reflect"
 	"testing"
 
@@ -30,6 +31,7 @@ func TestGetAnimeFiles(t *testing.T) {
 	defer close()
 	e := []anidb.Episode{
 		{
+			EID:    113,
 			EpNo:   "1",
 			Length: 25,
 			Titles: []anidb.EpTitle{{Title: "使徒, 襲来", Lang: "ja"}},
@@ -58,6 +60,7 @@ func TestGetAnimeFiles(t *testing.T) {
 		{
 			Episode: Episode{
 				ID:     1,
+				EID:    sql.NullInt32{Int32: 113, Valid: true},
 				AID:    aid,
 				Type:   EpRegular,
 				Number: 1,
