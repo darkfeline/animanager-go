@@ -41,7 +41,6 @@ var findFilesCmd = command{
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
 		}
