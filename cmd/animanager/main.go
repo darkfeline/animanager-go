@@ -83,6 +83,7 @@ var commands = []command{
 	showCmd,
 	showFilesCmd,
 	searchCmd,
+	serverCmd,
 	setDoneCmd,
 	statsCmd,
 	updateTitlesCmd,
