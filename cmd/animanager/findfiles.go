@@ -45,17 +45,18 @@ var findFilesCmd = command{
 			return errors.New("no arguments allowed")
 		}
 
-		db, err := openDB(cfg)
-		if err != nil {
-			return err
-		}
-		defer db.Close()
 		log.Printf("Finding video files")
 		files, err := findVideoFilesMany(cfg.WatchDirs)
 		if err != nil {
 			return err
 		}
 		log.Printf("Finished finding video files")
+
+		db, err := openDB(cfg)
+		if err != nil {
+			return err
+		}
+		defer db.Close()
 		if err := refreshFiles(db, files); err != nil {
 			return err
 		}
