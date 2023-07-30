@@ -15,15 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package server implements the internal server.
-// Used to maintain AniDB UDP sessions.
-package server
+// Package api contains the API for the internal server.
+package api
 
-import "go.felesatra.moe/animanager/internal/server/api"
-
-type Server struct {
-}
-
-func (*Server) Ping(req api.PingRequest, resp *api.PongResponse) error {
-	return nil
-}
+type PingRequest struct{}
+type PongResponse struct{}
