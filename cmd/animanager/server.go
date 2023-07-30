@@ -19,7 +19,6 @@ package main
 
 import (
 	"net"
-	"net/http"
 	"net/rpc"
 )
 
@@ -40,7 +39,7 @@ Used internally to maintain a UDP session for reuse across commands.
 		if err != nil {
 			return err
 		}
-		http.Serve(l, nil)
+		s.Accept(l)
 		return nil
 	},
 }
