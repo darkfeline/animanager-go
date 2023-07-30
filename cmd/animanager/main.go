@@ -42,19 +42,20 @@ func main() {
 	}
 	cmd, args := os.Args[1], os.Args[2:]
 	for _, c := range commands {
-		if cmd == c.name() {
-			cfg, err := config.Load(*configPath)
-			if err != nil {
-				log.Printf("error loading config: %s\n", err)
-			}
-			if err := c.run(&c, cfg, args); err != nil {
-				if errors.Is(err, flag.ErrHelp) {
-					os.Exit(0)
-				}
-				log.Fatal(err)
-			}
-			os.Exit(0)
+		if cmd != c.name() {
+			continue
 		}
+		cfg, err := config.Load(*configPath)
+		if err != nil {
+			log.Printf("error loading config: %s\n", err)
+		}
+		if err := c.run(&c, cfg, args); err != nil {
+			if errors.Is(err, flag.ErrHelp) {
+				os.Exit(0)
+			}
+			log.Fatal(err)
+		}
+		os.Exit(0)
 	}
 	log.Printf("unknown command %s", cmd)
 	printUsage(os.Stderr)
