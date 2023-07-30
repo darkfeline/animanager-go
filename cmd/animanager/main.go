@@ -31,6 +31,7 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 )
 
+// BUG(): This flag doesn't work
 var configPath = flag.String("config", config.DefaultPath, "Config file")
 
 func main() {
