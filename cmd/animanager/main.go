@@ -50,6 +50,10 @@ func main() {
 			log.Printf("error loading config: %s\n", err)
 		}
 		if err := c.run(&c, cfg, args); err != nil {
+			// ErrHelp is returned when -h is passed and
+			// the command FlagSet doesn't define it.
+			// FlagSet.Parse will still print help, so we
+			// only need to ignore the error.
 			if errors.Is(err, flag.ErrHelp) {
 				os.Exit(0)
 			}
