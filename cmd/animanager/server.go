@@ -18,6 +18,10 @@
 package main
 
 import (
+	"net"
+	"net/http"
+	"net/rpc"
+
 	"go.felesatra.moe/animanager/internal/config"
 )
 
@@ -32,6 +36,12 @@ Used internally to maintain a UDP session for reuse across commands.
 		if err := f.Parse(args); err != nil {
 			return err
 		}
+		s := rpc.NewServer()
+		l, err := net.Listen("tcp", ":1234")
+		if err != nil {
+			return err
+		}
+		http.Serve(l, nil)
 		return nil
 	},
 }
