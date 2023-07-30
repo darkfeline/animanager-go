@@ -15,35 +15,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+// Package server implements the internal server.
+// Used to maintain AniDB UDP sessions.
+package server
 
-import (
-	"net"
-	"net/rpc"
+type Server struct {
+}
 
-	"go.felesatra.moe/animanager/internal/server"
-)
+type PingRequest struct{}
+type PongResponse struct{}
 
-var serverCmd = command{
-	usageLine: "server",
-	shortDesc: "Run AniDB UDP API server",
-	longDesc: `Run AniDB UDP API server.
-Used internally to maintain a UDP session for reuse across commands.
-`,
-	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
-		if err := f.Parse(args); err != nil {
-			return err
-		}
-
-		s := &server.Server{}
-		rs := rpc.NewServer()
-		rs.Register(s)
-		l, err := net.Listen("tcp", ":1234")
-		if err != nil {
-			return err
-		}
-		rs.Accept(l)
-		return nil
-	},
+func (*Server) Ping(req PingRequest, resp *PongResponse) error {
+	return nil
 }
