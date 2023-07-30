@@ -24,7 +24,6 @@ import (
 	"os"
 
 	"go.felesatra.moe/anidb"
-	"go.felesatra.moe/animanager/internal/config"
 )
 
 var updateTitlesCmd = command{
@@ -32,7 +31,7 @@ var updateTitlesCmd = command{
 	shortDesc: "update AniDB titles database",
 	longDesc: `Update AniDB titles database.
 `,
-	run: func(cmd *command, cfg *config.Config, args []string) error {
+	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		file := f.String("file", "", "Titles file to use.")
 		if err := f.Parse(args); err != nil {

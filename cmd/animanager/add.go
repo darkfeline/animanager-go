@@ -38,11 +38,15 @@ var addCmd = command{
 	shortDesc: "add an anime",
 	longDesc: `Add an anime.
 `,
-	run: func(cmd *command, cfg *config.Config, args []string) error {
+	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		addNoEID := f.Bool("no-eid", false, "Add anime missing EIDs.")
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
 		if err := f.Parse(args); err != nil {
+			return err
+		}
+		cfg, err := cmd.loadConfig()
+		if err != nil {
 			return err
 		}
 

@@ -25,7 +25,6 @@ import (
 
 	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/animanager/internal/afmt"
-	"go.felesatra.moe/animanager/internal/config"
 )
 
 var searchCmd = command{
@@ -33,7 +32,7 @@ var searchCmd = command{
 	shortDesc: "search for an anime by title",
 	longDesc: `search for an anime by title.
 `,
-	run: func(cmd *command, cfg *config.Config, args []string) error {
+	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		if err := f.Parse(args); err != nil {
 			return err

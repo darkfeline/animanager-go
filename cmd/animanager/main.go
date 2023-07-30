@@ -31,9 +31,6 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 )
 
-// BUG(): This flag doesn't work
-var configPath = flag.String("config", config.DefaultPath, "Config file")
-
 func main() {
 	log.SetPrefix("animanager: ")
 	if len(os.Args) < 2 {
@@ -45,11 +42,7 @@ func main() {
 		if cmd != c.name() {
 			continue
 		}
-		cfg, err := config.Load(*configPath)
-		if err != nil {
-			log.Printf("error loading config: %s\n", err)
-		}
-		if err := c.run(&c, cfg, args); err != nil {
+		if err := c.run(&c, args); err != nil {
 			// ErrHelp is returned when -h is passed and
 			// the command FlagSet doesn't define it.
 			// FlagSet.Parse will still print help, so we
@@ -103,7 +96,8 @@ type command struct {
 	usageLine string
 	shortDesc string
 	longDesc  string
-	run       func(*command, *config.Config, []string) error
+	run       func(*command, []string) error
+	cfgPath   string
 }
 
 func (c *command) name() string {
@@ -117,5 +111,14 @@ func (c *command) flagSet() *flag.FlagSet {
 		fmt.Fprintf(fs.Output(), "%s\n", c.longDesc)
 		fs.PrintDefaults()
 	}
+	fs.StringVar(&c.cfgPath, "config", config.DefaultPath, "Path to config file")
 	return fs
+}
+
+func (c *command) loadConfig() (*config.Config, error) {
+	cfg, err := config.Load(c.cfgPath)
+	if err != nil {
+		return nil, fmt.Errorf("error loading config: %s", err)
+	}
+	return cfg, nil
 }

@@ -21,8 +21,6 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
-
-	"go.felesatra.moe/animanager/internal/config"
 )
 
 var serverCmd = command{
@@ -31,11 +29,12 @@ var serverCmd = command{
 	longDesc: `Run AniDB UDP API server.
 Used internally to maintain a UDP session for reuse across commands.
 `,
-	run: func(cmd *command, cfg *config.Config, args []string) error {
+	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		if err := f.Parse(args); err != nil {
 			return err
 		}
+
 		s := rpc.NewServer()
 		l, err := net.Listen("tcp", ":1234")
 		if err != nil {

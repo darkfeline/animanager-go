@@ -27,7 +27,6 @@ import (
 	"strconv"
 
 	"go.felesatra.moe/animanager/internal/afmt"
-	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -36,10 +35,14 @@ var showFilesCmd = command{
 	shortDesc: "show episode files",
 	longDesc: `Show episode files.
 `,
-	run: func(cmd *command, cfg *config.Config, args []string) error {
+	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		episode := f.Bool("episode", false, "Show files for episode.")
 		if err := f.Parse(args); err != nil {
+			return err
+		}
+		cfg, err := cmd.loadConfig()
+		if err != nil {
 			return err
 		}
 

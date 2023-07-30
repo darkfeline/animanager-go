@@ -27,7 +27,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -36,13 +35,17 @@ var findFilesCmd = command{
 	shortDesc: "find episode files",
 	longDesc: `Find episode files.
 `,
-	run: func(cmd *command, cfg *config.Config, args []string) error {
+	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
+		}
+		cfg, err := cmd.loadConfig()
+		if err != nil {
+			return err
 		}
 
 		log.Printf("Finding video files")
