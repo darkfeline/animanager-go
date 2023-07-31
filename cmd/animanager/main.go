@@ -77,6 +77,7 @@ Use "animanager help <command>" for more information about a command.
 
 var commands = []command{
 	addCmd,
+	callCmd,
 	findFilesCmd,
 	registerCmd,
 	showCmd,

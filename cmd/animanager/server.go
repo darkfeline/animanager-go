@@ -36,7 +36,7 @@ Used internally to maintain a UDP session for reuse across commands.
 			return err
 		}
 
-		s := &server.Server{}
+		s := &server.API{}
 		rs := rpc.NewServer()
 		rs.Register(s)
 		l, err := net.Listen("tcp", ":1234")

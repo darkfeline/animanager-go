@@ -21,9 +21,10 @@ package server
 
 import "go.felesatra.moe/animanager/internal/server/api"
 
-type Server struct {
+type API struct {
 }
 
-func (*Server) Ping(req api.PingRequest, resp *api.PongResponse) error {
+func (*API) Ping(req api.PingRequest, resp *api.PingResponse) error {
+	resp.Message = req.Message
 	return nil
 }
