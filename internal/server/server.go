@@ -45,6 +45,14 @@ func (*Server) Ping(req api.PingRequest, resp *api.PingResponse) error {
 	return nil
 }
 
+func (*Server) Login(req api.LoginRequest, resp *api.LoginResponse) error {
+	return nil
+}
+
+func (*Server) Logout(req api.LogoutRequest, resp *api.LogoutResponse) error {
+	return nil
+}
+
 func (*Server) File(req api.FileRequest, resp *api.FileResponse) error {
 	return nil
 }

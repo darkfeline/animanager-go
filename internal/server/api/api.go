@@ -25,5 +25,11 @@ type PingResponse struct {
 	Message string
 }
 
+type LoginRequest struct{}
+type LoginResponse struct{}
+
+type LogoutRequest struct{}
+type LogoutResponse struct{}
+
 type FileRequest struct{}
 type FileResponse struct{}
