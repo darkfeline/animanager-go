@@ -21,14 +21,14 @@ package server
 
 import "go.felesatra.moe/animanager/internal/server/api"
 
-type API struct {
+type Server struct {
 }
 
-func (*API) Ping(req api.PingRequest, resp *api.PingResponse) error {
+func (*Server) Ping(req api.PingRequest, resp *api.PingResponse) error {
 	resp.Message = req.Message
 	return nil
 }
 
-func (*API) File(req api.FileRequest, resp *api.FileResponse) error {
+func (*Server) File(req api.FileRequest, resp *api.FileResponse) error {
 	return nil
 }
