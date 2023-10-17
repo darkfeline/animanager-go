@@ -24,3 +24,6 @@ type PingRequest struct {
 type PingResponse struct {
 	Message string
 }
+
+type FileRequest struct{}
+type FileResponse struct{}

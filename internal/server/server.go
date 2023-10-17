@@ -28,3 +28,7 @@ func (*API) Ping(req api.PingRequest, resp *api.PingResponse) error {
 	resp.Message = req.Message
 	return nil
 }
+
+func (*API) File(req api.FileRequest, resp *api.FileResponse) error {
+	return nil
+}
