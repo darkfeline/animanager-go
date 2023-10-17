@@ -19,9 +19,25 @@
 // Used to maintain AniDB UDP sessions.
 package server
 
-import "go.felesatra.moe/animanager/internal/server/api"
+import (
+	"fmt"
+
+	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/animanager/internal/server/api"
+)
 
 type Server struct {
+	Client *udpapi.Client
+}
+
+func NewServer() (*Server, error) {
+	c, err := udpapi.NewClient(&udpapi.ClientConfig{})
+	if err != nil {
+		return nil, fmt.Errorf("new server: %s", err)
+	}
+	return &Server{
+		Client: c,
+	}, nil
 }
 
 func (*Server) Ping(req api.PingRequest, resp *api.PingResponse) error {
