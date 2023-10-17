@@ -18,10 +18,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"net/rpc"
 
 	"go.felesatra.moe/animanager/internal/server/api"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var callCmd = command{
@@ -36,14 +38,15 @@ Used for testing.
 			return err
 		}
 
-		c, err := rpc.Dial("tcp", ":1234")
+		conn, err := grpc.Dial("localhost:1234", grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			return err
 		}
-		resp := api.PingResponse{
-			Message: "vanitas",
-		}
-		if err := c.Call("API.Ping", api.PingRequest{}, &resp); err != nil {
+		defer conn.Close()
+		c := api.NewApiClient(conn)
+		ctx := context.Background()
+		resp, err := c.Ping(ctx, &api.PingRequest{Message: "vanitas"})
+		if err != nil {
 			return err
 		}
 		fmt.Printf("%s\n", resp.Message)

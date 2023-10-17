@@ -19,9 +19,10 @@ package main
 
 import (
 	"net"
-	"net/rpc"
 
 	"go.felesatra.moe/animanager/internal/server"
+	"go.felesatra.moe/animanager/internal/server/api"
+	"google.golang.org/grpc"
 )
 
 var serverCmd = command{
@@ -40,13 +41,12 @@ Used internally to maintain a UDP session for reuse across commands.
 		if err != nil {
 			return err
 		}
-		rs := rpc.NewServer()
-		rs.Register(s)
+		rs := grpc.NewServer()
+		api.RegisterApiServer(rs, s)
 		l, err := net.Listen("tcp", ":1234")
 		if err != nil {
 			return err
 		}
-		rs.Accept(l)
-		return nil
+		return rs.Serve(l)
 	},
 }

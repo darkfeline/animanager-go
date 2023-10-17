@@ -18,18 +18,4 @@
 // Package api contains the API for the internal server.
 package api
 
-type PingRequest struct {
-	Message string
-}
-type PingResponse struct {
-	Message string
-}
-
-type LoginRequest struct{}
-type LoginResponse struct{}
-
-type LogoutRequest struct{}
-type LogoutResponse struct{}
-
-type FileRequest struct{}
-type FileResponse struct{}
+//go:generate protoc --go_out=paths=source_relative:. --go-grpc_out=paths=source_relative:. api.proto

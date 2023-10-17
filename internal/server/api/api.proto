@@ -15,35 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-// Package server implements the internal server.
-// Used to maintain AniDB UDP sessions.
-package server
+syntax = "proto3";
 
-import (
-	"context"
-	"fmt"
+option go_package = "go.felesatra.moe/animanager/internal/server/api";
 
-	"go.felesatra.moe/anidb/udpapi"
-	"go.felesatra.moe/animanager/internal/server/api"
-)
+package go.felesatra.moe.animanager.server;
 
-type Server struct {
-	api.UnimplementedApiServer
-	Client *udpapi.Client
+service Api {
+  rpc Ping(PingRequest) returns (PingResponse) {}
 }
 
-func NewServer() (*Server, error) {
-	c, err := udpapi.NewClient(&udpapi.ClientConfig{})
-	if err != nil {
-		return nil, fmt.Errorf("new server: %s", err)
-	}
-	return &Server{
-		Client: c,
-	}, nil
+message PingRequest {
+  string message = 1;
 }
 
-func (*Server) Ping(ctx context.Context, req *api.PingRequest) (*api.PingResponse, error) {
-	return &api.PingResponse{
-		Message: req.GetMessage(),
-	}, nil
+message PingResponse {
+  string message = 1;
 }
