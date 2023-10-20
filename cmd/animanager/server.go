@@ -18,6 +18,7 @@
 package main
 
 import (
+	"context"
 	"net"
 
 	"go.felesatra.moe/animanager/internal/server"
@@ -37,10 +38,12 @@ Used internally to maintain a UDP session for reuse across commands.
 			return err
 		}
 
+		ctx := context.Background()
 		s, err := server.NewServer()
 		if err != nil {
 			return err
 		}
+		defer s.Shutdown(context.Background())
 		rs := grpc.NewServer()
 		api.RegisterApiServer(rs, s)
 		l, err := net.Listen("tcp", ":1234")

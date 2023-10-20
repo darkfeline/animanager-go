@@ -42,6 +42,11 @@ func NewServer() (*Server, error) {
 	}, nil
 }
 
+// Shutdown the server.
+func (s *Server) Shutdown(ctx context.Context) error {
+	return nil
+}
+
 func (*Server) Ping(ctx context.Context, req *api.PingRequest) (*api.PingResponse, error) {
 	return &api.PingResponse{
 		Message: req.GetMessage(),
