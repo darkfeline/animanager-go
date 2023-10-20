@@ -37,6 +37,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Api_Ping_FullMethodName = "/go.felesatra.moe.animanager.server.Api/Ping"
+	Api_File_FullMethodName = "/go.felesatra.moe.animanager.server.Api/File"
 )
 
 // ApiClient is the client API for Api service.
@@ -44,6 +45,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiClient interface {
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
+	File(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*FileResponse, error)
 }
 
 type apiClient struct {
@@ -63,11 +65,21 @@ func (c *apiClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.Call
 	return out, nil
 }
 
+func (c *apiClient) File(ctx context.Context, in *FileRequest, opts ...grpc.CallOption) (*FileResponse, error) {
+	out := new(FileResponse)
+	err := c.cc.Invoke(ctx, Api_File_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServer is the server API for Api service.
 // All implementations must embed UnimplementedApiServer
 // for forward compatibility
 type ApiServer interface {
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
+	File(context.Context, *FileRequest) (*FileResponse, error)
 	mustEmbedUnimplementedApiServer()
 }
 
@@ -77,6 +89,9 @@ type UnimplementedApiServer struct {
 
 func (UnimplementedApiServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedApiServer) File(context.Context, *FileRequest) (*FileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method File not implemented")
 }
 func (UnimplementedApiServer) mustEmbedUnimplementedApiServer() {}
 
@@ -109,6 +124,24 @@ func _Api_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Api_File_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).File(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Api_File_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).File(ctx, req.(*FileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Api_ServiceDesc is the grpc.ServiceDesc for Api service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -119,6 +152,10 @@ var Api_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Ping",
 			Handler:    _Api_Ping_Handler,
+		},
+		{
+			MethodName: "File",
+			Handler:    _Api_File_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

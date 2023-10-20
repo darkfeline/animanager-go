@@ -23,6 +23,7 @@ package go.felesatra.moe.animanager.server;
 
 service Api {
   rpc Ping(PingRequest) returns (PingResponse) {}
+  rpc File(FileRequest) returns (FileResponse) {}
 }
 
 message PingRequest {
@@ -31,4 +32,14 @@ message PingRequest {
 
 message PingResponse {
   string message = 1;
+}
+
+message FileRequest {
+  int64 size = 1;
+  string hash = 2;
+}
+
+message FileResponse {
+  int32 aid = 1;
+  int32 eid = 2;
 }
