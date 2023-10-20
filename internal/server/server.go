@@ -33,7 +33,7 @@ type Server struct {
 }
 
 func NewServer() (*Server, error) {
-	c, err := udpapi.NewClient(&udpapi.ClientConfig{})
+	c, err := udpapi.NewClient()
 	if err != nil {
 		return nil, fmt.Errorf("new server: %s", err)
 	}
