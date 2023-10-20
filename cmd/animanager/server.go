@@ -19,9 +19,12 @@ package main
 
 import (
 	"context"
+	"log"
 	"net"
 	"os/signal"
 
+	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
 	"golang.org/x/sys/unix"
@@ -39,9 +42,16 @@ Used internally to maintain a UDP session for reuse across commands.
 		if err := f.Parse(args); err != nil {
 			return err
 		}
+		cfg, err := cmd.loadConfig()
+		if err != nil {
+			return err
+		}
 
 		ctx := context.Background()
-		s, err := server.NewServer(ctx, &server.Config{})
+		s, err := server.NewServer(ctx, &server.Config{
+			UserInfo: userInfo(cfg),
+			Logger:   log.Default(),
+		})
 		if err != nil {
 			return err
 		}
@@ -64,4 +74,12 @@ Used internally to maintain a UDP session for reuse across commands.
 		}()
 		return rs.Serve(l)
 	},
+}
+
+func userInfo(cfg *config.Config) udpapi.UserInfo {
+	return udpapi.UserInfo{
+		UserName:     cfg.AniDB.Username,
+		UserPassword: cfg.AniDB.Password,
+		APIKey:       cfg.AniDB.APIKey,
+	}
 }
