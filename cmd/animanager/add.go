@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"go.felesatra.moe/anidb"
+	"go.felesatra.moe/animanager/internal/clientid"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
@@ -91,8 +92,8 @@ var addCmd = command{
 }
 
 var client = &anidb.Client{
-	Name:    "kfanimanager",
-	Version: 2,
+	Name:    clientid.Name,
+	Version: clientid.Version,
 	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
 }
 
