@@ -24,22 +24,40 @@ import (
 	"fmt"
 
 	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/animanager/internal/clientid"
 	"go.felesatra.moe/animanager/internal/server/api"
 )
 
 type Server struct {
 	api.UnimplementedApiServer
-	Client *udpapi.Client
+	client   *udpapi.Client
+	userinfo udpapi.UserInfo
+	logger   Logger
 }
 
-func NewServer() (*Server, error) {
+type Config struct {
+	UserInfo udpapi.UserInfo
+	Logger   Logger
+}
+
+// NewServer starts a new server.
+// You must call Shutdown, especially when using encryption.
+// The context is used only for login.
+func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
 	c, err := udpapi.NewClient()
 	if err != nil {
 		return nil, fmt.Errorf("new server: %s", err)
 	}
-	return &Server{
-		Client: c,
-	}, nil
+	c.ClientName = clientid.Name
+	c.ClientVersion = clientid.Version
+	c.SetLogger(cfg.Logger)
+	s := &Server{
+		client:   c,
+		userinfo: cfg.UserInfo,
+		logger:   cfg.Logger,
+	}
+	return s, nil
+}
 }
 
 // Shutdown the server.
@@ -51,4 +69,10 @@ func (*Server) Ping(ctx context.Context, req *api.PingRequest) (*api.PingRespons
 	return &api.PingResponse{
 		Message: req.GetMessage(),
 	}, nil
+}
+
+// A Logger can be used for logging.
+// A Logger must be safe to use concurrently.
+type Logger interface {
+	Printf(string, ...any)
 }

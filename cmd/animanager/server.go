@@ -41,7 +41,7 @@ Used internally to maintain a UDP session for reuse across commands.
 		}
 
 		ctx := context.Background()
-		s, err := server.NewServer()
+		s, err := server.NewServer(ctx, &server.Config{})
 		if err != nil {
 			return err
 		}
