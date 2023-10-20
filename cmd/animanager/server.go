@@ -20,9 +20,11 @@ package main
 import (
 	"context"
 	"net"
+	"os/signal"
 
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 )
 
@@ -44,12 +46,22 @@ Used internally to maintain a UDP session for reuse across commands.
 			return err
 		}
 		defer s.Shutdown(context.Background())
+
+		ctx, stop := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
+		defer stop()
+
 		rs := grpc.NewServer()
 		api.RegisterApiServer(rs, s)
 		l, err := net.Listen("tcp", ":1234")
 		if err != nil {
 			return err
 		}
+		go func() {
+			select {
+			case <-ctx.Done():
+				rs.Stop()
+			}
+		}()
 		return rs.Serve(l)
 	},
 }
