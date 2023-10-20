@@ -56,12 +56,42 @@ func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
 		userinfo: cfg.UserInfo,
 		logger:   cfg.Logger,
 	}
+	s.login(ctx)
 	return s, nil
 }
+
+func (s *Server) login(ctx context.Context) error {
+	if s.userinfo.APIKey != "" {
+		if err := s.client.Encrypt(ctx, s.userinfo); err != nil {
+			return fmt.Errorf("server login: %s", err)
+		}
+	}
+	if err := s.client.Auth(ctx, s.userinfo); err != nil {
+		return fmt.Errorf("server login: %s", err)
+	}
+	return nil
+}
+
+func (s *Server) logout(ctx context.Context) error {
+	if err := s.client.Logout(ctx); err != nil {
+		return fmt.Errorf("server logout: %s", err)
+	}
+	return nil
 }
 
 // Shutdown the server.
+// The underlying AniDB client connection is logged out and closed.
+// The context should have enough time to allow the client to log out,
+// especially when using encryption.
+// Otherwise, you must wait for the encryption session to timeout
+// before starting another server.
+// No new requests will be accepted (as the connection is closed).
+// Outstanding requests will be unblocked.
 func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.logout(ctx); err != nil {
+		return fmt.Errorf("server shutdown: %s", err)
+	}
+	s.client.Close()
 	return nil
 }
 
