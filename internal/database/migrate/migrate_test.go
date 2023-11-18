@@ -26,22 +26,16 @@ import (
 )
 
 func TestMigrate(t *testing.T) {
-	d, err := sql.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
+	d := testDB(t)
 	defer d.Close()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
 	if err := Migrate(context.Background(), d); err != nil {
 		t.Errorf("Error migrating database: %s", err)
 	}
 }
 
 func TestUserVersion(t *testing.T) {
-	d, err := sql.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
+	d := testDB(t)
 	defer d.Close()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
 	v, err := getUserVersion(d)
 	if err != nil {
 		t.Fatalf("Error getting version: %s", err)
@@ -60,4 +54,14 @@ func TestUserVersion(t *testing.T) {
 	if v != 1 {
 		t.Errorf("Expected 1, got %d", v)
 	}
+}
+
+func testDB(t *testing.T) *sql.DB {
+	// Cannot be used concurrently!
+	d, err := sql.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
+	if err != nil {
+		t.Fatalf("Error opening database: %s", err)
+	}
+	d.SetConnMaxLifetime(0)
+	return d
 }

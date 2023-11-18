@@ -23,29 +23,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+
+	"go.felesatra.moe/database/sql/sqlite3/migrate"
 )
 
 // Migrate migrates the database to the latest version.
 func Migrate(ctx context.Context, d *sql.DB) error {
-	v, err := getUserVersion(d)
-	if err != nil {
-		return fmt.Errorf("migrate: %w", err)
-	}
-	for _, m := range migrations {
-		if v != m.From {
-			continue
-		}
-		log.Printf("Migrating database from %d to %d", m.From, m.To)
-		if err := m.Func(ctx, d); err != nil {
-			return fmt.Errorf("migrate from %d to %d: %s", m.From, m.To, err)
-		}
-		if err := setUserVersion(d, m.To); err != nil {
-			return fmt.Errorf("migrate: %w", err)
-		}
-		v = m.To
-	}
-	return nil
+	return migrationSet.Migrate(ctx, d)
 }
 
 // IsLatestVersion returns true if the database is the latest
@@ -58,19 +42,40 @@ func IsLatestVersion(d *sql.DB) (bool, error) {
 	return v == latestVersion, nil
 }
 
-type spec struct {
-	From int
-	To   int
-	Func migrateFunc
+var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
+	{From: 0, To: 3, Func: migrate3},
+	{From: 3, To: 4, Func: migrate4},
+	{From: 4, To: 5, Func: migrate5},
+	{From: 5, To: 6, Func: migrate6},
+})
+
+const latestVersion = 6
+
+func getUserVersion(d *sql.DB) (int, error) {
+	r, err := d.Query("PRAGMA user_version")
+	if err != nil {
+		return 0, fmt.Errorf("get user version: %s", err)
+	}
+	defer r.Close()
+	ok := r.Next()
+	if !ok {
+		return 0, fmt.Errorf("get user version: %s", r.Err())
+	}
+	var v int
+	if err := r.Scan(&v); err != nil {
+		return 0, fmt.Errorf("get user version: %s", err)
+	}
+	r.Close()
+	if err := r.Err(); err != nil {
+		return 0, fmt.Errorf("get user version: %s", err)
+	}
+	return v, nil
 }
 
-var migrations = []spec{
-	{0, 3, migrate3},
-	{3, 4, migrate4},
-	{4, 5, migrate5},
-	{5, 6, migrate6},
+func setUserVersion(d *sql.DB, v int) error {
+	_, err := d.Exec(fmt.Sprintf("PRAGMA user_version=%d", v))
+	if err != nil {
+		return fmt.Errorf("set user version %d: %s", v, err)
+	}
+	return nil
 }
-
-var latestVersion = migrations[len(migrations)-1].To
-
-type migrateFunc func(context.Context, *sql.DB) error
