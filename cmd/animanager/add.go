@@ -92,8 +92,8 @@ var addCmd = command{
 }
 
 var client = &anidb.Client{
-	Name:    clientid.Name,
-	Version: clientid.Version,
+	Name:    clientid.HTTPName,
+	Version: clientid.HTTPVersion,
 	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
 }
 

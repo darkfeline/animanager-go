@@ -50,8 +50,8 @@ func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("new server: %s", err)
 	}
-	c.ClientName = clientid.Name
-	c.ClientVersion = clientid.Version
+	c.ClientName = clientid.UDPName
+	c.ClientVersion = clientid.UDPVersion
 	c.SetLogger(cfg.Logger)
 	s := &Server{
 		client:   c,
