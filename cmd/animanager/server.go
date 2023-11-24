@@ -21,7 +21,9 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
 	"os/signal"
+	"path/filepath"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/config"
@@ -62,7 +64,10 @@ Used internally to maintain a UDP session for reuse across commands.
 
 		rs := grpc.NewServer()
 		api.RegisterApiServer(rs, s)
-		l, err := net.Listen("tcp", ":1234")
+		if err := os.MkdirAll(filepath.Dir(cfg.SocketPath), 0o777); err != nil {
+			return err
+		}
+		l, err := net.Listen("unix", cfg.SocketPath)
 		if err != nil {
 			return err
 		}
