@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.20.0
+## 0.20.0 - 2023-11-23
 
 WARNING: If you're using a older version, you **must** update to this
 version and run `add -no-eid` to populate the new `eid` field, which
