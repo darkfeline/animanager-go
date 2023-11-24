@@ -5,7 +5,7 @@ program for advanced anime watching management.
 
 To install, run (requires Go):
 
-    go get -u go.felesatra.moe/animanager
+    go install go.felesatra.moe/animanager@latest
 
 The default install path is `~/go/bin/animanager`.
 
