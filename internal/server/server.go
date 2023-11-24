@@ -42,6 +42,12 @@ type Config struct {
 	Logger     Logger
 }
 
+// A Logger can be used for logging.
+// A Logger must be safe to use concurrently.
+type Logger interface {
+	Printf(string, ...any)
+}
+
 // NewServer starts a new server.
 // You must call Shutdown, especially when using encryption.
 // The context is used only for login.
@@ -62,6 +68,22 @@ func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
 		return nil, err
 	}
 	return s, nil
+}
+
+// Shutdown the server.
+// The underlying AniDB client connection is logged out and closed.
+// The context should have enough time to allow the client to log out,
+// especially when using encryption.
+// Otherwise, you must wait for the encryption session to timeout
+// before starting another server.
+// No new requests will be accepted (as the connection is closed).
+// Outstanding requests will be unblocked.
+func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.logout(ctx); err != nil {
+		return fmt.Errorf("server shutdown: %s", err)
+	}
+	s.client.Close()
+	return nil
 }
 
 func (s *Server) login(ctx context.Context) error {
@@ -85,26 +107,4 @@ func (s *Server) logout(ctx context.Context) error {
 	}
 	log.Printf("Logged out of AniDB")
 	return nil
-}
-
-// Shutdown the server.
-// The underlying AniDB client connection is logged out and closed.
-// The context should have enough time to allow the client to log out,
-// especially when using encryption.
-// Otherwise, you must wait for the encryption session to timeout
-// before starting another server.
-// No new requests will be accepted (as the connection is closed).
-// Outstanding requests will be unblocked.
-func (s *Server) Shutdown(ctx context.Context) error {
-	if err := s.logout(ctx); err != nil {
-		return fmt.Errorf("server shutdown: %s", err)
-	}
-	s.client.Close()
-	return nil
-}
-
-// A Logger can be used for logging.
-// A Logger must be safe to use concurrently.
-type Logger interface {
-	Printf(string, ...any)
 }
