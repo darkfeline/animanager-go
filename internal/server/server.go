@@ -37,16 +37,16 @@ type Server struct {
 }
 
 type Config struct {
-	UserInfo udpapi.UserInfo
-	Logger   Logger
+	ServerAddr string
+	UserInfo   udpapi.UserInfo
+	Logger     Logger
 }
 
 // NewServer starts a new server.
 // You must call Shutdown, especially when using encryption.
 // The context is used only for login.
 func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
-	const defaultServer = "api.anidb.net:9000"
-	c, err := udpapi.NewClient(defaultServer)
+	c, err := udpapi.NewClient(cfg.ServerAddr)
 	if err != nil {
 		return nil, fmt.Errorf("new server: %s", err)
 	}

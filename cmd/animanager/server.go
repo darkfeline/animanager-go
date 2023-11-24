@@ -49,8 +49,9 @@ Used internally to maintain a UDP session for reuse across commands.
 
 		ctx := context.Background()
 		s, err := server.NewServer(ctx, &server.Config{
-			UserInfo: userInfo(cfg),
-			Logger:   log.Default(),
+			ServerAddr: "api.anidb.net:9000",
+			UserInfo:   userInfo(cfg),
+			Logger:     log.Default(),
 		})
 		if err != nil {
 			return err
