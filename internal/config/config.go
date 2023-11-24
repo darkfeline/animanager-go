@@ -29,10 +29,11 @@ import (
 
 // Config is the configuration for Animanager.
 type Config struct {
-	DBPath    string      `toml:"database"`
-	WatchDirs []string    `toml:"watch_dirs"`
-	Player    []string    `toml:"player"`
-	AniDB     AniDBConfig `toml:"anidb"`
+	DBPath        string      `toml:"database"`
+	WatchDirs     []string    `toml:"watch_dirs"`
+	Player        []string    `toml:"player"`
+	AniDB         AniDBConfig `toml:"anidb"`
+	ServerAddress string      `toml:"server_address"`
 }
 
 // AniDBConfig is the configuration for AniDB (mainly UDP API).
