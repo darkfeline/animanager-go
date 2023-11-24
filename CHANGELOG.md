@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.21.0
+
 ## 0.20.0 - 2023-11-23
 
 WARNING: If you're using a older version, you **must** update to this
