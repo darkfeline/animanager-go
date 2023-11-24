@@ -59,7 +59,7 @@ func init() {
 
 	d = os.Getenv("XDG_STATE_HOME")
 	if d == "" {
-		d = filepath.Join(os.Getenv("HOME"), ".local", "share")
+		d = filepath.Join(os.Getenv("HOME"), ".local", "state")
 	}
 	defaultConfig.DBPath = filepath.Join(d, "animanager", "database.db")
 }
