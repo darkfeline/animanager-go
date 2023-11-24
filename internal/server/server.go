@@ -103,12 +103,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func (*Server) Ping(ctx context.Context, req *api.PingRequest) (*api.PingResponse, error) {
-	return &api.PingResponse{
-		Message: req.GetMessage(),
-	}, nil
-}
-
 // A Logger can be used for logging.
 // A Logger must be safe to use concurrently.
 type Logger interface {
