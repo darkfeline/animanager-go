@@ -57,7 +57,7 @@ func init() {
 	}
 	DefaultPath = filepath.Join(d, "animanager", "config.toml")
 
-	d = os.Getenv("XDG_DATA_HOME")
+	d = os.Getenv("XDG_STATE_HOME")
 	if d == "" {
 		d = filepath.Join(os.Getenv("HOME"), ".local", "share")
 	}

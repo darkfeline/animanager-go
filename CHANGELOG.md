@@ -2,6 +2,11 @@
 
 ## 0.21.0
 
+## Changed
+
+* Default database path has been moved to
+  `$XDG_STATE_HOME/animanager/database.db`.
+
 ## 0.20.0 - 2023-11-23
 
 WARNING: If you're using a older version, you **must** update to this
