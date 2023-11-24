@@ -21,7 +21,6 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -34,7 +33,7 @@ type Config struct {
 	WatchDirs  []string    `toml:"watch_dirs"`
 	Player     []string    `toml:"player"`
 	AniDB      AniDBConfig `toml:"anidb"`
-	SocketPath string      `toml:"socket_path"`
+	ServerAddr string      `toml:"server_addr"`
 }
 
 // AniDBConfig is the configuration for AniDB (mainly UDP API).
@@ -48,7 +47,8 @@ type AniDBConfig struct {
 var DefaultPath string
 
 var defaultConfig = Config{
-	Player: []string{"mpv", "--quiet"},
+	Player:     []string{"mpv", "--quiet"},
+	ServerAddr: "127.0.0.1:1234",
 }
 
 func init() {
@@ -63,13 +63,6 @@ func init() {
 		d = filepath.Join(os.Getenv("HOME"), ".local", "state")
 	}
 	defaultConfig.DBPath = filepath.Join(d, "animanager", "database.db")
-
-	d = os.Getenv("XDG_RUNTIME_DIR")
-	if d == "" {
-		log.Printf("Warning: XDG_RUNTIME_DIR is not set; using /tmp instead")
-		d = "/tmp"
-	}
-	defaultConfig.SocketPath = filepath.Join(d, "animanager", "server.sock")
 }
 
 // Load loads the configuration file.  If an error occurs, an error is

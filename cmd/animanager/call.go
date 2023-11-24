@@ -37,8 +37,12 @@ Used for testing.
 		if err := f.Parse(args); err != nil {
 			return err
 		}
+		cfg, err := cmd.loadConfig()
+		if err != nil {
+			return err
+		}
 
-		conn, err := grpc.Dial("localhost:1234", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err := grpc.Dial(cfg.ServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			return err
 		}
