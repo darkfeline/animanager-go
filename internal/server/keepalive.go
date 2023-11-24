@@ -25,32 +25,20 @@ import (
 
 type pingFunc func(context.Context) (port string, _ error)
 
-// startKeepalive starts a goroutine that calls the ping function at intervals.
-// The returned function must be called to stop the goroutine.
-func startKeepalive(p pingFunc, interval time.Duration, l Logger) (stop func()) {
-	c := make(chan struct{})
-	stop = func() { close(c) }
-	ctx := context.Background()
-	ctx, cancel := context.WithCancelCause(ctx)
-	go func() {
-		<-c
-		cancel(errors.New("keepalive stopped"))
-	}()
-	go func() {
-		t := time.NewTicker(interval)
-		for {
-			select {
-			case <-t.C:
-				ctx, cancel := context.WithTimeoutCause(ctx, 2*time.Second, errors.New("keepalive ping timeout"))
-				if _, err := p(ctx); err != nil {
-					l.Printf("keepalive ping: %s", err)
-				}
-				cancel()
-			case <-c:
-				t.Stop()
-				return
+// keepalive calls the ping function at intervals until canceled.
+func keepalive(ctx context.Context, p pingFunc, d time.Duration, l Logger) error {
+	t := time.NewTicker(d)
+	defer t.Stop()
+	for {
+		select {
+		case <-t.C:
+			ctx, cancel := context.WithTimeoutCause(ctx, 2*time.Second, errors.New("keepalive ping timeout"))
+			if _, err := p(ctx); err != nil {
+				l.Printf("keepalive ping: %s", err)
 			}
+			cancel()
+		case <-ctx.Done():
+			return context.Cause(ctx)
 		}
-	}()
-	return stop
+	}
 }
