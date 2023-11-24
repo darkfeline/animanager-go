@@ -71,7 +71,7 @@ func (s *Server) login(ctx context.Context) error {
 			return fmt.Errorf("server login: %s", err)
 		}
 	}
-	if err := s.client.Auth(ctx, s.userinfo); err != nil {
+	if _, err := s.client.Auth(ctx, s.userinfo); err != nil {
 		return fmt.Errorf("server login: %s", err)
 	}
 	log.Printf("Logged in to AniDB")
