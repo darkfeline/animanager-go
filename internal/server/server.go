@@ -57,7 +57,9 @@ func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
 		userinfo: cfg.UserInfo,
 		logger:   cfg.Logger,
 	}
-	s.login(ctx)
+	if err := s.login(ctx); err != nil {
+		return nil, err
+	}
 	return s, nil
 }
 
