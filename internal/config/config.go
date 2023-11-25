@@ -56,8 +56,9 @@ func init() {
 }
 
 var defaultConfig = Config{
-	Player:     []string{"mpv", "--quiet"},
-	ServerAddr: "127.0.0.1:1234",
+	Player:        []string{"mpv", "--quiet"},
+	ServerAddr:    "127.0.0.1:1234",
+	UDPServerAddr: "api.anidb.net:9000",
 }
 
 func init() {
