@@ -26,10 +26,32 @@ import (
 	"go.felesatra.moe/animanager/internal/date"
 )
 
+type AID int
+
+// Scan implements [database/sql.Scanner].
+func (t *AID) Scan(src any) error {
+	return scanID(t, src)
+}
+
+// scanID is a helper for implementing [database/sql.Scanner] for
+// custom int types.
+func scanID[T ~int](t *T, src any) error {
+	v, ok := src.(int64)
+	if !ok {
+		return fmt.Errorf("wrong type %T for %T", src, *t)
+	}
+	v2 := T(v)
+	if int64(v2) != v {
+		return fmt.Errorf("value does not fit in %T: %v", *t, src)
+	}
+	*t = v2
+	return nil
+}
+
 // Anime values correspond to rows in the anime table.
 type Anime struct {
 	_table       struct{}  `sql:"anime"`
-	AID          int       `sql:"aid"`
+	AID          AID       `sql:"aid"`
 	Title        string    `sql:"title"`
 	Type         AnimeType `sql:"type"`
 	EpisodeCount int       `sql:"episodecount"`
@@ -72,15 +94,15 @@ func GetAnimeCount(db *sql.DB) (int, error) {
 }
 
 // GetAIDs returns all AIDs.
-func GetAIDs(db *sql.DB) ([]int, error) {
+func GetAIDs(db *sql.DB) ([]AID, error) {
 	r, err := db.Query(`SELECT aid FROM anime`)
 	if err != nil {
 		return nil, err
 	}
 	defer r.Close()
-	var aids []int
+	var aids []AID
 	for r.Next() {
-		var aid int
+		var aid AID
 		if err := r.Scan(&aid); err != nil {
 			return nil, err
 		}
@@ -93,7 +115,7 @@ func GetAIDs(db *sql.DB) ([]int, error) {
 }
 
 // GetAnime gets the anime from the database.
-func GetAnime(db *sql.DB, aid int) (*Anime, error) {
+func GetAnime(db *sql.DB, aid AID) (*Anime, error) {
 	r := db.QueryRow(`
 SELECT aid, title, type, episodecount, startdate, enddate
 FROM anime WHERE aid=?`, aid)
@@ -159,7 +181,7 @@ WHERE aid=?`,
 	if err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
-	em, err := GetEpisodesMap(t, a.AID)
+	em, err := GetEpisodesMap(t, AID(a.AID))
 	if err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}

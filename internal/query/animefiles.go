@@ -20,7 +20,7 @@ import (
 )
 
 // GetAnimeFiles gets the episode files for all of the anime's episodes.
-func GetAnimeFiles(db *sql.DB, aid int) ([]EpisodeFiles, error) {
+func GetAnimeFiles(db *sql.DB, aid AID) ([]EpisodeFiles, error) {
 	eps, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("get anime %d files: %w", aid, err)

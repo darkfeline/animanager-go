@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
@@ -51,7 +50,7 @@ var watchCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		id, err := strconv.Atoi(f.Arg(0))
+		id, err := parseID[int](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
@@ -64,7 +63,7 @@ var watchCmd = command{
 		if *episode {
 			err = watchEpisode(cfg, db, id)
 		} else {
-			err = watchAnime(cfg, db, id)
+			err = watchAnime(cfg, db, query.AID(id))
 		}
 		return err
 	},
@@ -120,7 +119,7 @@ func playFile(cfg *config.Config, p string) error {
 	return cmd.Run()
 }
 
-func watchAnime(cfg *config.Config, db *sql.DB, aid int) error {
+func watchAnime(cfg *config.Config, db *sql.DB, aid query.AID) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return fmt.Errorf("get anime: %c", err)

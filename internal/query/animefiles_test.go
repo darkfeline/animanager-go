@@ -37,7 +37,7 @@ func TestGetAnimeFiles(t *testing.T) {
 			Titles: []anidb.EpTitle{{Title: "使徒, 襲来", Lang: "ja"}},
 		},
 	}
-	aid := 22
+	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
 		Type:         "TV Series",

@@ -27,12 +27,12 @@ import (
 // GetIncompleteAnime returns the AIDs for incomplete anime.  An anime
 // is incomplete if it is still missing some information (e.g.,
 // missing episodes, missing episode titles).
-func GetIncompleteAnime(db *sql.DB) ([]int, error) {
+func GetIncompleteAnime(db *sql.DB) ([]AID, error) {
 	aids, err := GetAIDs(db)
 	if err != nil {
 		return nil, fmt.Errorf("get incomplete anime: %s", err)
 	}
-	var r []int
+	var r []AID
 	for _, aid := range aids {
 		ok, err := isIncomplete(db, aid)
 		if err != nil {
@@ -49,7 +49,7 @@ func GetIncompleteAnime(db *sql.DB) ([]int, error) {
 // using some heuristics.  An anime is incomplete if it is still
 // missing some information (e.g., missing episodes, missing episode
 // titles).
-func isIncomplete(db *sql.DB, aid int) (bool, error) {
+func isIncomplete(db *sql.DB, aid AID) (bool, error) {
 	a, err := GetAnime(db, aid)
 	if err != nil {
 		return false, fmt.Errorf("is incomplete: %s", err)

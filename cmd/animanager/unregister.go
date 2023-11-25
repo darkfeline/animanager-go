@@ -43,7 +43,7 @@ var unregisterCmd = command{
 		if f.NArg() < 1 && !*finished {
 			return errors.New("no anime specified")
 		}
-		aids, err := parseIDs(f.Args())
+		aids, err := parseIDs[query.AID](f.Args())
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ var unregisterCmd = command{
 			if err != nil {
 				return err
 			}
-			watchingMap := make(map[int]bool)
+			watchingMap := make(map[query.AID]bool)
 			for _, w := range watching {
 				watchingMap[w.AID] = true
 			}

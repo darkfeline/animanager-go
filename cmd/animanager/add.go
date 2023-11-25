@@ -54,7 +54,7 @@ var addCmd = command{
 		if f.NArg() < 1 && !(*addIncomplete || *addNoEID) {
 			return errors.New("no AIDs given")
 		}
-		aids, err := parseIDs(f.Args())
+		aids, err := parseIDs[query.AID](f.Args())
 		if err != nil {
 			return err
 		}
@@ -97,9 +97,9 @@ var client = &anidb.Client{
 	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
 }
 
-func addAnime(db *sql.DB, aid int) error {
+func addAnime(db *sql.DB, aid query.AID) error {
 	log.Printf("Adding %d", aid)
-	c, err := client.RequestAnime(aid)
+	c, err := client.RequestAnime(int(aid))
 	if err != nil {
 		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
@@ -113,14 +113,22 @@ func openDB(cfg *config.Config) (*sql.DB, error) {
 	return database.Open(context.Background(), cfg.DBPath)
 }
 
-func parseIDs(args []string) ([]int, error) {
-	ids := make([]int, len(args))
+func parseIDs[T ~int](args []string) ([]T, error) {
+	ids := make([]T, len(args))
 	for i, s := range args {
-		id, err := strconv.Atoi(s)
+		id, err := parseID[T](s)
 		if err != nil {
-			return nil, fmt.Errorf("invalid ID %v: %v", s, err)
+			return nil, err
 		}
 		ids[i] = id
 	}
 	return ids, nil
+}
+
+func parseID[T ~int](s string) (T, error) {
+	id, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse %q into %T: %s", s, T(0), err)
+	}
+	return T(id), nil
 }

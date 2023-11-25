@@ -8,7 +8,7 @@ import (
 
 type Watching struct {
 	_table struct{} `sql:"watching"`
-	AID    int      `sql:"aid"`
+	AID    AID      `sql:"aid"`
 	Regexp string   `sql:"regexp"`
 	Offset int      `sql:"offset"`
 }
@@ -37,7 +37,7 @@ ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
 
 // GetWatching gets the watching entry for an anime from the
 // database.
-func GetWatching(db *sql.DB, aid int) (Watching, error) {
+func GetWatching(db *sql.DB, aid AID) (Watching, error) {
 	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
 	var w Watching
 	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
@@ -77,7 +77,7 @@ func GetAllWatching(db *sql.DB) ([]Watching, error) {
 
 // DeleteWatching deletes the watching entry for an anime from the
 // database.
-func DeleteWatching(db *sql.DB, aid int) error {
+func DeleteWatching(db *sql.DB, aid AID) error {
 	_, err := db.Exec(`DELETE FROM watching WHERE aid=?`, aid)
 	return err
 }

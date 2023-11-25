@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/query"
@@ -48,7 +47,7 @@ var showCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		aid, err := strconv.Atoi(f.Arg(0))
+		aid, err := parseID[query.AID](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid AID %v: %v", aid, err)
 		}

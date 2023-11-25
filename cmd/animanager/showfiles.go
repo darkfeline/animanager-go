@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/query"
@@ -49,7 +48,7 @@ var showFilesCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		id, err := strconv.Atoi(f.Arg(0))
+		id, err := parseID[int](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
@@ -63,14 +62,14 @@ var showFilesCmd = command{
 		if *episode {
 			err = showEpisodeFiles(bw, db, id)
 		} else {
-			err = showAnimeFiles(bw, db, id)
+			err = showAnimeFiles(bw, db, query.AID(id))
 		}
 		bw.Flush()
 		return err
 	},
 }
 
-func showAnimeFiles(w io.Writer, db *sql.DB, aid int) error {
+func showAnimeFiles(w io.Writer, db *sql.DB, aid query.AID) error {
 	eps, err := query.GetEpisodes(db, aid)
 	if err != nil {
 		return err

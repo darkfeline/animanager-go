@@ -75,7 +75,7 @@ FROM episode_file WHERE episode_id=?`, episodeID)
 }
 
 // DeleteEpisodeFiles deletes episode files for the given anime.
-func DeleteEpisodeFiles(db *sql.DB, aid int) error {
+func DeleteEpisodeFiles(db *sql.DB, aid AID) error {
 	t, err := db.Begin()
 	if err != nil {
 		return err

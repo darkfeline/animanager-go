@@ -43,7 +43,7 @@ var setDoneCmd = command{
 			return errors.New("no arguments provided")
 		}
 
-		ids, err := parseIDs(f.Args())
+		ids, err := parseIDs[int](f.Args())
 		if err != nil {
 			return err
 		}

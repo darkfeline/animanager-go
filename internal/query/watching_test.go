@@ -31,7 +31,7 @@ func TestInsertAndGetWatching(t *testing.T) {
 		t.Fatalf("Error opening database: %s", err)
 	}
 	defer close()
-	aid := 22
+	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
 		Type:         "TV Series",
@@ -69,7 +69,7 @@ func TestInsertInvalidRegexp(t *testing.T) {
 		t.Fatalf("Error opening database: %s", err)
 	}
 	defer close()
-	aid := 22
+	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
 		Type:         "TV Series",
@@ -100,7 +100,7 @@ func TestInsertAndGetAllWatching(t *testing.T) {
 		t.Fatalf("Error opening database: %s", err)
 	}
 	defer close()
-	aid := 22
+	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
 		Type:         "TV Series",

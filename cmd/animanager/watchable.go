@@ -74,15 +74,15 @@ func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {
 	if err != nil {
 		return err
 	}
-	for _, c := range ws {
-		if err := showWatchableSingle(db, bw, c.AID, o); err != nil {
+	for _, w := range ws {
+		if err := showWatchableSingle(db, bw, w.AID, o); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid int, o afmt.PrintWatchableOption) error {
+func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid query.AID, o afmt.PrintWatchableOption) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return err

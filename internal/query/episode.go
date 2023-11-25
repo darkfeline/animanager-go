@@ -116,7 +116,7 @@ func DeleteEpisode(db Executor, id int) error {
 }
 
 // GetEpisodes gets the episodes for an anime from the database.
-func GetEpisodes(db Executor, aid int) ([]Episode, error) {
+func GetEpisodes(db Executor, aid AID) ([]Episode, error) {
 	r, err := db.Query(`
 SELECT `+selectEpisodeFields+`
 FROM episode WHERE aid=? ORDER BY type, number`, aid)
@@ -139,7 +139,7 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 }
 
 // GetEpisodesMap returns a map of the episodes for an anime.
-func GetEpisodesMap(db Executor, aid int) (map[EpisodeKey]*Episode, error) {
+func GetEpisodesMap(db Executor, aid AID) (map[EpisodeKey]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("get episodes map %v: %w", aid, err)
@@ -197,14 +197,14 @@ func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
 }
 
 // GetAIDsMissingEIDs is a temporary function to support EID backfill.
-func GetAIDsMissingEIDs(db *sql.DB) ([]int, error) {
+func GetAIDsMissingEIDs(db *sql.DB) ([]AID, error) {
 	r, err := db.Query(`SELECT DISTINCT aid FROM episode WHERE eid IS NULL`)
 	if err != nil {
 		return nil, err
 	}
-	var aids []int
+	var aids []AID
 	for r.Next() {
-		var aid int
+		var aid AID
 		if err := r.Scan(&aid); err != nil {
 			return nil, err
 		}
