@@ -7,10 +7,10 @@ import (
 )
 
 type Watching struct {
-	_table struct{} `watching`
-	AID    int      `aid`
-	Regexp string   `regexp`
-	Offset int      `offset`
+	_table struct{} `sql:"watching"`
+	AID    int      `sql:"aid"`
+	Regexp string   `sql:"regexp"`
+	Offset int      `sql:"offset"`
 }
 
 // InsertWatching inserts or updates a watching entry into the database.

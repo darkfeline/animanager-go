@@ -31,15 +31,15 @@ type Executor interface {
 }
 
 type Episode struct {
-	_table      struct{}      `episode`
-	ID          int           `id`
-	EID         sql.NullInt32 `eid`
-	AID         int           `aid`
-	Type        EpisodeType   `type`
-	Number      int           `number`
-	Title       string        `title`
-	Length      int           `length`
-	UserWatched bool          `user_watched`
+	_table      struct{}      `sql:"episode"`
+	ID          int           `sql:"id"`
+	EID         sql.NullInt32 `sql:"eid"`
+	AID         int           `sql:"aid"`
+	Type        EpisodeType   `sql:"type"`
+	Number      int           `sql:"number"`
+	Title       string        `sql:"title"`
+	Length      int           `sql:"length"`
+	UserWatched bool          `sql:"user_watched"`
 }
 
 func (e Episode) Key() EpisodeKey {

@@ -28,15 +28,15 @@ import (
 
 // Anime values correspond to rows in the anime table.
 type Anime struct {
-	_table       struct{}  `anime`
-	AID          int       `aid`
-	Title        string    `title`
-	Type         AnimeType `type`
-	EpisodeCount int       `episodecount`
+	_table       struct{}  `sql:"anime"`
+	AID          int       `sql:"aid"`
+	Title        string    `sql:"title"`
+	Type         AnimeType `sql:"type"`
+	EpisodeCount int       `sql:"episodecount"`
 	// The following fields are nullable.  In most cases, use the
 	// getter methods instead.
-	NullStartDate sql.NullInt64 `startdate`
-	NullEndDate   sql.NullInt64 `enddate`
+	NullStartDate sql.NullInt64 `sql:"startdate"`
+	NullEndDate   sql.NullInt64 `sql:"enddate"`
 }
 
 // StartDate returns the NullStartDate field as a Date.  If the
