@@ -61,7 +61,7 @@ var watchCmd = command{
 		}
 		defer db.Close()
 		if *episode {
-			err = watchEpisode(cfg, db, id)
+			err = watchEpisode(cfg, db, query.EpID(id))
 		} else {
 			err = watchAnime(cfg, db, query.AID(id))
 		}
@@ -69,7 +69,7 @@ var watchCmd = command{
 	},
 }
 
-func watchEpisode(cfg *config.Config, db *sql.DB, id int) error {
+func watchEpisode(cfg *config.Config, db *sql.DB, id query.EpID) error {
 	e, err := query.GetEpisode(db, id)
 	if err != nil {
 		return fmt.Errorf("get episode: %c", err)

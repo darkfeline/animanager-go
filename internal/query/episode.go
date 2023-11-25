@@ -30,9 +30,16 @@ type Executor interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
 }
 
+type EpID int
+
+// Scan implements [database/sql.Scanner].
+func (t *EpID) Scan(src any) error {
+	return scanID(t, src)
+}
+
 type Episode struct {
 	_table      struct{}      `sql:"episode"`
-	ID          int           `sql:"id"`
+	ID          EpID          `sql:"id"`
 	EID         sql.NullInt32 `sql:"eid"`
 	AID         int           `sql:"aid"`
 	Type        EpisodeType   `sql:"type"`
@@ -83,7 +90,7 @@ func GetWatchedMinutes(db *sql.DB) (int, error) {
 }
 
 // GetEpisode gets the episode from the database.
-func GetEpisode(db *sql.DB, id int) (*Episode, error) {
+func GetEpisode(db *sql.DB, id EpID) (*Episode, error) {
 	r := db.QueryRow(`
 SELECT `+selectEpisodeFields+`
 FROM episode WHERE id=?`, id)
@@ -108,7 +115,7 @@ FROM episode WHERE aid=? AND type=? AND number=?`, k.AID, k.Type, k.Number)
 }
 
 // DeleteEpisode deletes the episode from the database.
-func DeleteEpisode(db Executor, id int) error {
+func DeleteEpisode(db Executor, id EpID) error {
 	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {
 		return fmt.Errorf("delete episode %v: %w", id, err)
 	}
@@ -173,7 +180,7 @@ func GetAllEpisodes(db *sql.DB) ([]Episode, error) {
 }
 
 // UpdateEpisodeDone updates the episode's done status.
-func UpdateEpisodeDone(db *sql.DB, id int, done bool) error {
+func UpdateEpisodeDone(db *sql.DB, id EpID, done bool) error {
 	var watched uint8
 	if done {
 		watched = 1

@@ -21,7 +21,7 @@ import (
 
 type EpisodeFile struct {
 	_table    struct{} `sql:"episode_file"`
-	EpisodeID int      `sql:"episode_id"`
+	EpisodeID EpID     `sql:"episode_id"`
 	Path      string   `sql:"path"`
 }
 
@@ -48,7 +48,7 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 }
 
 // GetEpisodeFiles returns the EpisodeFiles for the episode.
-func GetEpisodeFiles(db *sql.DB, episodeID int) (es []EpisodeFile, err error) {
+func GetEpisodeFiles(db *sql.DB, episodeID EpID) (es []EpisodeFile, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("get episode %d files: %w", episodeID, err)
