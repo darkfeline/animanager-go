@@ -46,19 +46,21 @@ type AniDBConfig struct {
 // DefaultPath is the default config file path.
 var DefaultPath string
 
-var defaultConfig = Config{
-	Player:     []string{"mpv", "--quiet"},
-	ServerAddr: "127.0.0.1:1234",
-}
-
 func init() {
 	d := os.Getenv("XDG_CONFIG_HOME")
 	if d == "" {
 		d = filepath.Join(os.Getenv("HOME"), ".config")
 	}
 	DefaultPath = filepath.Join(d, "animanager", "config.toml")
+}
 
-	d = os.Getenv("XDG_STATE_HOME")
+var defaultConfig = Config{
+	Player:     []string{"mpv", "--quiet"},
+	ServerAddr: "127.0.0.1:1234",
+}
+
+func init() {
+	d := os.Getenv("XDG_STATE_HOME")
 	if d == "" {
 		d = filepath.Join(os.Getenv("HOME"), ".local", "state")
 	}
