@@ -39,9 +39,9 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		return fmt.Errorf("refresh files: %w", err)
 	}
 	var efs []query.EpisodeFile
-	log.Print("Matching files")
+	log.Print("Matching files...")
 	for _, w := range ws {
-		log.Printf("Matching files for %d", w.AID)
+		log.Printf("Matching files for aid=%d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
 			return fmt.Errorf("refresh files: %w", err)
@@ -50,10 +50,10 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		if err != nil {
 			return fmt.Errorf("refresh files: %w", err)
 		}
-		log.Printf("Found files for %d: %#v", w.AID, efs2)
+		log.Printf("Found files for aid=%d: %#v", w.AID, efs2)
 		efs = append(efs, efs2...)
 	}
-	log.Print("Inserting files")
+	log.Print("Inserting files...")
 	if err = query.InsertEpisodeFiles(db, efs); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
