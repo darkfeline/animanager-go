@@ -67,6 +67,8 @@ var findFilesCmd = command{
 	},
 }
 
+// findVideoFilesMany returns a slice of paths of all video files found
+// recursively under the given paths.  The returned paths are absolute.
 func findVideoFilesMany(dirs []string) ([]string, error) {
 	var result []string
 	for _, d := range dirs {
