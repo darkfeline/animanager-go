@@ -41,7 +41,7 @@ type Episode struct {
 	_table      struct{}      `sql:"episode"`
 	ID          EpID          `sql:"id"`
 	EID         sql.NullInt32 `sql:"eid"`
-	AID         int           `sql:"aid"`
+	AID         AID           `sql:"aid"`
 	Type        EpisodeType   `sql:"type"`
 	Number      int           `sql:"number"`
 	Title       string        `sql:"title"`
@@ -60,7 +60,7 @@ func (e Episode) Key() EpisodeKey {
 // EpisodeKey represents the unique key for an Episode.  This is
 // separate from ID because SQLite treats numeric row IDs specially.
 type EpisodeKey struct {
-	AID    int
+	AID    AID
 	Type   EpisodeType
 	Number int
 }

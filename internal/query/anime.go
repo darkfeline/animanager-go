@@ -186,7 +186,7 @@ WHERE aid=?`,
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	for _, e := range a.Episodes {
-		k := EpisodeKey{AID: a.AID}
+		k := EpisodeKey{AID: AID(a.AID)}
 		k.Type, k.Number = parseEpNo(e.EpNo)
 		if k.Type == EpUnknown {
 			return fmt.Errorf("failed to insert anime %d: invalid epno %s", a.AID, e.EpNo)
