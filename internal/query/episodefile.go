@@ -74,6 +74,25 @@ FROM episode_file WHERE episode_id=?`, episodeID)
 	return es, nil
 }
 
+// DeleteEpisodeFiles deletes episode files for the given anime.
+func DeleteEpisodeFiles(db *sql.DB, aid int) error {
+	t, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer t.Rollback()
+	_, err = t.Exec(`DELETE FROM episode_file
+WHERE ROWID IN (
+    SELECT episode_file.ROWID FROM episode_file
+    JOIN episode ON (episode_file.episode_id = episode.id)
+    WHERE episode.aid=?
+)`, aid)
+	if err != nil {
+		return err
+	}
+	return t.Commit()
+}
+
 // DeleteAllEpisodeFiles deletes all episode files.
 func DeleteAllEpisodeFiles(db *sql.DB) error {
 	t, err := db.Begin()
