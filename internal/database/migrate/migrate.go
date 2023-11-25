@@ -35,11 +35,11 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 // IsLatestVersion returns true if the database is the latest
 // version.
 func IsLatestVersion(d *sql.DB) (bool, error) {
-	v, err := getUserVersion(d)
+	v, err := migrationSet.NeedsMigrate(d)
 	if err != nil {
 		return false, fmt.Errorf("is latest version: %s", err)
 	}
-	return v == latestVersion, nil
+	return !v, nil
 }
 
 var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
@@ -48,8 +48,6 @@ var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
 	{From: 4, To: 5, Func: migrate5},
 	{From: 5, To: 6, Func: migrate6},
 })
-
-const latestVersion = 6
 
 func getUserVersion(d *sql.DB) (int, error) {
 	r, err := d.Query("PRAGMA user_version")
