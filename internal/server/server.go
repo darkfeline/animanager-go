@@ -22,10 +22,10 @@ package server
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/clientid"
+	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/server/api"
 )
 
@@ -89,7 +89,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 func (s *Server) login(ctx context.Context) error {
-	s.logger.Printf("Logging in to AniDB...")
+	clog.Printf(ctx, "Logging in to AniDB...")
 	if s.userinfo.APIKey != "" {
 		if err := s.client.Encrypt(ctx, s.userinfo); err != nil {
 			return fmt.Errorf("server login: %s", err)
@@ -98,15 +98,15 @@ func (s *Server) login(ctx context.Context) error {
 	if _, err := s.client.Auth(ctx, s.userinfo); err != nil {
 		return fmt.Errorf("server login: %s", err)
 	}
-	log.Printf("Logged in to AniDB")
+	clog.Printf(ctx, "Logged in to AniDB")
 	return nil
 }
 
 func (s *Server) logout(ctx context.Context) error {
-	s.logger.Printf("Logging out of AniDB...")
+	clog.Printf(ctx, "Logging out of AniDB...")
 	if err := s.client.Logout(ctx); err != nil {
 		return fmt.Errorf("server logout: %s", err)
 	}
-	s.logger.Printf("Logged out of AniDB")
+	clog.Printf(ctx, "Logged out of AniDB")
 	return nil
 }
