@@ -2,10 +2,16 @@
 
 ## 0.21.0
 
+## Added
+
+* Added `clearfiles` command which clears all episode files.
+
 ## Changed
 
 * Default database path has been moved to
   `$XDG_STATE_HOME/animanager/database.db`.
+* `findfiles` command no longer clears all episode files immediately.
+  It clears episode files as it processes each watching anime.
 * The `eid` field for `episode` is no longer optional.  You should
   populate the fields by following the instructions in the 0.20.0
   release notes before upgrading to this version.
