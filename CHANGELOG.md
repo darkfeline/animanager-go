@@ -6,6 +6,9 @@
 
 * Default database path has been moved to
   `$XDG_STATE_HOME/animanager/database.db`.
+* The `eid` field for `episode` is no longer optional.  You should
+  populate the fields by following the instructions in the 0.20.0
+  release notes before upgrading to this version.
 
 ## 0.20.0 - 2023-11-23
 
