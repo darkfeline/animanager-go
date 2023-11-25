@@ -29,6 +29,7 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
+	"go.felesatra.moe/animanager/internal/udp"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 )
@@ -51,7 +52,7 @@ Used internally to maintain a UDP session for reuse across commands.
 
 		ctx := context.Background()
 		ctx = clog.WithLogger(ctx, log.Default())
-		s, err := server.NewServer(ctx, &server.Config{
+		s, err := server.NewServer(ctx, &udp.Config{
 			ServerAddr: "api.anidb.net:9000",
 			UserInfo:   userInfo(cfg),
 			Logger:     log.Default(),

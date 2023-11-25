@@ -23,90 +23,29 @@ import (
 	"context"
 	"fmt"
 
-	"go.felesatra.moe/anidb/udpapi"
-	"go.felesatra.moe/animanager/internal/clientid"
-	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/server/api"
+	"go.felesatra.moe/animanager/internal/udp"
 )
 
 type Server struct {
 	api.UnimplementedApiServer
-	client   *udpapi.Client
-	userinfo udpapi.UserInfo
-	// Used for non-request logging
-	logger Logger
-}
-
-type Config struct {
-	ServerAddr string
-	UserInfo   udpapi.UserInfo
-	// Used for non-request logging
-	Logger Logger
-}
-
-// A Logger can be used for logging.
-// A Logger must be safe to use concurrently.
-type Logger interface {
-	Printf(string, ...any)
+	client *udp.Client
 }
 
 // NewServer starts a new server.
 // You must call Shutdown, especially when using encryption.
 // The context is used only for login.
-func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
-	c, err := udpapi.Dial(cfg.ServerAddr)
+func NewServer(ctx context.Context, cfg *udp.Config) (*Server, error) {
+	c, err := udp.Dial(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("new server: %s", err)
 	}
-	c.ClientName = clientid.UDPName
-	c.ClientVersion = clientid.UDPVersion
-	c.SetLogger(cfg.Logger)
 	s := &Server{
-		client:   c,
-		userinfo: cfg.UserInfo,
-		logger:   cfg.Logger,
-	}
-	if err := s.login(ctx); err != nil {
-		return nil, err
+		client: c,
 	}
 	return s, nil
 }
 
-// Shutdown the server.
-// The underlying AniDB client connection is logged out and closed.
-// The context should have enough time to allow the client to log out,
-// especially when using encryption.
-// Otherwise, you must wait for the encryption session to timeout
-// before starting another server.
-// No new requests will be accepted (as the connection is closed).
-// Outstanding requests will be unblocked.
 func (s *Server) Shutdown(ctx context.Context) error {
-	if err := s.logout(ctx); err != nil {
-		return fmt.Errorf("server shutdown: %s", err)
-	}
-	s.client.Close()
-	return nil
-}
-
-func (s *Server) login(ctx context.Context) error {
-	clog.Printf(ctx, "Logging in to AniDB...")
-	if s.userinfo.APIKey != "" {
-		if err := s.client.Encrypt(ctx, s.userinfo); err != nil {
-			return fmt.Errorf("server login: %s", err)
-		}
-	}
-	if _, err := s.client.Auth(ctx, s.userinfo); err != nil {
-		return fmt.Errorf("server login: %s", err)
-	}
-	clog.Printf(ctx, "Logged in to AniDB")
-	return nil
-}
-
-func (s *Server) logout(ctx context.Context) error {
-	clog.Printf(ctx, "Logging out of AniDB...")
-	if err := s.client.Logout(ctx); err != nil {
-		return fmt.Errorf("server logout: %s", err)
-	}
-	clog.Printf(ctx, "Logged out of AniDB")
-	return nil
+	return s.client.Shutdown(ctx)
 }
