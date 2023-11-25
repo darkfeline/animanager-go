@@ -74,7 +74,7 @@ FROM episode_file WHERE episode_id=?`, episodeID)
 	return es, nil
 }
 
-// DeleteEpisodeFiles deletes all episode files.
+// DeleteAllEpisodeFiles deletes all episode files.
 func DeleteAllEpisodeFiles(db *sql.DB) error {
 	t, err := db.Begin()
 	if err != nil {
