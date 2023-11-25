@@ -28,7 +28,7 @@ import (
 )
 
 type Client struct {
-	client   *udpapi.Client
+	*udpapi.Client
 	userinfo udpapi.UserInfo
 }
 
@@ -47,7 +47,7 @@ func Dial(ctx context.Context, cfg *Config) (*Client, error) {
 	c.ClientVersion = clientid.UDPVersion
 	c.SetLogger(cfg.Logger)
 	c2 := &Client{
-		client:   c,
+		Client:   c,
 		userinfo: cfg.UserInfo,
 	}
 	if err := c2.login(ctx); err != nil {
@@ -68,18 +68,18 @@ func (c *Client) Shutdown(ctx context.Context) error {
 	if err := c.logout(ctx); err != nil {
 		return fmt.Errorf("server shutdown: %s", err)
 	}
-	c.client.Close()
+	c.Client.Close()
 	return nil
 }
 
 func (c *Client) login(ctx context.Context) error {
 	clog.Printf(ctx, "Logging in to AniDB...")
 	if c.userinfo.APIKey != "" {
-		if err := c.client.Encrypt(ctx, c.userinfo); err != nil {
+		if err := c.Client.Encrypt(ctx, c.userinfo); err != nil {
 			return fmt.Errorf("server login: %s", err)
 		}
 	}
-	if _, err := c.client.Auth(ctx, c.userinfo); err != nil {
+	if _, err := c.Client.Auth(ctx, c.userinfo); err != nil {
 		return fmt.Errorf("server login: %s", err)
 	}
 	clog.Printf(ctx, "Logged in to AniDB")
@@ -88,7 +88,7 @@ func (c *Client) login(ctx context.Context) error {
 
 func (c *Client) logout(ctx context.Context) error {
 	clog.Printf(ctx, "Logging out of AniDB...")
-	if err := c.client.Logout(ctx); err != nil {
+	if err := c.Client.Logout(ctx); err != nil {
 		return fmt.Errorf("server logout: %s", err)
 	}
 	clog.Printf(ctx, "Logged out of AniDB")
