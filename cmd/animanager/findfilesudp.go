@@ -21,13 +21,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"os/signal"
 	"time"
 
 	"go.felesatra.moe/animanager/internal/clog"
-	"go.felesatra.moe/animanager/internal/query"
 	"go.felesatra.moe/animanager/internal/udp"
 	"golang.org/x/sys/unix"
 )
@@ -92,31 +90,5 @@ var findFilesUDPCmd = command{
 // refreshFilesUDP updates episode files using the given video file
 // paths.
 func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
-	ws, err := query.GetAllWatching(db)
-	if err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
-	if err := query.DeleteEpisodeFiles(db); err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
-	var efs []query.EpisodeFile
-	log.Print("Matching files")
-	for _, w := range ws {
-		log.Printf("Matching files for %d", w.AID)
-		eps, err := query.GetEpisodes(db, w.AID)
-		if err != nil {
-			return fmt.Errorf("refresh files: %w", err)
-		}
-		efs2, err := filterFiles(w, eps, files)
-		if err != nil {
-			return fmt.Errorf("refresh files: %w", err)
-		}
-		log.Printf("Found files for %d: %#v", w.AID, efs2)
-		efs = append(efs, efs2...)
-	}
-	log.Print("Inserting files")
-	if err = query.InsertEpisodeFiles(db, efs); err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
 	return nil
 }
