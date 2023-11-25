@@ -34,6 +34,8 @@ var findFilesUDPCmd = command{
 	usageLine: "findfilesudp",
 	shortDesc: "find episode files (UDP)",
 	longDesc: `Find episode files using the UDP API.
+
+EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
