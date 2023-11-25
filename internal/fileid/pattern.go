@@ -60,7 +60,7 @@ func RefreshFiles(db *sql.DB, files []string) error {
 	return nil
 }
 
-// filterFiles returns files that match the watching entry.
+// filterFiles returns files that match the [query.Watching] entry.
 func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query.EpisodeFile, error) {
 	var result []query.EpisodeFile
 	r, err := regexp.Compile("(?i)" + w.Regexp)
