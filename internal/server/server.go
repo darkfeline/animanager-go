@@ -54,7 +54,7 @@ type Logger interface {
 // You must call Shutdown, especially when using encryption.
 // The context is used only for login.
 func NewServer(ctx context.Context, cfg *Config) (*Server, error) {
-	c, err := udpapi.NewClient(cfg.ServerAddr)
+	c, err := udpapi.Dial(cfg.ServerAddr)
 	if err != nil {
 		return nil, fmt.Errorf("new server: %s", err)
 	}
