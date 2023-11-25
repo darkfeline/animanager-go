@@ -54,7 +54,7 @@ func main() {
 		}
 		os.Exit(0)
 	}
-	log.Printf("unknown command %s", cmd)
+	log.Printf("unknown command %q", cmd)
 	printUsage(os.Stderr)
 	os.Exit(2)
 }
