@@ -33,13 +33,14 @@ var registerCmd = command{
 	longDesc: `Register an anime.
 `,
 	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+		stp := cmd.commonSetup()
+		f := stp.flagSet
 		pattern := f.String("pattern", "", "File pattern.")
 		offset := f.Int("offset", 0, "Episode offset.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cmd.loadConfig()
+		cfg, err := stp.loadConfig()
 		if err != nil {
 			return err
 		}

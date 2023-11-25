@@ -33,14 +33,15 @@ var findFilesCmd = command{
 	longDesc: `Find episode files.
 `,
 	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+		stp := cmd.commonSetup()
+		f := stp.flagSet
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
 		}
-		cfg, err := cmd.loadConfig()
+		cfg, err := stp.loadConfig()
 		if err != nil {
 			return err
 		}

@@ -37,12 +37,13 @@ var watchCmd = command{
 	longDesc: `Watch anime.
 `,
 	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+		stp := cmd.commonSetup()
+		f := stp.flagSet
 		episode := f.Bool("episode", false, "Treat argument as episode ID")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cmd.loadConfig()
+		cfg, err := stp.loadConfig()
 		if err != nil {
 			return err
 		}

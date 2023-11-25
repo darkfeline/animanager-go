@@ -44,11 +44,12 @@ Used internally to maintain a UDP session for reuse across commands.
 EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+		stp := cmd.commonSetup()
+		f := stp.flagSet
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cmd.loadConfig()
+		cfg, err := stp.loadConfig()
 		if err != nil {
 			return err
 		}

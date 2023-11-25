@@ -100,11 +100,14 @@ type command struct {
 	shortDesc string
 	longDesc  string
 	run       func(*command, []string) error
-	cfgPath   string
 }
 
 func (c *command) name() string {
 	return strings.SplitN(c.usageLine, " ", 2)[0]
+}
+
+func (c *command) commonSetup() *commonSetup {
+	return newCommonSetup(c.flagSet())
 }
 
 func (c *command) flagSet() *flag.FlagSet {
@@ -114,11 +117,23 @@ func (c *command) flagSet() *flag.FlagSet {
 		fmt.Fprintf(fs.Output(), "%s\n", c.longDesc)
 		fs.PrintDefaults()
 	}
-	fs.StringVar(&c.cfgPath, "config", config.DefaultPath, "Path to config file")
 	return fs
 }
 
-func (c *command) loadConfig() (*config.Config, error) {
+type commonSetup struct {
+	flagSet *flag.FlagSet
+	cfgPath string
+}
+
+func newCommonSetup(fs *flag.FlagSet) *commonSetup {
+	c := &commonSetup{
+		flagSet: fs,
+	}
+	fs.StringVar(&c.cfgPath, "config", config.DefaultPath, "Path to config file")
+	return c
+}
+
+func (c *commonSetup) loadConfig() (*config.Config, error) {
 	cfg, err := config.Load(c.cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("error loading config: %s", err)

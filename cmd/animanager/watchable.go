@@ -33,13 +33,14 @@ var watchableCmd = command{
 	longDesc: `Show watchable anime.
 `,
 	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+		stp := cmd.commonSetup()
+		f := stp.flagSet
 		all := f.Bool("all", false, "Show all files.")
 		missing := f.Bool("missing", false, "Show next episodes missing files.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cmd.loadConfig()
+		cfg, err := stp.loadConfig()
 		if err != nil {
 			return err
 		}
