@@ -79,6 +79,7 @@ var commands = []command{
 	addCmd,
 	callCmd,
 	findFilesCmd,
+	findFilesUDPCmd,
 	registerCmd,
 	showCmd,
 	showFilesCmd,
