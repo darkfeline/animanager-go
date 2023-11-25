@@ -24,6 +24,7 @@ import (
 	"os/signal"
 
 	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
@@ -48,6 +49,7 @@ Used internally to maintain a UDP session for reuse across commands.
 		}
 
 		ctx := context.Background()
+		ctx = clog.WithLogger(ctx, log.Default())
 		s, err := server.NewServer(ctx, &server.Config{
 			ServerAddr: "api.anidb.net:9000",
 			UserInfo:   userInfo(cfg),
