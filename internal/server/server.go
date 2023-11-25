@@ -33,13 +33,15 @@ type Server struct {
 	api.UnimplementedApiServer
 	client   *udpapi.Client
 	userinfo udpapi.UserInfo
-	logger   Logger
+	// Used for non-request logging
+	logger Logger
 }
 
 type Config struct {
 	ServerAddr string
 	UserInfo   udpapi.UserInfo
-	Logger     Logger
+	// Used for non-request logging
+	Logger Logger
 }
 
 // A Logger can be used for logging.
