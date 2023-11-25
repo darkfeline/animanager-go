@@ -35,7 +35,7 @@ func RefreshFiles(db *sql.DB, files []string) error {
 	if err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
-	if err := query.DeleteEpisodeFiles(db); err != nil {
+	if err := query.DeleteAllEpisodeFiles(db); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
 	var efs []query.EpisodeFile
