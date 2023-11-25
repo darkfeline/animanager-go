@@ -56,7 +56,7 @@ EXPERIMENTAL; DO NOT USE
 		ctx := context.Background()
 		ctx = clog.WithLogger(ctx, log.Default())
 		s, err := server.NewServer(ctx, &udp.Config{
-			ServerAddr: "api.anidb.net:9000",
+			ServerAddr: cfg.UDPServerAddr,
 			UserInfo:   userInfo(cfg),
 			Logger:     log.Default(),
 		})
