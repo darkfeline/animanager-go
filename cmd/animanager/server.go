@@ -21,6 +21,7 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
 	"os/signal"
 
 	"go.felesatra.moe/anidb/udpapi"
@@ -64,8 +65,8 @@ Used internally to maintain a UDP session for reuse across commands.
 			}
 		}(ctx)
 
-		ctx, stop := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
-		defer stop()
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, unix.SIGTERM, unix.SIGINT)
 
 		rs := grpc.NewServer()
 		api.RegisterApiServer(rs, s)
@@ -74,10 +75,8 @@ Used internally to maintain a UDP session for reuse across commands.
 			return err
 		}
 		go func() {
-			select {
-			case <-ctx.Done():
-				rs.Stop()
-			}
+			<-stop
+			rs.Stop()
 		}()
 		return rs.Serve(l)
 	},
