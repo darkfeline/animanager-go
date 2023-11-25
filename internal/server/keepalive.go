@@ -21,12 +21,14 @@ import (
 	"context"
 	"errors"
 	"time"
+
+	"go.felesatra.moe/animanager/internal/clog"
 )
 
 type pingFunc func(context.Context) (port string, _ error)
 
 // keepalive calls the ping function at intervals until canceled.
-func keepalive(ctx context.Context, p pingFunc, d time.Duration, l Logger) error {
+func keepalive(ctx context.Context, p pingFunc, d time.Duration) error {
 	t := time.NewTicker(d)
 	defer t.Stop()
 	for {
@@ -34,7 +36,7 @@ func keepalive(ctx context.Context, p pingFunc, d time.Duration, l Logger) error
 		case <-t.C:
 			ctx, cancel := context.WithTimeoutCause(ctx, 2*time.Second, errors.New("keepalive ping timeout"))
 			if _, err := p(ctx); err != nil {
-				l.Printf("keepalive ping: %s", err)
+				clog.Printf(ctx, "keepalive ping: %s", err)
 			}
 			cancel()
 		case <-ctx.Done():
