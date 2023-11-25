@@ -91,7 +91,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 		want := []Episode{
 			{
 				ID:     1,
-				EID:    sql.NullInt32{Int32: 113, Valid: true},
+				EID:    113,
 				AID:    22,
 				Type:   EpRegular,
 				Number: 1,
@@ -100,7 +100,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 			},
 			{
 				ID:     2,
-				EID:    sql.NullInt32{Int32: 28864, Valid: true},
+				EID:    28864,
 				AID:    22,
 				Type:   EpSpecial,
 				Number: 1,

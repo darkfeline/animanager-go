@@ -37,16 +37,23 @@ func (t *EpID) Scan(src any) error {
 	return scanID(t, src)
 }
 
+type EID int
+
+// Scan implements [database/sql.Scanner].
+func (t *EID) Scan(src any) error {
+	return scanID(t, src)
+}
+
 type Episode struct {
-	_table      struct{}      `sql:"episode"`
-	ID          EpID          `sql:"id"`
-	EID         sql.NullInt32 `sql:"eid"`
-	AID         AID           `sql:"aid"`
-	Type        EpisodeType   `sql:"type"`
-	Number      int           `sql:"number"`
-	Title       string        `sql:"title"`
-	Length      int           `sql:"length"`
-	UserWatched bool          `sql:"user_watched"`
+	_table      struct{}    `sql:"episode"`
+	ID          EpID        `sql:"id"`
+	EID         EID         `sql:"eid"`
+	AID         AID         `sql:"aid"`
+	Type        EpisodeType `sql:"type"`
+	Number      int         `sql:"number"`
+	Title       string      `sql:"title"`
+	Length      int         `sql:"length"`
+	UserWatched bool        `sql:"user_watched"`
 }
 
 func (e Episode) Key() EpisodeKey {

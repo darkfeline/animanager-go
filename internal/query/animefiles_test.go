@@ -15,7 +15,6 @@
 package query
 
 import (
-	"database/sql"
 	"reflect"
 	"testing"
 
@@ -60,7 +59,7 @@ func TestGetAnimeFiles(t *testing.T) {
 		{
 			Episode: Episode{
 				ID:     1,
-				EID:    sql.NullInt32{Int32: 113, Valid: true},
+				EID:    113,
 				AID:    aid,
 				Type:   EpRegular,
 				Number: 1,
