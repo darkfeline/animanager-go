@@ -65,8 +65,9 @@ Used internally to maintain a UDP session for reuse across commands.
 			}
 		}(ctx)
 
-		rs := grpc.NewServer()
+		rs := grpc.NewServer(grpc.UnaryInterceptor(withLogger{log.Default()}.Unary))
 		api.RegisterApiServer(rs, s)
+
 		l, err := net.Listen("tcp", cfg.ServerAddr)
 		if err != nil {
 			return err
@@ -79,6 +80,15 @@ Used internally to maintain a UDP session for reuse across commands.
 		}()
 		return rs.Serve(l)
 	},
+}
+
+type withLogger struct {
+	logger clog.Logger
+}
+
+func (w withLogger) Unary(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+	ctx = clog.WithLogger(ctx, w.logger)
+	return handler(ctx, req)
 }
 
 func userInfo(cfg *config.Config) udpapi.UserInfo {
