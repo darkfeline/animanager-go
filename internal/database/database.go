@@ -47,11 +47,11 @@ func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 			db.Close()
 		}
 	}(db)
-	current, err := migrate.IsLatestVersion(db)
+	old, err := migrate.NeedsMigrate(db)
 	if err != nil {
 		return nil, fmt.Errorf("open database %s: %s", dataSrc, err)
 	}
-	if current {
+	if !old {
 		return db, nil
 	}
 	if !isMemorySource(dataSrc) {

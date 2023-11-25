@@ -32,14 +32,13 @@ func Migrate(ctx context.Context, d *sql.DB) error {
 	return migrationSet.Migrate(ctx, d)
 }
 
-// IsLatestVersion returns true if the database is the latest
-// version.
-func IsLatestVersion(d *sql.DB) (bool, error) {
+// NeedsMigrate returns true if the database needs migration.
+func NeedsMigrate(d *sql.DB) (bool, error) {
 	v, err := migrationSet.NeedsMigrate(d)
 	if err != nil {
 		return false, fmt.Errorf("is latest version: %s", err)
 	}
-	return !v, nil
+	return v, nil
 }
 
 var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
