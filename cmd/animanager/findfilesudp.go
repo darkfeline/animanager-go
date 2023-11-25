@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"go.felesatra.moe/animanager/internal/clog"
+	"go.felesatra.moe/animanager/internal/fileid"
 	"go.felesatra.moe/animanager/internal/udp"
 	"golang.org/x/sys/unix"
 )
@@ -92,5 +93,10 @@ EXPERIMENTAL; DO NOT USE
 // refreshFilesUDP updates episode files using the given video file
 // paths.
 func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
+	for _, f := range files {
+		if err := fileid.MatchEpisode(ctx, db, c, f); err != nil {
+			return err
+		}
+	}
 	return nil
 }
