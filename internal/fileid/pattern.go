@@ -35,12 +35,12 @@ func RefreshFiles(db *sql.DB, files []string) error {
 	if err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
-	if err := query.DeleteAllEpisodeFiles(db); err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
 	var efs []query.EpisodeFile
 	log.Print("Matching files...")
 	for _, w := range ws {
+		if err := query.DeleteEpisodeFiles(db, w.AID); err != nil {
+			return fmt.Errorf("refresh files: %w", err)
+		}
 		log.Printf("Matching files for aid=%d", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
