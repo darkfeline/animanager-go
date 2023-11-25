@@ -58,11 +58,11 @@ Used internally to maintain a UDP session for reuse across commands.
 		if err != nil {
 			return err
 		}
-		defer func() {
-			if err := s.Shutdown(context.Background()); err != nil {
+		defer func(ctx context.Context) {
+			if err := s.Shutdown(ctx); err != nil {
 				log.Printf("Error shutting down server: %s", err)
 			}
-		}()
+		}(ctx)
 
 		ctx, stop := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
 		defer stop()
