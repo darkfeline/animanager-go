@@ -30,7 +30,10 @@ var callCmd = command{
 	usageLine: "call",
 	shortDesc: "Call method on AniDB UDP API server",
 	longDesc: `Run AniDB UDP API server.
+
 Used for testing.
+
+EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
