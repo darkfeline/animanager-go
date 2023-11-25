@@ -10,8 +10,8 @@ github.com/mattn/go-sqlite3 v1.14.18 h1:JL0eqdCOq6DJVNPSvArO/bIV9/P7fbGrV00LZHc+
 github.com/mattn/go-sqlite3 v1.14.18/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 go.felesatra.moe/anidb v1.3.0-alpha10 h1:MQFXHM2aaY36cbf4+YyS+hvwg1PRKemuZIST7A7zAQg=
 go.felesatra.moe/anidb v1.3.0-alpha10/go.mod h1:pUclVr98/aB7MrKk1aa6hfANBuD5sKFlvFPjbcW6SBo=
-go.felesatra.moe/database/sql/sqlite3/migrate v1.1.0 h1:3IApf89/RVyrexfY+mvjwdiBeBLv2FRweLkcKC76ECo=
-go.felesatra.moe/database/sql/sqlite3/migrate v1.1.0/go.mod h1:JvgOme7DLq3uZasrsU7ArUoJ6zpVR7TRtPY4/hId0hg=
+go.felesatra.moe/database/sql/sqlite3/migrate v1.1.1 h1:Pob/wv34z8kovLSeSftjQUl9q6WtWBwdZEeNq/oQQ5A=
+go.felesatra.moe/database/sql/sqlite3/migrate v1.1.1/go.mod h1:JvgOme7DLq3uZasrsU7ArUoJ6zpVR7TRtPY4/hId0hg=
 go.felesatra.moe/hash/ed2k v1.0.1 h1:+zylLMgEmREJt0YrBaHNBpThTfqFlQuM1SHoCjpulko=
 go.felesatra.moe/hash/ed2k v1.0.1/go.mod h1:CVFccvQtkv7H2vtmPZFMSKSqmudHUj2k1pR/FYHTMGk=
 golang.org/x/crypto v0.15.0 h1:frVn1TEaCEaZcn3Tmd7Y2b5KKPaZ+I32Q2OA3kYp5TA=
