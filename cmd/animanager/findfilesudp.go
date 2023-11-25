@@ -48,7 +48,7 @@ var findFilesUDPCmd = command{
 			return err
 		}
 
-		log.Printf("Finding video files")
+		log.Printf("Finding video files...")
 		files, err := findVideoFilesMany(cfg.WatchDirs)
 		if err != nil {
 			return err
