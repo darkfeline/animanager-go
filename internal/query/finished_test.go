@@ -24,11 +24,7 @@ import (
 )
 
 func TestGetAnimeFinished(t *testing.T) {
-	db, close, err := database.OpenMem()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer close()
+	db := database.OpenMem(t)
 	e := []anidb.Episode{
 		{
 			EpNo:   "1",

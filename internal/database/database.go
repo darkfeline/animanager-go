@@ -21,7 +21,6 @@ package database
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -65,44 +64,34 @@ func Open(ctx context.Context, dataSrc string) (db *sql.DB, err error) {
 	return db, nil
 }
 
-type Closer func() error
+// A T has the interface provided by [testing.T] and related types.
+type T interface {
+	Cleanup(func())
+	Fatal(args ...any)
+}
 
-// OpenMem opens and returns a SQLite database from memory.  The
-// database is migrated to the newest version.
+// OpenMem opens and returns a SQLite database from memory for testing.
 //
-// The database is shared between all concurrent connections, so it
-// must be closed out between tests.
+// The database is migrated to the newest version.
 //
-// Use the provided Closer to close the DB as it also releases the
-// global lock.
-func OpenMem() (*sql.DB, Closer, error) {
+// Note that the memory database is shared between all concurrent
+// connections.  Thus, this function holds a mutex.  This function
+// registers test cleanup functions to close the database and unlock
+// the mutex.
+func OpenMem(t T) *sql.DB {
 	memDBLock.Lock()
-	defer memDBLock.Unlock()
-	if memDBLock.inUse {
-		return nil, nil, errors.New("concurrent memory database creation")
-	}
+	t.Cleanup(memDBLock.Unlock)
 	db, err := Open(context.Background(), "file::memory:?mode=memory&cache=shared")
 	if err != nil {
-		return nil, nil, err
+		t.Fatal(err)
 	}
-	memDBLock.inUse = true
-	return db, func() error {
-		memDBLock.Lock()
-		defer memDBLock.Unlock()
-		if !memDBLock.inUse {
-			panic("global memory database lock missing")
-		}
-		memDBLock.inUse = false
-		return db.Close()
-	}, nil
+	t.Cleanup(func() { _ = db.Close })
+	return db
 }
 
 // Global lock on creating SQLite databases from memory, as memory
 // databases are shared between all concurrent connections.
-var memDBLock struct {
-	sync.Mutex
-	inUse bool
-}
+var memDBLock sync.Mutex
 
 // withLock calls the provided function with a write transaction lock
 // on the database.

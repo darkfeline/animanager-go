@@ -27,11 +27,7 @@ import (
 )
 
 func TestInsertAndGetAnime(t *testing.T) {
-	db, close, err := database.OpenMem()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer close()
+	db := database.OpenMem(t)
 	e := []anidb.Episode{
 		{
 			EID:    113,
@@ -115,11 +111,7 @@ func TestInsertAndGetAnime(t *testing.T) {
 }
 
 func TestInsertAndGetAnime_nullFields(t *testing.T) {
-	db, close, err := database.OpenMem()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer close()
+	db := database.OpenMem(t)
 	a := &anidb.Anime{
 		AID:          22,
 		Type:         "TV Series",

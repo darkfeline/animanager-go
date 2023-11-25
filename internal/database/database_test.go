@@ -22,11 +22,7 @@ import (
 )
 
 func TestOpenMem(t *testing.T) {
-	_, close, err := OpenMem()
-	defer close()
-	if err != nil {
-		t.Errorf("Error opening database: %s", err)
-	}
+	_ = OpenMem(t)
 }
 
 func TestSourcePath(t *testing.T) {

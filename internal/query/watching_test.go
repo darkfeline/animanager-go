@@ -26,11 +26,7 @@ import (
 )
 
 func TestInsertAndGetWatching(t *testing.T) {
-	db, close, err := database.OpenMem()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer close()
+	db := database.OpenMem(t)
 	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
@@ -64,11 +60,7 @@ func TestInsertAndGetWatching(t *testing.T) {
 }
 
 func TestInsertInvalidRegexp(t *testing.T) {
-	db, close, err := database.OpenMem()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer close()
+	db := database.OpenMem(t)
 	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
@@ -95,11 +87,7 @@ func TestInsertInvalidRegexp(t *testing.T) {
 }
 
 func TestInsertAndGetAllWatching(t *testing.T) {
-	db, close, err := database.OpenMem()
-	if err != nil {
-		t.Fatalf("Error opening database: %s", err)
-	}
-	defer close()
+	db := database.OpenMem(t)
 	const aid = 22
 	a := &anidb.Anime{
 		AID:          aid,
