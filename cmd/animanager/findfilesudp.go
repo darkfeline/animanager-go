@@ -18,12 +18,18 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log"
+	"os/signal"
+	"time"
 
+	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/udp"
+	"golang.org/x/sys/unix"
 )
 
 var findFilesUDPCmd = command{
@@ -56,7 +62,27 @@ var findFilesUDPCmd = command{
 			return err
 		}
 		defer db.Close()
-		if err := refreshFilesUDP(db, files); err != nil {
+
+		ctx := context.Background()
+		ctx = clog.WithLogger(ctx, log.Default())
+		ctx, stop := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
+		defer stop()
+
+		c, err := udp.Dial(ctx, &udp.Config{
+			ServerAddr: "api.anidb.net:9000",
+			UserInfo:   userInfo(cfg),
+			Logger:     log.Default(),
+		})
+		if err != nil {
+			return err
+		}
+		defer func(ctx context.Context) {
+			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+			defer cancel()
+			c.Shutdown(ctx)
+		}(context.WithoutCancel(ctx))
+
+		if err := refreshFilesUDP(ctx, db, c, files); err != nil {
 			return err
 		}
 		return nil
@@ -65,7 +91,7 @@ var findFilesUDPCmd = command{
 
 // refreshFilesUDP updates episode files using the given video file
 // paths.
-func refreshFilesUDP(db *sql.DB, files []string) error {
+func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
 	ws, err := query.GetAllWatching(db)
 	if err != nil {
 		return fmt.Errorf("refresh files: %w", err)
