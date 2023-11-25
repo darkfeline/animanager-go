@@ -65,15 +65,14 @@ Used internally to maintain a UDP session for reuse across commands.
 			}
 		}(ctx)
 
-		stop := make(chan os.Signal, 1)
-		signal.Notify(stop, unix.SIGTERM, unix.SIGINT)
-
 		rs := grpc.NewServer()
 		api.RegisterApiServer(rs, s)
 		l, err := net.Listen("tcp", cfg.ServerAddr)
 		if err != nil {
 			return err
 		}
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, unix.SIGTERM, unix.SIGINT)
 		go func() {
 			<-stop
 			rs.Stop()
