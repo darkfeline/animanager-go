@@ -95,7 +95,7 @@ EXPERIMENTAL; DO NOT USE
 func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
 	for _, f := range files {
 		if err := fileid.MatchEpisode(ctx, db, c, f); err != nil {
-			return err
+			clog.Printf(ctx, "Error matching episode for file %q: %s", f, err)
 		}
 	}
 	return nil
