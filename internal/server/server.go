@@ -87,7 +87,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 func (s *Server) login(ctx context.Context) error {
-	log.Printf("Logging in to AniDB...")
+	s.logger.Printf("Logging in to AniDB...")
 	if s.userinfo.APIKey != "" {
 		if err := s.client.Encrypt(ctx, s.userinfo); err != nil {
 			return fmt.Errorf("server login: %s", err)
@@ -101,10 +101,10 @@ func (s *Server) login(ctx context.Context) error {
 }
 
 func (s *Server) logout(ctx context.Context) error {
-	log.Printf("Logging out of AniDB...")
+	s.logger.Printf("Logging out of AniDB...")
 	if err := s.client.Logout(ctx); err != nil {
 		return fmt.Errorf("server logout: %s", err)
 	}
-	log.Printf("Logged out of AniDB")
+	s.logger.Printf("Logged out of AniDB")
 	return nil
 }
