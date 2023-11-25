@@ -45,8 +45,7 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 
 	h := ed2k.New()
 	hash := h.Sum(nil)
-	// XXXXXXXXX string hash
-	rows, err := c.FileByHash(ctx, fi.Size(), string(hash), fmask, amask)
+	rows, err := c.FileByHash(ctx, fi.Size(), fmt.Sprintf("%x", hash), fmask, amask)
 	if err != nil {
 		return err
 	}
