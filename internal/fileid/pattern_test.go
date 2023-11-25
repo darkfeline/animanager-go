@@ -1,4 +1,4 @@
-// Copyright (C) 2020  Allen Li
+// Copyright (C) 2023  Allen Li
 //
 // This file is part of Animanager.
 //
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package fileid
 
 import (
 	"reflect"

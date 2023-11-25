@@ -18,16 +18,13 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
 
-	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/fileid"
 )
 
 var findFilesCmd = command{
@@ -60,7 +57,7 @@ var findFilesCmd = command{
 			return err
 		}
 		defer db.Close()
-		if err := refreshFiles(db, files); err != nil {
+		if err := fileid.RefreshFiles(db, files); err != nil {
 			return err
 		}
 		return nil
@@ -118,94 +115,4 @@ func isVideoFile(path string, fi os.FileInfo) bool {
 		}
 	}
 	return false
-}
-
-// refreshFiles updates episode files using the given video file
-// paths.
-func refreshFiles(db *sql.DB, files []string) error {
-	ws, err := query.GetAllWatching(db)
-	if err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
-	if err := query.DeleteEpisodeFiles(db); err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
-	var efs []query.EpisodeFile
-	log.Print("Matching files")
-	for _, w := range ws {
-		log.Printf("Matching files for %d", w.AID)
-		eps, err := query.GetEpisodes(db, w.AID)
-		if err != nil {
-			return fmt.Errorf("refresh files: %w", err)
-		}
-		efs2, err := filterFiles(w, eps, files)
-		if err != nil {
-			return fmt.Errorf("refresh files: %w", err)
-		}
-		log.Printf("Found files for %d: %#v", w.AID, efs2)
-		efs = append(efs, efs2...)
-	}
-	log.Print("Inserting files")
-	if err = query.InsertEpisodeFiles(db, efs); err != nil {
-		return fmt.Errorf("refresh files: %w", err)
-	}
-	return nil
-}
-
-// filterFiles returns files that match the watching entry.
-func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query.EpisodeFile, error) {
-	var result []query.EpisodeFile
-	r, err := regexp.Compile("(?i)" + w.Regexp)
-	if err != nil {
-		return nil, fmt.Errorf("filter files for %d: %w", w.AID, err)
-	}
-	regEps := reindexEpisodeByNumber(eps)
-	for _, f := range files {
-		ms := r.FindStringSubmatch(filepath.Base(f))
-		if ms == nil {
-			continue
-		}
-		if len(ms) < 2 {
-			return nil, fmt.Errorf("filter files for %d: regexp %#v has no submatch",
-				w.AID, w.Regexp)
-
-		}
-		n, err := strconv.Atoi(ms[1])
-		if err != nil {
-			return nil, fmt.Errorf("filter files for %d: regexp %#v submatch not a number",
-				w.AID, w.Regexp)
-		}
-		n += w.Offset
-		if n >= len(regEps) || n < 1 {
-			continue
-		}
-		result = append(result, query.EpisodeFile{
-			EpisodeID: regEps[n].ID,
-			Path:      f,
-		})
-	}
-	return result, nil
-}
-
-// reindexEpisodeByNumber returns a slice where each index maps to the regular
-// episode with the same number.  The zero index will be empty since
-// episodes cannot be number zero.
-func reindexEpisodeByNumber(eps []query.Episode) []query.Episode {
-	m := make([]query.Episode, maxEpisodeNumber(eps)+1)
-	for _, e := range eps {
-		if e.Type == query.EpRegular {
-			m[e.Number] = e
-		}
-	}
-	return m
-}
-
-func maxEpisodeNumber(eps []query.Episode) int {
-	maxEp := 0
-	for _, e := range eps {
-		if e.Type == query.EpRegular && e.Number > maxEp {
-			maxEp = e.Number
-		}
-	}
-	return maxEp
 }
