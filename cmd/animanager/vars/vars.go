@@ -24,15 +24,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os/signal"
 	"sync"
 
 	"go.felesatra.moe/anidb/udpapi"
-	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/udp"
-	"golang.org/x/sys/unix"
 )
 
 type ConfigVar struct {
@@ -81,18 +78,4 @@ func userInfo(cfg *config.Config) udpapi.UserInfo {
 		UserPassword: cfg.AniDB.Password,
 		APIKey:       cfg.AniDB.APIKey,
 	}
-}
-
-type ContextVar struct {
-}
-
-func Context(fs *flag.FlagSet) *ContextVar {
-	v := &ContextVar{}
-	return v
-}
-
-func (v ContextVar) Context() (context.Context, context.CancelFunc) {
-	ctx := context.Background()
-	ctx = clog.WithLogger(ctx, log.Default())
-	return signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
 }
