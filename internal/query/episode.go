@@ -50,6 +50,18 @@ func (e Episode) Key() EpisodeKey {
 	}
 }
 
+const selectEpisodeFields = `id, eid, aid, type, number, title, length, user_watched`
+
+// A Scanner supports both sql.Row and sql.Rows.
+type Scanner interface {
+	Scan(dest ...interface{}) error
+}
+
+func scanEpisode(r Scanner, e *Episode) error {
+	return r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
+		&e.Title, &e.Length, &e.UserWatched)
+}
+
 // EpisodeKey represents the unique key for an Episode.  This is
 // separate from ID because SQLite treats numeric row IDs specially.
 type EpisodeKey struct {
@@ -211,16 +223,4 @@ func GetAIDsMissingEIDs(db *sql.DB) ([]AID, error) {
 		aids = append(aids, aid)
 	}
 	return aids, nil
-}
-
-const selectEpisodeFields = `id, eid, aid, type, number, title, length, user_watched`
-
-// A Scanner supports both sql.Row and sql.Rows.
-type Scanner interface {
-	Scan(dest ...interface{}) error
-}
-
-func scanEpisode(r Scanner, e *Episode) error {
-	return r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
-		&e.Title, &e.Length, &e.UserWatched)
 }
