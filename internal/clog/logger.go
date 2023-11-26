@@ -25,6 +25,7 @@ type keyType int
 const (
 	_ keyType = iota
 	loggerKey
+	slogKey
 )
 
 // A Logger can be used for logging.
