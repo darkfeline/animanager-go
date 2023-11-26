@@ -22,6 +22,7 @@ import (
 type EpisodeFile struct {
 	_table    struct{} `sql:"episode_file"`
 	EpisodeID EpID     `sql:"episode_id"`
+	EID       EID      `sql:"eid"`
 	Path      string   `sql:"path"`
 }
 
@@ -32,12 +33,12 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 		return fmt.Errorf("insert episode files: %w", err)
 	}
 	defer t.Rollback()
-	s, err := t.Prepare(`INSERT INTO episode_file (episode_id, path) VALUES (?, ?)`)
+	s, err := t.Prepare(`INSERT INTO episode_file (episode_id, eid, path) VALUES (?, ?, ?)`)
 	if err != nil {
 		return fmt.Errorf("insert episode files: %w", err)
 	}
 	for _, ef := range efs {
-		if _, err = s.Exec(ef.EpisodeID, ef.Path); err != nil {
+		if _, err = s.Exec(ef.EpisodeID, ef.EID, ef.Path); err != nil {
 			return fmt.Errorf("insert episode files: %w", err)
 		}
 	}
@@ -55,7 +56,7 @@ func GetEpisodeFiles(db *sql.DB, episodeID EpID) (es []EpisodeFile, err error) {
 		}
 	}()
 	r, err := db.Query(`
-SELECT episode_id, path
+SELECT episode_id, eid, path
 FROM episode_file WHERE episode_id=?`, episodeID)
 	if err != nil {
 		return nil, err
@@ -63,7 +64,7 @@ FROM episode_file WHERE episode_id=?`, episodeID)
 	defer r.Close()
 	for r.Next() {
 		var e EpisodeFile
-		if err := r.Scan(&e.EpisodeID, &e.Path); err != nil {
+		if err := r.Scan(&e.EpisodeID, &e.EID, &e.Path); err != nil {
 			return nil, err
 		}
 		es = append(es, e)
@@ -79,7 +80,7 @@ func DeleteEpisodeFiles(db Executor, aid AID) error {
 	_, err := db.Exec(`DELETE FROM episode_file
 WHERE ROWID IN (
     SELECT episode_file.ROWID FROM episode_file
-    JOIN episode ON (episode_file.episode_id = episode.id)
+    JOIN episode ON (episode_file.eid = episode.eid)
     WHERE episode.aid=?
 )`, aid)
 	if err != nil {
