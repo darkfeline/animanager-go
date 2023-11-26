@@ -29,10 +29,10 @@ func TestFilterFiles(t *testing.T) {
 		Regexp: "lacia([0-9]+)",
 	}
 	eps := []query.Episode{
-		{ID: 1, Type: query.EpRegular, Number: 1},
-		{ID: 2, Type: query.EpRegular, Number: 3},
-		{ID: 3, Type: query.EpRegular, Number: 5},
-		{ID: 4, Type: query.EpOther, Number: 13},
+		{ID: 1, EID: 111, Type: query.EpRegular, Number: 1},
+		{ID: 2, EID: 112, Type: query.EpRegular, Number: 3},
+		{ID: 3, EID: 113, Type: query.EpRegular, Number: 5},
+		{ID: 4, EID: 114, Type: query.EpOther, Number: 13},
 	}
 	files := []string{
 		"/foo/lacia1",
@@ -47,10 +47,10 @@ func TestFilterFiles(t *testing.T) {
 		t.Errorf("filterFiles returned error: %#v", err)
 	}
 	want := []query.EpisodeFile{
-		{EpisodeID: 1, Path: "/foo/lacia1"},
-		{EpisodeID: 1, Path: "/foo/lacia1v2"},
-		{EpisodeID: 0, Path: "/foo/lacia2"},
-		{EpisodeID: 3, Path: "/foo/lacia5"},
+		{EpisodeID: 1, EID: 111, Path: "/foo/lacia1"},
+		{EpisodeID: 1, EID: 111, Path: "/foo/lacia1v2"},
+		{EpisodeID: 0, EID: 0, Path: "/foo/lacia2"},
+		{EpisodeID: 3, EID: 113, Path: "/foo/lacia5"},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("filterFiles() = %#v; want %#v", got, want)
