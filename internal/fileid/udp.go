@@ -22,9 +22,9 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"strconv"
 
 	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/animanager/internal/query"
 	"go.felesatra.moe/animanager/internal/udp"
 	"go.felesatra.moe/hash/ed2k"
 )
@@ -67,11 +67,11 @@ func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMat
 	if n := len(row); n != 3 {
 		return epMatch{}, fmt.Errorf("match file to episode: unexpected number of values in response: %d", n)
 	}
-	aid, err := strconv.Atoi(row[1])
+	aid, err := query.ParseID[query.AID](row[1])
 	if err != nil {
 		return epMatch{}, fmt.Errorf("match file to episode: parse aid: %s", err)
 	}
-	eid, err := strconv.Atoi(row[2])
+	eid, err := query.ParseID[query.EID](row[2])
 	if err != nil {
 		return epMatch{}, fmt.Errorf("match file to episode: parse eid: %s", err)
 	}
@@ -82,6 +82,6 @@ func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMat
 }
 
 type epMatch struct {
-	aid int
-	eid int
+	aid query.AID
+	eid query.EID
 }
