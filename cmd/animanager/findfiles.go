@@ -19,10 +19,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/fileid"
@@ -48,7 +45,7 @@ var findFilesCmd = command{
 		}
 
 		log.Printf("Finding video files...")
-		files, err := findVideoFilesMany(cfg.WatchDirs)
+		files, err := fileid.FindVideoFiles(cfg.WatchDirs)
 		if err != nil {
 			return err
 		}
@@ -64,57 +61,4 @@ var findFilesCmd = command{
 		}
 		return nil
 	},
-}
-
-// findVideoFilesMany returns a slice of paths of all video files found
-// recursively under the given paths.  The returned paths are absolute.
-func findVideoFilesMany(dirs []string) ([]string, error) {
-	var result []string
-	for _, d := range dirs {
-		r, err := findVideoFiles(d)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, r...)
-	}
-	return result, nil
-}
-
-// findVideoFiles returns a slice of paths of all video files found
-// recursively under the given path.  The returned paths are absolute.
-func findVideoFiles(path string) (result []string, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("find video files in %s: %s", path, err)
-		}
-	}()
-	path, err = filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-	filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if isVideoFile(path, info) {
-			result = append(result, path)
-		}
-		return nil
-	})
-	return result, nil
-}
-
-var videoExts = []string{".mkv", ".mp4", ".avi"}
-
-func isVideoFile(path string, fi os.FileInfo) bool {
-	if fi.IsDir() {
-		return false
-	}
-	ext := filepath.Ext(path)
-	for _, s := range videoExts {
-		if ext == s {
-			return true
-		}
-	}
-	return false
 }

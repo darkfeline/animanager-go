@@ -53,7 +53,7 @@ EXPERIMENTAL; DO NOT USE
 		}
 
 		log.Printf("Finding video files...")
-		files, err := findVideoFilesMany(cfg.WatchDirs)
+		files, err := fileid.FindVideoFiles(cfg.WatchDirs)
 		if err != nil {
 			return err
 		}
