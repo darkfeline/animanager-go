@@ -173,10 +173,10 @@ WHERE aid=?`,
 			return fmt.Errorf("failed to insert episode %s for anime %d: %w",
 				e.EpNo, a.AID, err)
 		}
-		delete(em, k)
+		delete(em, EID(e.EID))
 	}
-	for _, e := range em {
-		if err := DeleteEpisode(t, e.EID); err != nil {
+	for eid := range em {
+		if err := DeleteEpisode(t, eid); err != nil {
 			return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 		}
 	}

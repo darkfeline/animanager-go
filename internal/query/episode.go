@@ -138,14 +138,14 @@ FROM episode WHERE aid=? ORDER BY type, number`, aid)
 }
 
 // GetEpisodesMap returns a map of the episodes for an anime.
-func GetEpisodesMap(db Executor, aid AID) (map[EpisodeKey]*Episode, error) {
+func GetEpisodesMap(db Executor, aid AID) (map[EID]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("get episodes map %v: %w", aid, err)
 	}
-	m := make(map[EpisodeKey]*Episode, len(es))
+	m := make(map[EID]*Episode, len(es))
 	for i, e := range es {
-		m[e.Key()] = &es[i]
+		m[e.EID] = &es[i]
 	}
 	return m, nil
 }
