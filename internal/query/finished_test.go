@@ -27,6 +27,7 @@ func TestGetAnimeFinished(t *testing.T) {
 	db := database.OpenMem(t)
 	e := []anidb.Episode{
 		{
+			EID:    113,
 			EpNo:   "1",
 			Length: 25,
 			Titles: []anidb.EpTitle{{Title: "使徒, 襲来", Lang: "ja"}},
