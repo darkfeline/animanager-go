@@ -19,13 +19,11 @@ package main
 
 import (
 	"context"
-	"log"
 	"net"
 	"time"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
-	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
@@ -66,7 +64,7 @@ EXPERIMENTAL; DO NOT USE
 			s.Shutdown(ctx)
 		}(context.WithoutCancel(ctx))
 
-		rs := grpc.NewServer(grpc.UnaryInterceptor(withLogger{log.Default()}.Unary))
+		rs := grpc.NewServer()
 		api.RegisterApiServer(rs, s)
 
 		l, err := net.Listen("tcp", cfg.ServerAddr)
@@ -79,15 +77,6 @@ EXPERIMENTAL; DO NOT USE
 		}()
 		return rs.Serve(l)
 	},
-}
-
-type withLogger struct {
-	logger clog.Logger
-}
-
-func (w withLogger) Unary(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
-	ctx = clog.WithLogger(ctx, w.logger)
-	return handler(ctx, req)
 }
 
 func userInfo(cfg *config.Config) udpapi.UserInfo {

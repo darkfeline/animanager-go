@@ -20,9 +20,8 @@ package server
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
-
-	"go.felesatra.moe/animanager/internal/clog"
 )
 
 type pingFunc func(context.Context) (port string, _ error)
@@ -36,7 +35,7 @@ func keepalive(ctx context.Context, p pingFunc, d time.Duration) error {
 		case <-t.C:
 			ctx, cancel := context.WithTimeoutCause(ctx, 2*time.Second, errors.New("keepalive ping timeout"))
 			if _, err := p(ctx); err != nil {
-				clog.Printf(ctx, "keepalive ping: %s", err)
+				log.Printf("keepalive ping: %s", err)
 			}
 			cancel()
 		case <-ctx.Done():

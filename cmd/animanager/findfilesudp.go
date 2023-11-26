@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
-	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/fileid"
 	"go.felesatra.moe/animanager/internal/udp"
 )
@@ -89,7 +88,7 @@ EXPERIMENTAL; DO NOT USE
 func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
 	for _, f := range files {
 		if err := fileid.MatchEpisode(ctx, db, c, f); err != nil {
-			clog.Printf(ctx, "Error matching episode for file %q: %s", f, err)
+			log.Printf("Error matching episode for file %q: %s", f, err)
 		}
 	}
 	return nil

@@ -21,10 +21,10 @@ package udp
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/clientid"
-	"go.felesatra.moe/animanager/internal/clog"
 )
 
 type Client struct {
@@ -73,7 +73,7 @@ func (c *Client) Shutdown(ctx context.Context) error {
 }
 
 func (c *Client) login(ctx context.Context) error {
-	clog.Printf(ctx, "Logging in to AniDB...")
+	log.Printf("Logging in to AniDB...")
 	if c.userinfo.APIKey != "" {
 		if err := c.Client.Encrypt(ctx, c.userinfo); err != nil {
 			return fmt.Errorf("server login: %s", err)
@@ -82,15 +82,15 @@ func (c *Client) login(ctx context.Context) error {
 	if _, err := c.Client.Auth(ctx, c.userinfo); err != nil {
 		return fmt.Errorf("server login: %s", err)
 	}
-	clog.Printf(ctx, "Logged in to AniDB")
+	log.Printf("Logged in to AniDB")
 	return nil
 }
 
 func (c *Client) logout(ctx context.Context) error {
-	clog.Printf(ctx, "Logging out of AniDB...")
+	log.Printf("Logging out of AniDB...")
 	if err := c.Client.Logout(ctx); err != nil {
 		return fmt.Errorf("server logout: %s", err)
 	}
-	clog.Printf(ctx, "Logged out of AniDB")
+	log.Printf("Logged out of AniDB")
 	return nil
 }
