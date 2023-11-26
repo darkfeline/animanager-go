@@ -2,15 +2,19 @@
 
 ## 0.22.0
 
+### Removed
+
+* Removed `-no-eid` flag to `add` command.
+
 ## 0.21.0 -2023-11-25
 
-## Added
+### Added
 
 * Added `clearfiles` command which clears all episode files.
 * Added `eid` field to EpisodeFile.
 * Removed `episode_id` field.
 
-## Changed
+### Changed
 
 * Default database path has been moved to
   `$XDG_STATE_HOME/animanager/database.db`.
@@ -33,7 +37,7 @@ need to run this once every 24 hours until it fills in all the fields
 * Added `-no-eid` flag to `add` command.
 * Added `eid` field.
 
-## Changed
+### Changed
 
 * `add` command no longer prints AIDs to stdout since it already
   prints the AIDs to stderr logs.

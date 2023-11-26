@@ -39,13 +39,12 @@ var addCmd = command{
 	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
 		cfgv := vars.Config(f)
-		addNoEID := f.Bool("no-eid", false, "Add anime missing EIDs.")
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 
-		if f.NArg() < 1 && !(*addIncomplete || *addNoEID) {
+		if f.NArg() < 1 && !(*addIncomplete) {
 			return errors.New("no AIDs given")
 		}
 		aids, err := query.ParseIDs[query.AID](f.Args())
@@ -58,18 +57,7 @@ var addCmd = command{
 			return err
 		}
 		defer db.Close()
-		if *addNoEID {
-			as, err := query.GetAIDsMissingEIDs(db)
-			if err != nil {
-				return err
-			}
-			log.Printf("%d anime missing EIDs", len(as))
-			// Limit entries to not get banned.
-			if len(as) > 50 {
-				as = as[:50]
-			}
-			aids = append(aids, as...)
-		} else if *addIncomplete {
+		if *addIncomplete {
 			as, err := query.GetIncompleteAnime(db)
 			if err != nil {
 				return err
