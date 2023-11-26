@@ -24,6 +24,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"sync"
 
 	"go.felesatra.moe/anidb/udpapi"
@@ -78,4 +79,22 @@ func userInfo(cfg *config.Config) udpapi.UserInfo {
 		UserPassword: cfg.AniDB.Password,
 		APIKey:       cfg.AniDB.APIKey,
 	}
+}
+
+type SlogVar struct {
+	verbose bool
+}
+
+func Slog(fs *flag.FlagSet) *SlogVar {
+	v := &SlogVar{}
+	fs.BoolVar(&v.verbose, "verbose", false, "Enable verbose logging")
+	return v
+}
+
+func (v SlogVar) SetDefault() {
+	h := slog.NewTextHandler(log.Default().Writer(), &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	})
+	slog.SetDefault(slog.New(h))
 }
