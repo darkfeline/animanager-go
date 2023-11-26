@@ -6,6 +6,7 @@
 
 * Added `clearfiles` command which clears all episode files.
 * Added `eid` field to EpisodeFile.
+* Removed `episode_id` field.
 
 ## Changed
 
