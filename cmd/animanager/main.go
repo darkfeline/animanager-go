@@ -53,9 +53,7 @@ func main() {
 		}
 		os.Exit(0)
 	}
-	fmt.Fprintf(os.Stderr, "Unknown command %q\n\n", cmd)
-	printUsage(os.Stderr)
-	os.Exit(2)
+	log.Fatalf("Unknown command %q", cmd)
 }
 
 func printUsage(w io.Writer) error {
