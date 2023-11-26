@@ -38,6 +38,14 @@ func WithLogger(ctx context.Context, l Logger) context.Context {
 	return context.WithValue(ctx, loggerKey, l)
 }
 
+// WithPrefix adds a prefix to the context logger.
+func WithPrefix(ctx context.Context, prefix string) context.Context {
+	return WithLogger(ctx, prefixLogger{
+		prefix: prefix,
+		logger: getLogger(ctx),
+	})
+}
+
 // Printf prints to the context logger.
 // If there is no context logger, the message is discarded.
 func Printf(ctx context.Context, format string, a ...any) {
@@ -56,3 +64,15 @@ func getLogger(ctx context.Context) Logger {
 type nullLogger struct{}
 
 func (nullLogger) Printf(string, ...any) {}
+
+type prefixLogger struct {
+	prefix string
+	logger Logger
+}
+
+func (l prefixLogger) Printf(format string, a ...any) {
+	a2 := make([]any, len(a)+1)
+	a2[0] = l.prefix
+	copy(a2[1:], a)
+	l.logger.Printf("%s"+format, a2...)
+}
