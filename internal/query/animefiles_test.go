@@ -71,3 +71,54 @@ func TestGetAnimeFiles(t *testing.T) {
 		t.Errorf("GetAnimeFiles() = %#v; want %#v", got, want)
 	}
 }
+
+func TestDeleteAnimeFiles(t *testing.T) {
+	db := database.OpenMem(t)
+	e := []anidb.Episode{
+		{
+			EID:    113,
+			EpNo:   "1",
+			Length: 25,
+			Titles: []anidb.EpTitle{{Title: "使徒, 襲来", Lang: "ja"}},
+		},
+	}
+	const aid = 22
+	a := &anidb.Anime{
+		AID:          aid,
+		Type:         "TV Series",
+		EpisodeCount: 26,
+		Titles:       []anidb.Title{{Name: "Shinseiki Evangelion", Type: "main", Lang: "x-jat"}},
+		Episodes:     e,
+	}
+	if err := InsertAnime(db, a); err != nil {
+		t.Fatalf("Error inserting anime: %s", err)
+	}
+	efs := []EpisodeFile{{EpisodeID: 1, EID: 113, Path: "/foobar"}}
+	if err := InsertEpisodeFiles(db, efs); err != nil {
+		t.Fatalf("Error inserting episode file: %s", err)
+	}
+	if err := DeleteAnimeFiles(db, aid); err != nil {
+		t.Fatalf("Error deleting episode files: %s", err)
+	}
+	got, err := GetAnimeFiles(db, aid)
+	if err != nil {
+		t.Fatalf("GetAnimeFiles returned error: %s", err)
+	}
+	want := []EpisodeFiles{
+		{
+			Episode: Episode{
+				ID:     1,
+				EID:    113,
+				AID:    aid,
+				Type:   EpRegular,
+				Number: 1,
+				Title:  "使徒, 襲来",
+				Length: 25,
+			},
+			Files: nil,
+		},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetAnimeFiles() = %#v; want %#v", got, want)
+	}
+}
