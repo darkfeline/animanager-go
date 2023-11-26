@@ -42,10 +42,6 @@ var showFilesCmd = command{
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cfgv.Load()
-		if err != nil {
-			return err
-		}
 
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
@@ -55,7 +51,7 @@ var showFilesCmd = command{
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
 
-		db, err := openDB(cfg)
+		db, err := cfgv.OpenDB()
 		if err != nil {
 			return err
 		}

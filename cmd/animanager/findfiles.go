@@ -54,7 +54,7 @@ var findFilesCmd = command{
 		}
 		log.Printf("Finished finding video files")
 
-		db, err := openDB(cfg)
+		db, err := cfgv.OpenDB()
 		if err != nil {
 			return err
 		}

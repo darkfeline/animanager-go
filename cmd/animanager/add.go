@@ -18,7 +18,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -29,8 +28,6 @@ import (
 	"go.felesatra.moe/anidb"
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/clientid"
-	"go.felesatra.moe/animanager/internal/config"
-	"go.felesatra.moe/animanager/internal/database"
 	"go.felesatra.moe/animanager/internal/query"
 	"golang.org/x/time/rate"
 )
@@ -48,10 +45,6 @@ var addCmd = command{
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cfgv.Load()
-		if err != nil {
-			return err
-		}
 
 		if f.NArg() < 1 && !(*addIncomplete || *addNoEID) {
 			return errors.New("no AIDs given")
@@ -61,7 +54,7 @@ var addCmd = command{
 			return err
 		}
 
-		db, err := openDB(cfg)
+		db, err := cfgv.OpenDB()
 		if err != nil {
 			return err
 		}
@@ -109,10 +102,6 @@ func addAnime(db *sql.DB, aid query.AID) error {
 		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
 	return nil
-}
-
-func openDB(cfg *config.Config) (*sql.DB, error) {
-	return database.Open(context.Background(), cfg.DBPath)
 }
 
 func parseIDs[T ~int](args []string) ([]T, error) {

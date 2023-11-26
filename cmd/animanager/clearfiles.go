@@ -38,12 +38,8 @@ var clearFilesCmd = command{
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
 		}
-		cfg, err := cfgv.Load()
-		if err != nil {
-			return err
-		}
 
-		db, err := openDB(cfg)
+		db, err := cfgv.OpenDB()
 		if err != nil {
 			return err
 		}

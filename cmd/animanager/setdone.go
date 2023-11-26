@@ -36,10 +36,6 @@ var setDoneCmd = command{
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := cfgv.Load()
-		if err != nil {
-			return err
-		}
 
 		if f.NArg() < 1 {
 			return errors.New("no arguments provided")
@@ -50,7 +46,7 @@ var setDoneCmd = command{
 			return err
 		}
 
-		db, err := openDB(cfg)
+		db, err := cfgv.OpenDB()
 		if err != nil {
 			return err
 		}

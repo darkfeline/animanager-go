@@ -19,11 +19,14 @@
 package vars
 
 import (
+	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"sync"
 
 	"go.felesatra.moe/animanager/internal/config"
+	"go.felesatra.moe/animanager/internal/database"
 )
 
 type ConfigVar struct {
@@ -44,4 +47,12 @@ func (v ConfigVar) Load() (*config.Config, error) {
 		return nil, fmt.Errorf("error loading config: %s", err)
 	}
 	return cfg, nil
+}
+
+func (v ConfigVar) OpenDB() (*sql.DB, error) {
+	cfg, err := v.Load()
+	if err != nil {
+		return nil, err
+	}
+	return database.Open(context.Background(), cfg.DBPath)
 }

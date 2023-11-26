@@ -57,7 +57,7 @@ var watchCmd = command{
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
 
-		db, err := openDB(cfg)
+		db, err := cfgv.OpenDB()
 		if err != nil {
 			return err
 		}
