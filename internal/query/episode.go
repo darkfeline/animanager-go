@@ -120,16 +120,6 @@ FROM episode WHERE aid=? AND type=? AND number=?`, k.AID, k.Type, k.Number)
 
 }
 
-// GetEpID returns the EpID given an EID.
-func GetEpID(db Executor, eid EID) (EpID, error) {
-	r := db.QueryRow(`SELECT id FROM episode WHERE eid=?`, eid)
-	var id EpID
-	if err := r.Scan(&id); err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
 // DeleteEpisode deletes the episode from the database.
 func DeleteEpisode(db Executor, id EpID) error {
 	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {
