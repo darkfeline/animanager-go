@@ -44,3 +44,17 @@ type EpisodeFiles struct {
 	Episode Episode
 	Files   []EpisodeFile
 }
+
+// DeleteAnimeFiles deletes episode files for the given anime.
+func DeleteAnimeFiles(db Executor, aid AID) error {
+	_, err := db.Exec(`DELETE FROM episode_file
+WHERE ROWID IN (
+    SELECT episode_file.ROWID FROM episode_file
+    JOIN episode ON (episode_file.eid = episode.eid)
+    WHERE episode.aid=?
+)`, aid)
+	if err != nil {
+		return err
+	}
+	return nil
+}

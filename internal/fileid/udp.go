@@ -48,7 +48,7 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 		return fmt.Errorf("match episode: %w", err)
 	}
 	defer t.Rollback()
-	if err := query.DeleteEpisodeFiles(t, m.aid); err != nil {
+	if err := query.DeleteAnimeFiles(t, m.aid); err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
 	panic(nil)
