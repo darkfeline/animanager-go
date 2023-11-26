@@ -26,8 +26,9 @@ import (
 // This interface is used for functions that can be used by both
 // sql.DB and sql.Tx.
 type Executor interface {
-	Query(query string, args ...interface{}) (*sql.Rows, error)
-	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(string, ...any) (*sql.Rows, error)
+	QueryRow(string, ...any) *sql.Row
+	Exec(string, ...any) (sql.Result, error)
 }
 
 type Episode struct {
