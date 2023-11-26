@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/clientid"
@@ -30,25 +31,26 @@ import (
 type Client struct {
 	*udpapi.Client
 	userinfo udpapi.UserInfo
+	logger   *slog.Logger
 }
 
 type Config struct {
 	ServerAddr string
 	UserInfo   udpapi.UserInfo
-	Logger     udpapi.Logger
+	Logger     *slog.Logger
 }
 
 func Dial(ctx context.Context, cfg *Config) (*Client, error) {
-	c, err := udpapi.Dial(cfg.ServerAddr)
+	c, err := udpapi.Dial(cfg.ServerAddr, cfg.Logger.WithGroup("udpapi"))
 	if err != nil {
 		return nil, err
 	}
 	c.ClientName = clientid.UDPName
 	c.ClientVersion = clientid.UDPVersion
-	c.SetLogger(cfg.Logger)
 	c2 := &Client{
 		Client:   c,
 		userinfo: cfg.UserInfo,
+		logger:   cfg.Logger,
 	}
 	if err := c2.login(ctx); err != nil {
 		return nil, err

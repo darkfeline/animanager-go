@@ -69,7 +69,7 @@ func (v ConfigVar) DialUDP(ctx context.Context) (*udp.Client, error) {
 	return udp.Dial(ctx, &udp.Config{
 		ServerAddr: cfg.UDPServerAddr,
 		UserInfo:   userInfo(cfg),
-		Logger:     log.Default(),
+		Logger:     slog.Default(),
 	})
 }
 
