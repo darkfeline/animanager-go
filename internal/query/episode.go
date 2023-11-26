@@ -33,7 +33,6 @@ type Executor interface {
 
 type Episode struct {
 	_table      struct{}    `sql:"episode"`
-	ID          EpID        `sql:"id"`
 	EID         EID         `sql:"eid"`
 	AID         AID         `sql:"aid"`
 	Type        EpisodeType `sql:"type"`
@@ -51,7 +50,7 @@ func (e Episode) Key() EpisodeKey {
 	}
 }
 
-const selectEpisodeFields = `id, eid, aid, type, number, title, length, user_watched`
+const selectEpisodeFields = `eid, aid, type, number, title, length, user_watched`
 
 // A Scanner supports both sql.Row and sql.Rows.
 type Scanner interface {
@@ -59,7 +58,7 @@ type Scanner interface {
 }
 
 func scanEpisode(r Scanner, e *Episode) error {
-	return r.Scan(&e.ID, &e.EID, &e.AID, &e.Type, &e.Number,
+	return r.Scan(&e.EID, &e.AID, &e.Type, &e.Number,
 		&e.Title, &e.Length, &e.UserWatched)
 }
 
@@ -96,10 +95,10 @@ func GetWatchedMinutes(db *sql.DB) (int, error) {
 }
 
 // GetEpisode gets the episode from the database.
-func GetEpisode(db *sql.DB, id EpID) (*Episode, error) {
+func GetEpisode(db *sql.DB, eid EID) (*Episode, error) {
 	r := db.QueryRow(`
 SELECT `+selectEpisodeFields+`
-FROM episode WHERE id=?`, id)
+FROM episode WHERE eid=?`, eid)
 	var e Episode
 	if err := scanEpisode(r, &e); err != nil {
 		return nil, err
@@ -121,9 +120,9 @@ FROM episode WHERE aid=? AND type=? AND number=?`, k.AID, k.Type, k.Number)
 }
 
 // DeleteEpisode deletes the episode from the database.
-func DeleteEpisode(db Executor, id EpID) error {
-	if _, err := db.Exec(`DELETE FROM episode WHERE id=?`, id); err != nil {
-		return fmt.Errorf("delete episode %v: %w", id, err)
+func DeleteEpisode(db Executor, eid EID) error {
+	if _, err := db.Exec(`DELETE FROM episode WHERE eid=?`, eid); err != nil {
+		return fmt.Errorf("delete episode %v: %w", eid, err)
 	}
 	return nil
 }
@@ -186,7 +185,7 @@ func GetAllEpisodes(db *sql.DB) ([]Episode, error) {
 }
 
 // UpdateEpisodeDone updates the episode's done status.
-func UpdateEpisodeDone(db *sql.DB, id EpID, done bool) error {
+func UpdateEpisodeDone(db *sql.DB, eid EID, done bool) error {
 	var watched uint8
 	if done {
 		watched = 1
@@ -198,13 +197,13 @@ func UpdateEpisodeDone(db *sql.DB, id EpID, done bool) error {
 		return err
 	}
 	defer t.Rollback()
-	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE id=?`,
-		watched, id)
+	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE eid=?`,
+		watched, eid)
 	if err != nil {
-		return fmt.Errorf("update episode %d done: %w", id, err)
+		return fmt.Errorf("update episode %d done: %w", eid, err)
 	}
 	if err := t.Commit(); err != nil {
-		return fmt.Errorf("update episode %d done: %w", id, err)
+		return fmt.Errorf("update episode %d done: %w", eid, err)
 	}
 	return nil
 }

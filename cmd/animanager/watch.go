@@ -63,7 +63,7 @@ var watchCmd = command{
 		}
 		defer db.Close()
 		if *episode {
-			err = watchEpisode(cfg, db, query.EpID(id))
+			err = watchEpisode(cfg, db, query.EID(id))
 		} else {
 			err = watchAnime(cfg, db, query.AID(id))
 		}
@@ -71,18 +71,18 @@ var watchCmd = command{
 	},
 }
 
-func watchEpisode(cfg *config.Config, db *sql.DB, id query.EpID) error {
-	e, err := query.GetEpisode(db, id)
+func watchEpisode(cfg *config.Config, db *sql.DB, eid query.EID) error {
+	e, err := query.GetEpisode(db, eid)
 	if err != nil {
 		return fmt.Errorf("get episode: %c", err)
 	}
 	afmt.PrintEpisode(os.Stdout, *e)
-	fs, err := query.GetEpisodeFiles(db, id)
+	fs, err := query.GetEpisodeFiles(db, eid)
 	if err != nil {
 		return err
 	}
 	if len(fs) == 0 {
-		return fmt.Errorf("no files for episode %d", id)
+		return fmt.Errorf("no files for episode %d", eid)
 	}
 	f := fs[0]
 	fmt.Println(f.Path)
@@ -108,7 +108,7 @@ readInput:
 		if !ans {
 			return nil
 		}
-		if err := query.UpdateEpisodeDone(db, id, true); err != nil {
+		if err := query.UpdateEpisodeDone(db, eid, true); err != nil {
 			return err
 		}
 		return nil
@@ -135,7 +135,7 @@ func watchAnime(cfg *config.Config, db *sql.DB, aid query.AID) error {
 		if e.UserWatched {
 			continue
 		}
-		return watchEpisode(cfg, db, e.ID)
+		return watchEpisode(cfg, db, e.EID)
 	}
 	return fmt.Errorf("no unwatched episodes for %d", aid)
 }

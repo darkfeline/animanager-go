@@ -30,7 +30,7 @@ func GetAnimeFiles(db *sql.DB, aid AID) ([]EpisodeFiles, error) {
 		ef := EpisodeFiles{
 			Episode: e,
 		}
-		fs, err := GetEpisodeFiles(db, e.ID)
+		fs, err := GetEpisodeFiles(db, e.EID)
 		if err != nil {
 			return nil, fmt.Errorf("get anime %d files: %w", aid, err)
 		}

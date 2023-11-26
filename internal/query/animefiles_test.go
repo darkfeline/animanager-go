@@ -43,7 +43,7 @@ func TestGetAnimeFiles(t *testing.T) {
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	efs := []EpisodeFile{{EpisodeID: 1, EID: 113, Path: "/foobar"}}
+	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
 	if err := InsertEpisodeFiles(db, efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
@@ -54,7 +54,6 @@ func TestGetAnimeFiles(t *testing.T) {
 	want := []EpisodeFiles{
 		{
 			Episode: Episode{
-				ID:     1,
 				EID:    113,
 				AID:    aid,
 				Type:   EpRegular,
@@ -63,7 +62,7 @@ func TestGetAnimeFiles(t *testing.T) {
 				Length: 25,
 			},
 			Files: []EpisodeFile{
-				{EpisodeID: 1, EID: 113, Path: "/foobar"},
+				{EID: 113, Path: "/foobar"},
 			},
 		},
 	}
@@ -93,7 +92,7 @@ func TestDeleteAnimeFiles(t *testing.T) {
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	efs := []EpisodeFile{{EpisodeID: 1, EID: 113, Path: "/foobar"}}
+	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
 	if err := InsertEpisodeFiles(db, efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
@@ -107,7 +106,6 @@ func TestDeleteAnimeFiles(t *testing.T) {
 	want := []EpisodeFiles{
 		{
 			Episode: Episode{
-				ID:     1,
 				EID:    113,
 				AID:    aid,
 				Type:   EpRegular,

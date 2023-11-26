@@ -48,7 +48,7 @@ func TestGetAnimeFinished(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := UpdateEpisodeDone(db, ep.ID, true); err != nil {
+	if err := UpdateEpisodeDone(db, ep.EID, true); err != nil {
 		t.Fatal(err)
 	}
 	got, err := GetAnimeFinished(db)

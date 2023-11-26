@@ -20,10 +20,9 @@ import (
 )
 
 type EpisodeFile struct {
-	_table    struct{} `sql:"episode_file"`
-	EpisodeID EpID     `sql:"episode_id"`
-	EID       EID      `sql:"eid"`
-	Path      string   `sql:"path"`
+	_table struct{} `sql:"episode_file"`
+	EID    EID      `sql:"eid"`
+	Path   string   `sql:"path"`
 }
 
 // InsertEpisodeFile inserts episode files into the database.
@@ -33,12 +32,12 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 		return fmt.Errorf("insert episode files: %w", err)
 	}
 	defer t.Rollback()
-	s, err := t.Prepare(`INSERT INTO episode_file (episode_id, eid, path) VALUES (?, ?, ?)`)
+	s, err := t.Prepare(`INSERT INTO episode_file (eid, path) VALUES (?, ?)`)
 	if err != nil {
 		return fmt.Errorf("insert episode files: %w", err)
 	}
 	for _, ef := range efs {
-		if _, err = s.Exec(ef.EpisodeID, ef.EID, ef.Path); err != nil {
+		if _, err = s.Exec(ef.EID, ef.Path); err != nil {
 			return fmt.Errorf("insert episode files: %w", err)
 		}
 	}
@@ -49,22 +48,22 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 }
 
 // GetEpisodeFiles returns the EpisodeFiles for the episode.
-func GetEpisodeFiles(db *sql.DB, episodeID EpID) (es []EpisodeFile, err error) {
+func GetEpisodeFiles(db *sql.DB, eid EID) (es []EpisodeFile, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("get episode %d files: %w", episodeID, err)
+			err = fmt.Errorf("get episode %d files: %w", eid, err)
 		}
 	}()
 	r, err := db.Query(`
-SELECT episode_id, eid, path
-FROM episode_file WHERE episode_id=?`, episodeID)
+SELECT eid, path
+FROM episode_file WHERE eid=?`, eid)
 	if err != nil {
 		return nil, err
 	}
 	defer r.Close()
 	for r.Next() {
 		var e EpisodeFile
-		if err := r.Scan(&e.EpisodeID, &e.EID, &e.Path); err != nil {
+		if err := r.Scan(&e.EID, &e.Path); err != nil {
 			return nil, err
 		}
 		es = append(es, e)

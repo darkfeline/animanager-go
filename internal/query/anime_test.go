@@ -86,7 +86,6 @@ func TestInsertAndGetAnime(t *testing.T) {
 		}
 		want := []Episode{
 			{
-				ID:     1,
 				EID:    113,
 				AID:    22,
 				Type:   EpRegular,
@@ -95,7 +94,6 @@ func TestInsertAndGetAnime(t *testing.T) {
 				Length: 25,
 			},
 			{
-				ID:     2,
 				EID:    28864,
 				AID:    22,
 				Type:   EpSpecial,

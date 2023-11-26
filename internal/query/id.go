@@ -30,14 +30,6 @@ func (t *AID) Scan(src any) error {
 	return scanID(t, src)
 }
 
-// An EpID is an ID for [Episode].
-type EpID int
-
-// Scan implements [database/sql.Scanner].
-func (t *EpID) Scan(src any) error {
-	return scanID(t, src)
-}
-
 // An EID is an ID for [Episode].
 type EID int
 

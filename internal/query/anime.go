@@ -176,7 +176,7 @@ WHERE aid=?`,
 		delete(em, k)
 	}
 	for _, e := range em {
-		if err := DeleteEpisode(t, e.ID); err != nil {
+		if err := DeleteEpisode(t, e.EID); err != nil {
 			return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 		}
 	}

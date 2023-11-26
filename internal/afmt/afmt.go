@@ -62,7 +62,7 @@ func PrintAnimeT(w io.Writer, ts []anidb.AnimeT) error {
 
 func PrintEpisode(w io.Writer, e query.Episode) error {
 	bw := bufio.NewWriter(w)
-	fmt.Fprintf(bw, "%d\t", e.ID)
+	fmt.Fprintf(bw, "%d\t", e.EID)
 	fmt.Fprintf(bw, "%s%d\t", e.Type.Prefix(), e.Number)
 	if e.UserWatched {
 		fmt.Fprintf(bw, "W ")

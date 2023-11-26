@@ -58,7 +58,7 @@ var showFilesCmd = command{
 		defer db.Close()
 		bw := bufio.NewWriter(os.Stdout)
 		if *episode {
-			err = showEpisodeFiles(bw, db, query.EpID(id))
+			err = showEpisodeFiles(bw, db, query.EID(id))
 		} else {
 			err = showAnimeFiles(bw, db, query.AID(id))
 		}
@@ -74,7 +74,7 @@ func showAnimeFiles(w io.Writer, db *sql.DB, aid query.AID) error {
 	}
 	for _, e := range eps {
 		afmt.PrintEpisode(w, e)
-		efs, err := query.GetEpisodeFiles(db, e.ID)
+		efs, err := query.GetEpisodeFiles(db, e.EID)
 		if err != nil {
 			return err
 		}
@@ -85,8 +85,8 @@ func showAnimeFiles(w io.Writer, db *sql.DB, aid query.AID) error {
 	return nil
 }
 
-func showEpisodeFiles(w io.Writer, db *sql.DB, id query.EpID) error {
-	efs, err := query.GetEpisodeFiles(db, id)
+func showEpisodeFiles(w io.Writer, db *sql.DB, eid query.EID) error {
+	efs, err := query.GetEpisodeFiles(db, eid)
 	if err != nil {
 		return err
 	}

@@ -25,7 +25,7 @@ import (
 )
 
 var setDoneCmd = command{
-	usageLine: "setdone [episodeIDs]",
+	usageLine: "setdone [EIDs]",
 	shortDesc: "set an episode's done status",
 	longDesc: `Set an episode's done status.
 `,
@@ -41,7 +41,7 @@ var setDoneCmd = command{
 			return errors.New("no arguments provided")
 		}
 
-		ids, err := query.ParseIDs[query.EpID](f.Args())
+		ids, err := query.ParseIDs[query.EID](f.Args())
 		if err != nil {
 			return err
 		}
