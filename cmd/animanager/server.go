@@ -21,8 +21,8 @@ import (
 	"context"
 	"log"
 	"net"
-	"os"
 	"os/signal"
+	"time"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
@@ -57,6 +57,8 @@ EXPERIMENTAL; DO NOT USE
 
 		ctx := context.Background()
 		ctx = clog.WithLogger(ctx, log.Default())
+		ctx, stop := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
+		defer stop()
 		s, err := server.NewServer(ctx, &udp.Config{
 			ServerAddr: cfg.UDPServerAddr,
 			UserInfo:   userInfo(cfg),
@@ -66,10 +68,10 @@ EXPERIMENTAL; DO NOT USE
 			return err
 		}
 		defer func(ctx context.Context) {
-			if err := s.Shutdown(ctx); err != nil {
-				log.Printf("Error shutting down server: %s", err)
-			}
-		}(ctx)
+			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+			defer cancel()
+			s.Shutdown(ctx)
+		}(context.WithoutCancel(ctx))
 
 		rs := grpc.NewServer(grpc.UnaryInterceptor(withLogger{log.Default()}.Unary))
 		api.RegisterApiServer(rs, s)
@@ -78,10 +80,8 @@ EXPERIMENTAL; DO NOT USE
 		if err != nil {
 			return err
 		}
-		stop := make(chan os.Signal, 1)
-		signal.Notify(stop, unix.SIGTERM, unix.SIGINT)
 		go func() {
-			<-stop
+			<-ctx.Done()
 			rs.Stop()
 		}()
 		return rs.Serve(l)
