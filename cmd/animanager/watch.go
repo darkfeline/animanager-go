@@ -52,7 +52,7 @@ var watchCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		id, err := parseID[int](f.Arg(0))
+		id, err := query.ParseID[int](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}

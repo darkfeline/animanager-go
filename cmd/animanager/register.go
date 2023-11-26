@@ -45,7 +45,7 @@ var registerCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		aid, err := parseID[query.AID](f.Arg(0))
+		aid, err := query.ParseID[query.AID](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid AID %v: %v", aid, err)
 		}

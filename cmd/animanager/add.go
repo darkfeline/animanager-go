@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"go.felesatra.moe/anidb"
@@ -49,7 +48,7 @@ var addCmd = command{
 		if f.NArg() < 1 && !(*addIncomplete || *addNoEID) {
 			return errors.New("no AIDs given")
 		}
-		aids, err := parseIDs[query.AID](f.Args())
+		aids, err := query.ParseIDs[query.AID](f.Args())
 		if err != nil {
 			return err
 		}
@@ -102,24 +101,4 @@ func addAnime(db *sql.DB, aid query.AID) error {
 		return fmt.Errorf("add anime %v: %w", aid, err)
 	}
 	return nil
-}
-
-func parseIDs[T ~int](args []string) ([]T, error) {
-	ids := make([]T, len(args))
-	for i, s := range args {
-		id, err := parseID[T](s)
-		if err != nil {
-			return nil, err
-		}
-		ids[i] = id
-	}
-	return ids, nil
-}
-
-func parseID[T ~int](s string) (T, error) {
-	id, err := strconv.Atoi(s)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse %q into %T: %s", s, T(0), err)
-	}
-	return T(id), nil
 }

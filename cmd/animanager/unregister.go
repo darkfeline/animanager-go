@@ -41,7 +41,7 @@ var unregisterCmd = command{
 		if f.NArg() < 1 && !*finished {
 			return errors.New("no anime specified")
 		}
-		aids, err := parseIDs[query.AID](f.Args())
+		aids, err := query.ParseIDs[query.AID](f.Args())
 		if err != nil {
 			return err
 		}

@@ -41,7 +41,7 @@ var setDoneCmd = command{
 			return errors.New("no arguments provided")
 		}
 
-		ids, err := parseIDs[query.EpID](f.Args())
+		ids, err := query.ParseIDs[query.EpID](f.Args())
 		if err != nil {
 			return err
 		}

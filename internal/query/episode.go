@@ -30,20 +30,6 @@ type Executor interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
 }
 
-type EpID int
-
-// Scan implements [database/sql.Scanner].
-func (t *EpID) Scan(src any) error {
-	return scanID(t, src)
-}
-
-type EID int
-
-// Scan implements [database/sql.Scanner].
-func (t *EID) Scan(src any) error {
-	return scanID(t, src)
-}
-
 type Episode struct {
 	_table      struct{}    `sql:"episode"`
 	ID          EpID        `sql:"id"`
