@@ -22,11 +22,7 @@ import "context"
 
 type keyType int
 
-const (
-	_ keyType = iota
-	loggerKey
-	slogKey
-)
+const loggerKey keyType = 1
 
 // A Logger can be used for logging.
 // A Logger must be safe to use concurrently.
