@@ -21,7 +21,6 @@ import (
 	"context"
 	"log"
 	"net"
-	"os/signal"
 	"time"
 
 	"go.felesatra.moe/anidb/udpapi"
@@ -31,7 +30,6 @@ import (
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
 	"go.felesatra.moe/animanager/internal/udp"
-	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 )
 
@@ -46,6 +44,7 @@ EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
+		ctxv := vars.Context(f)
 		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
@@ -55,10 +54,8 @@ EXPERIMENTAL; DO NOT USE
 			return err
 		}
 
-		ctx := context.Background()
-		ctx = clog.WithLogger(ctx, log.Default())
-		ctx, stop := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
-		defer stop()
+		ctx, cancel := ctxv.Context()
+		defer cancel()
 		s, err := server.NewServer(ctx, &udp.Config{
 			ServerAddr: cfg.UDPServerAddr,
 			UserInfo:   userInfo(cfg),

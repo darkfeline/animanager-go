@@ -23,10 +23,14 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
+	"os/signal"
 	"sync"
 
+	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
+	"golang.org/x/sys/unix"
 )
 
 type ConfigVar struct {
@@ -55,4 +59,18 @@ func (v ConfigVar) OpenDB() (*sql.DB, error) {
 		return nil, err
 	}
 	return database.Open(context.Background(), cfg.DBPath)
+}
+
+type ContextVar struct {
+}
+
+func Context(fs *flag.FlagSet) *ContextVar {
+	v := &ContextVar{}
+	return v
+}
+
+func (v ContextVar) Context() (context.Context, context.CancelFunc) {
+	ctx := context.Background()
+	ctx = clog.WithLogger(ctx, log.Default())
+	return signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
 }
