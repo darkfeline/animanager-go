@@ -67,11 +67,7 @@ EXPERIMENTAL; DO NOT USE
 
 		ctx, cancel := ctxv.Context()
 		defer cancel()
-		c, err := udp.Dial(ctx, &udp.Config{
-			ServerAddr: "api.anidb.net:9000",
-			UserInfo:   userInfo(cfg),
-			Logger:     log.Default(),
-		})
+		c, err := cfgv.DialUDP(ctx)
 		if err != nil {
 			return err
 		}

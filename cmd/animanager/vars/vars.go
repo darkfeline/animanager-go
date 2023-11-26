@@ -27,9 +27,11 @@ import (
 	"os/signal"
 	"sync"
 
+	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
+	"go.felesatra.moe/animanager/internal/udp"
 	"golang.org/x/sys/unix"
 )
 
@@ -59,6 +61,26 @@ func (v ConfigVar) OpenDB() (*sql.DB, error) {
 		return nil, err
 	}
 	return database.Open(context.Background(), cfg.DBPath)
+}
+
+func (v ConfigVar) DialUDP(ctx context.Context) (*udp.Client, error) {
+	cfg, err := v.Load()
+	if err != nil {
+		return nil, err
+	}
+	return udp.Dial(ctx, &udp.Config{
+		ServerAddr: cfg.UDPServerAddr,
+		UserInfo:   userInfo(cfg),
+		Logger:     log.Default(),
+	})
+}
+
+func userInfo(cfg *config.Config) udpapi.UserInfo {
+	return udpapi.UserInfo{
+		UserName:     cfg.AniDB.Username,
+		UserPassword: cfg.AniDB.Password,
+		APIKey:       cfg.AniDB.APIKey,
+	}
 }
 
 type ContextVar struct {

@@ -29,7 +29,6 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
-	"go.felesatra.moe/animanager/internal/udp"
 	"google.golang.org/grpc"
 )
 
@@ -56,14 +55,11 @@ EXPERIMENTAL; DO NOT USE
 
 		ctx, cancel := ctxv.Context()
 		defer cancel()
-		s, err := server.NewServer(ctx, &udp.Config{
-			ServerAddr: cfg.UDPServerAddr,
-			UserInfo:   userInfo(cfg),
-			Logger:     log.Default(),
-		})
+		c, err := cfgv.DialUDP(ctx)
 		if err != nil {
 			return err
 		}
+		s := server.NewServer(ctx, c)
 		defer func(ctx context.Context) {
 			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 			defer cancel()

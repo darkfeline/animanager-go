@@ -21,7 +21,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 
 	"go.felesatra.moe/animanager/internal/server/api"
 	"go.felesatra.moe/animanager/internal/udp"
@@ -35,15 +34,11 @@ type Server struct {
 // NewServer starts a new server.
 // You must call Shutdown, especially when using encryption.
 // The context is used only for login.
-func NewServer(ctx context.Context, cfg *udp.Config) (*Server, error) {
-	c, err := udp.Dial(ctx, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("new server: %s", err)
-	}
+func NewServer(ctx context.Context, c *udp.Client) *Server {
 	s := &Server{
 		client: c,
 	}
-	return s, nil
+	return s
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
