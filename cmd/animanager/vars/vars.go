@@ -21,22 +21,25 @@ package vars
 import (
 	"flag"
 	"fmt"
+	"sync"
 
 	"go.felesatra.moe/animanager/internal/config"
 )
 
 type ConfigVar struct {
 	cfgPath string
+	getCfg  func() (*config.Config, error)
 }
 
 func Config(fs *flag.FlagSet) *ConfigVar {
 	v := &ConfigVar{}
+	v.getCfg = sync.OnceValues(func() (*config.Config, error) { return config.Load(v.cfgPath) })
 	fs.StringVar(&v.cfgPath, "config", config.DefaultPath, "Path to config file")
 	return v
 }
 
 func (v ConfigVar) Load() (*config.Config, error) {
-	cfg, err := config.Load(v.cfgPath)
+	cfg, err := v.getCfg()
 	if err != nil {
 		return nil, fmt.Errorf("error loading config: %s", err)
 	}
