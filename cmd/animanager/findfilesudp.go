@@ -22,11 +22,13 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"os/signal"
 	"time"
 
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/fileid"
 	"go.felesatra.moe/animanager/internal/udp"
+	"golang.org/x/sys/unix"
 )
 
 var findFilesUDPCmd = command{
@@ -38,7 +40,6 @@ EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
-		ctxv := vars.Context(f)
 		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
@@ -64,7 +65,8 @@ EXPERIMENTAL; DO NOT USE
 		}
 		defer db.Close()
 
-		ctx, cancel := ctxv.Context()
+		ctx := context.Background()
+		ctx, cancel := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
 		defer cancel()
 		c, err := cfgv.DialUDP(ctx)
 		if err != nil {

@@ -20,6 +20,7 @@ package main
 import (
 	"context"
 	"net"
+	"os/signal"
 	"time"
 
 	"go.felesatra.moe/anidb/udpapi"
@@ -27,6 +28,7 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 )
 
@@ -41,7 +43,6 @@ EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
 		f := cmd.flagSet()
-		ctxv := vars.Context(f)
 		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
@@ -51,7 +52,8 @@ EXPERIMENTAL; DO NOT USE
 			return err
 		}
 
-		ctx, cancel := ctxv.Context()
+		ctx := context.Background()
+		ctx, cancel := signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
 		defer cancel()
 		c, err := cfgv.DialUDP(ctx)
 		if err != nil {
