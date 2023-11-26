@@ -43,7 +43,9 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
-	_ = m
+	if err := query.DeleteEpisodeFiles(db, m.aid); err != nil {
+		return fmt.Errorf("match episode: %s", err)
+	}
 	panic(nil)
 }
 
