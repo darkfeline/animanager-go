@@ -43,18 +43,18 @@ func WithLogger(ctx context.Context, l Logger) context.Context {
 func WithPrefix(ctx context.Context, prefix string) context.Context {
 	return WithLogger(ctx, prefixLogger{
 		prefix: prefix,
-		logger: getLogger(ctx),
+		logger: GetLogger(ctx),
 	})
 }
 
 // Printf prints to the context logger.
-// If there is no context logger, the message is discarded.
 func Printf(ctx context.Context, format string, a ...any) {
-	getLogger(ctx).Printf(format, a...)
+	GetLogger(ctx).Printf(format, a...)
 }
 
-// getLogger returns the Logger attached to the context.
-func getLogger(ctx context.Context) Logger {
+// Logger returns the [Logger] attached to the context.
+// If there is no context logger, a no-op one is returned.
+func GetLogger(ctx context.Context) Logger {
 	v := ctx.Value(loggerKey)
 	if v == nil {
 		return nullLogger{}

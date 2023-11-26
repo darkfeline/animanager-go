@@ -30,6 +30,7 @@ func WithSlog(ctx context.Context, l *slog.Logger) context.Context {
 }
 
 // Slog returns the [log/slog.Logger] attached to the context.
+// If there is no context logger, a no-op one is returned.
 func Slog(ctx context.Context) *slog.Logger {
 	v := ctx.Value(slogKey)
 	if v == nil {
