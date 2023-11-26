@@ -199,11 +199,10 @@ func insertEpisode(t *sql.Tx, k EpisodeKey, e anidb.Episode) error {
 INSERT INTO episode (eid, aid, type, number, title, length)
 VALUES (?, ?, ?, ?, ?, ?)
 ON CONFLICT (eid) DO UPDATE SET
-aid=?, type=?, number=?, title=?, length=?
-WHERE eid=?`,
+aid=excluded.aid, type=excluded.type, number=excluded.number,
+title=excluded.title, length=excluded.length
+WHERE eid=excluded.eid`,
 		e.EID, k.AID, k.Type, k.Number, title, e.Length,
-		k.AID, k.Type, k.Number, title, e.Length,
-		e.EID,
 	)
 	if err != nil {
 		return err
