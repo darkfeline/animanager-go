@@ -40,16 +40,11 @@ func FindVideoFiles(dirs []string) ([]string, error) {
 // findVideoFilesSingle returns a slice of paths of all video files found
 // recursively under the given path.  The returned paths are absolute.
 func findVideoFilesSingle(path string) (result []string, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("find video files in %s: %s", path, err)
-		}
-	}()
 	path, err = filepath.Abs(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("find video files in %q: %s", path, err)
 	}
-	filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -58,6 +53,9 @@ func findVideoFilesSingle(path string) (result []string, err error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, fmt.Errorf("find video files in %q: %s", path, err)
+	}
 	return result, nil
 }
 
