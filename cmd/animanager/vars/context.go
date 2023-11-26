@@ -21,6 +21,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"log/slog"
 	"os/signal"
 
 	"go.felesatra.moe/animanager/internal/clog"
@@ -38,5 +39,6 @@ func Context(fs *flag.FlagSet) *ContextVar {
 func (v ContextVar) Context() (context.Context, context.CancelFunc) {
 	ctx := context.Background()
 	ctx = clog.WithLogger(ctx, log.Default())
+	ctx = clog.WithSlog(ctx, slog.Default())
 	return signal.NotifyContext(ctx, unix.SIGTERM, unix.SIGINT)
 }
