@@ -25,6 +25,7 @@ import (
 	"os"
 	"os/exec"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/input"
@@ -37,13 +38,13 @@ var watchCmd = command{
 	longDesc: `Watch anime.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		episode := f.Bool("episode", false, "Treat argument as episode ID")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

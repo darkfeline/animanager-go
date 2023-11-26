@@ -25,6 +25,7 @@ import (
 	"os/signal"
 	"time"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/fileid"
 	"go.felesatra.moe/animanager/internal/udp"
@@ -39,15 +40,15 @@ var findFilesUDPCmd = command{
 EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

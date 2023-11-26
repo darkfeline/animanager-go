@@ -23,6 +23,7 @@ import (
 	"errors"
 	"os"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/query"
 )
@@ -33,14 +34,14 @@ var watchableCmd = command{
 	longDesc: `Show watchable anime.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		all := f.Bool("all", false, "Show all files.")
 		missing := f.Bool("missing", false, "Show next episodes missing files.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/fileid"
 )
 
@@ -33,15 +34,15 @@ var findFilesCmd = command{
 	longDesc: `Find episode files.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

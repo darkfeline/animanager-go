@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"go.felesatra.moe/anidb"
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/clientid"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/database"
@@ -40,14 +41,14 @@ var addCmd = command{
 	longDesc: `Add an anime.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		addNoEID := f.Bool("no-eid", false, "Add anime missing EIDs.")
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

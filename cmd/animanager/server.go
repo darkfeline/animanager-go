@@ -25,6 +25,7 @@ import (
 	"os/signal"
 
 	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/clog"
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
@@ -44,12 +45,12 @@ Used internally to maintain a UDP session for reuse across commands.
 EXPERIMENTAL; DO NOT USE
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

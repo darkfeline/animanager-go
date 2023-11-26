@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -30,13 +31,13 @@ var unregisterCmd = command{
 	longDesc: `Unregister anime.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		finished := f.Bool("finished", false, "Unregister finished anime.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

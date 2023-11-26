@@ -20,6 +20,7 @@ package main
 import (
 	"errors"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -29,15 +30,15 @@ var clearFilesCmd = command{
 	longDesc: `Clears all episode files.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err
 		}
 		if f.NArg() != 0 {
 			return errors.New("no arguments allowed")
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

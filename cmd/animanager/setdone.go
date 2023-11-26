@@ -20,6 +20,7 @@ package main
 import (
 	"errors"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -29,13 +30,13 @@ var setDoneCmd = command{
 	longDesc: `Set an episode's done status.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		notDone := f.Bool("not", false, "Set status to not done.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

@@ -32,8 +32,7 @@ var updateTitlesCmd = command{
 	longDesc: `Update AniDB titles database.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
 		file := f.String("file", "", "Titles file to use.")
 		if err := f.Parse(args); err != nil {
 			return err

@@ -24,6 +24,7 @@ import (
 	"io"
 	"regexp"
 
+	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
 )
 
@@ -33,14 +34,14 @@ var registerCmd = command{
 	longDesc: `Register an anime.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
+		cfgv := vars.Config(f)
 		pattern := f.String("pattern", "", "File pattern.")
 		offset := f.Int("offset", 0, "Episode offset.")
 		if err := f.Parse(args); err != nil {
 			return err
 		}
-		cfg, err := stp.loadConfig()
+		cfg, err := cfgv.Load()
 		if err != nil {
 			return err
 		}

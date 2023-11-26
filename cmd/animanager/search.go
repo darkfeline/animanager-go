@@ -33,8 +33,7 @@ var searchCmd = command{
 	longDesc: `search for an anime by title.
 `,
 	run: func(cmd *command, args []string) error {
-		stp := cmd.commonSetup()
-		f := stp.flagSet
+		f := cmd.flagSet()
 		if err := f.Parse(args); err != nil {
 			return err
 		}

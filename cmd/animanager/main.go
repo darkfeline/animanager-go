@@ -27,8 +27,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"go.felesatra.moe/animanager/internal/config"
 )
 
 func main() {
@@ -106,10 +104,6 @@ func (c *command) name() string {
 	return strings.SplitN(c.usageLine, " ", 2)[0]
 }
 
-func (c *command) commonSetup() *commonSetup {
-	return newCommonSetup(c.flagSet())
-}
-
 func (c *command) flagSet() *flag.FlagSet {
 	fs := flag.NewFlagSet(c.name(), flag.ContinueOnError)
 	fs.Usage = func() {
@@ -118,25 +112,4 @@ func (c *command) flagSet() *flag.FlagSet {
 		fs.PrintDefaults()
 	}
 	return fs
-}
-
-type commonSetup struct {
-	flagSet *flag.FlagSet
-	cfgPath string
-}
-
-func newCommonSetup(fs *flag.FlagSet) *commonSetup {
-	c := &commonSetup{
-		flagSet: fs,
-	}
-	fs.StringVar(&c.cfgPath, "config", config.DefaultPath, "Path to config file")
-	return c
-}
-
-func (c *commonSetup) loadConfig() (*config.Config, error) {
-	cfg, err := config.Load(c.cfgPath)
-	if err != nil {
-		return nil, fmt.Errorf("error loading config: %s", err)
-	}
-	return cfg, nil
 }
