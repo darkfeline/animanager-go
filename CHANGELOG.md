@@ -6,6 +6,11 @@
 
 * Removed `-no-eid` flag to `add` command.
 
+### Fixed
+
+* Fixed unique constraint preventing re-adding/updating existing anime
+  which have changed the type+number of episodes in certain cases.
+
 ## 0.21.0 -2023-11-25
 
 ### Added
