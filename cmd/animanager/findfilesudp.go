@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"log/slog"
 	"os/signal"
 	"time"
 
@@ -88,9 +89,10 @@ EXPERIMENTAL; DO NOT USE
 // refreshFilesUDP updates episode files using the given video file
 // paths.
 func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
+	l := slog.Default().With("method", "udp")
 	for _, f := range files {
 		if err := fileid.MatchEpisode(ctx, db, c, f); err != nil {
-			log.Printf("Error matching episode for file %q: %s", f, err)
+			l.Warn("match file to episode", "file", f, "error", err)
 		}
 	}
 	return nil

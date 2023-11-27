@@ -20,7 +20,7 @@ package server
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -35,7 +35,7 @@ func keepalive(ctx context.Context, p pingFunc, d time.Duration) error {
 		case <-t.C:
 			ctx, cancel := context.WithTimeoutCause(ctx, 2*time.Second, errors.New("keepalive ping timeout"))
 			if _, err := p(ctx); err != nil {
-				log.Printf("keepalive ping: %s", err)
+				slog.Warn("keepalive ping", "error", err)
 			}
 			cancel()
 		case <-ctx.Done():

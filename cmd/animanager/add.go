@@ -21,7 +21,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"go.felesatra.moe/anidb"
@@ -80,7 +80,7 @@ var client = &anidb.Client{
 }
 
 func addAnime(db *sql.DB, aid query.AID) error {
-	log.Printf("Adding %d", aid)
+	slog.Info("add anime", "aid", aid)
 	c, err := client.RequestAnime(int(aid))
 	if err != nil {
 		return fmt.Errorf("add anime %v: %w", aid, err)

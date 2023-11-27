@@ -20,7 +20,7 @@ package fileid
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -31,17 +31,18 @@ import (
 // RefreshFiles updates all episode files in the database using
 // [query.Watching] regexp patterns and the given video file paths.
 func RefreshFiles(db *sql.DB, files []string) error {
+	l := slog.Default().With("method", "pattern")
 	ws, err := query.GetAllWatching(db)
 	if err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
 	var efs []query.EpisodeFile
-	log.Print("Matching files...")
+	l.Info("start match files")
 	for _, w := range ws {
 		if err := query.DeleteAnimeFiles(db, w.AID); err != nil {
 			return fmt.Errorf("refresh files: %w", err)
 		}
-		log.Printf("Matching files for aid=%d", w.AID)
+		l.Info("start match files for anime", "aid", w.AID)
 		eps, err := query.GetEpisodes(db, w.AID)
 		if err != nil {
 			return fmt.Errorf("refresh files: %w", err)
@@ -50,10 +51,10 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		if err != nil {
 			return fmt.Errorf("refresh files: %w", err)
 		}
-		log.Printf("Found files for aid=%d: %#v", w.AID, efs2)
+		l.Info("matched files for anime", "aid", w.AID, "files", efs2)
 		efs = append(efs, efs2...)
 	}
-	log.Print("Inserting files...")
+	l.Info("start insert files")
 	if err = query.InsertEpisodeFiles(db, efs); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
