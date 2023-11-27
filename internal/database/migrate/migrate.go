@@ -49,6 +49,7 @@ var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
 	{From: 6, To: 7, Func: migrate7},
 	{From: 7, To: 8, Func: migrate8},
 	{From: 8, To: 9, Func: migrate9},
+	{From: 9, To: 10, Func: migrate10},
 })
 
 func getUserVersion(d *sql.DB) (int, error) {
