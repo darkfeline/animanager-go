@@ -92,6 +92,9 @@ func Slog(fs *flag.FlagSet) *SlogVar {
 }
 
 func (v SlogVar) SetDefault() {
+	if !v.verbose {
+		return
+	}
 	h := slog.NewTextHandler(log.Default().Writer(), &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
