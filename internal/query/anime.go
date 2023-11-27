@@ -20,6 +20,7 @@ package query
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 
 	"go.felesatra.moe/anidb"
 
@@ -164,12 +165,7 @@ WHERE aid=?`,
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	for _, e := range a.Episodes {
-		k := EpisodeKey{AID: AID(a.AID)}
-		k.Type, k.Number = parseEpNo(e.EpNo)
-		if k.Type == EpUnknown {
-			return fmt.Errorf("failed to insert anime %d: invalid epno %s", a.AID, e.EpNo)
-		}
-		if err := insertEpisode(t, k, e); err != nil {
+		if err := insertEpisode(t, AID(a.AID), e); err != nil {
 			return fmt.Errorf("failed to insert episode %s for anime %d: %w",
 				e.EpNo, a.AID, err)
 		}
@@ -193,8 +189,20 @@ func mainTitle(ts []anidb.Title) string {
 	return ts[0].Name
 }
 
-func insertEpisode(t *sql.Tx, k EpisodeKey, e anidb.Episode) error {
+func insertEpisode(t *sql.Tx, aid AID, e anidb.Episode) error {
 	title := mainEpTitle(e.Titles)
+	typ, num := parseEpNo(e.EpNo)
+	slog.Info("insert episode",
+		"eid", e.EID,
+		"aid", aid,
+		"type", typ,
+		"number", num,
+		"title", title,
+		"length", e.Length,
+	)
+	if typ == EpUnknown {
+		return fmt.Errorf("failed to insert anime %d: invalid epno %s", aid, e.EpNo)
+	}
 	_, err := t.Exec(`
 INSERT INTO episode (eid, aid, type, number, title, length)
 VALUES (?, ?, ?, ?, ?, ?)
@@ -202,7 +210,7 @@ ON CONFLICT (eid) DO UPDATE SET
 aid=excluded.aid, type=excluded.type, number=excluded.number,
 title=excluded.title, length=excluded.length
 WHERE eid=excluded.eid`,
-		e.EID, k.AID, k.Type, k.Number, title, e.Length,
+		e.EID, aid, typ, num, title, e.Length,
 	)
 	if err != nil {
 		return err
