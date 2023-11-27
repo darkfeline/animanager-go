@@ -100,9 +100,13 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 // episode with the same number.  The zero index will be empty since
 // episodes cannot be number zero.
 func reindexEpisodeByNumber(eps []query.Episode) []query.Episode {
+	l := slog.Default().With("func", "reindexEpisodeByNumber")
 	m := make([]query.Episode, maxEpisodeNumber(eps)+1)
 	for _, e := range eps {
 		if e.Type == query.EpRegular {
+			if old := m[e.Number]; old.EID != 0 {
+				l.Warn("duplicate regular episode", "old", old, "new", e)
+			}
 			m[e.Number] = e
 		}
 	}
