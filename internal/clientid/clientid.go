@@ -23,5 +23,5 @@ const (
 	HTTPName    = "kfanimanager"
 	HTTPVersion = 2
 	UDPName     = "animanagerudp"
-	UDPVersion  = 1
+	UDPVersion  = 2
 )
