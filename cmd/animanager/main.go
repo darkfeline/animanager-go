@@ -131,8 +131,8 @@ func newHandle(cmd *command) *handle {
 		f := cmd.flagSet()
 		h.setupFlags(f)
 		f2 := &flagSet{
-			FlagSet: f,
-			h:       h,
+			FlagSet:   f,
+			postParse: h.postFlagParse,
 		}
 		return f2
 	})
@@ -160,13 +160,13 @@ func (h *handle) configureLogging() {
 
 type flagSet struct {
 	*flag.FlagSet
-	h *handle
+	postParse func()
 }
 
 func (f *flagSet) Parse(args []string) error {
 	if err := f.FlagSet.Parse(args); err != nil {
 		return err
 	}
-	f.h.postFlagParse()
+	f.postParse()
 	return nil
 }
