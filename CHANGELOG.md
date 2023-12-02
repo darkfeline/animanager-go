@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.22.0
+## 0.22.0 - 2023-12-02
 
 ### Added
 
@@ -15,7 +15,7 @@
 * Fixed unique constraint preventing re-adding/updating existing anime
   which have changed the type+number of episodes in certain cases.
 
-## 0.21.0 -2023-11-25
+## 0.21.0 - 2023-11-25
 
 ### Added
 
