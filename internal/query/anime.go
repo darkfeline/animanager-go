@@ -192,7 +192,7 @@ func mainTitle(ts []anidb.Title) string {
 func insertEpisode(t *sql.Tx, aid AID, e anidb.Episode) error {
 	title := mainEpTitle(e.Titles)
 	typ, num := parseEpNo(e.EpNo)
-	slog.Info("insert episode",
+	slog.Debug("insert episode",
 		"eid", e.EID,
 		"aid", aid,
 		"type", typ,
