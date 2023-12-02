@@ -68,7 +68,7 @@ func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMat
 	}
 	h := ed2k.New()
 	sum := h.Sum(nil)
-	row, err := c.FileByHash(ctx, fi.Size(), fmt.Sprintf("%x", sum), fmask, amask)
+	row, err := c.FileByHash(ctx, fi.Size(), string(formatHash(sum)), fmask, amask)
 	if err != nil {
 		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -87,6 +87,10 @@ func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMat
 		aid: aid,
 		eid: eid,
 	}, nil
+}
+
+func formatHash(sum []byte) query.Hash {
+	return query.Hash(fmt.Sprintf("%x", sum))
 }
 
 type epMatch struct {
