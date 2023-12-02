@@ -30,8 +30,8 @@ var findFilesCmd = command{
 	shortDesc: "find episode files",
 	longDesc: `Find episode files.
 `,
-	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+	run: func(h *handle, args []string) error {
+		f := h.flagSet()
 		cfgv := vars.Config(f)
 		if err := f.Parse(args); err != nil {
 			return err

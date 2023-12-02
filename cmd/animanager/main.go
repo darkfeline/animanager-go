@@ -27,6 +27,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 )
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 		if cmd != c.name() {
 			continue
 		}
-		if err := c.run(&c, args); err != nil {
+		if err := c.run(newHandle(&c), args); err != nil {
 			// ErrHelp is returned when -h is passed and
 			// the command FlagSet doesn't define it.
 			// FlagSet.Parse will still print help, so we
@@ -96,7 +97,7 @@ type command struct {
 	usageLine string
 	shortDesc string
 	longDesc  string
-	run       func(*command, []string) error
+	run       func(*handle, []string) error
 }
 
 func (c *command) name() string {
@@ -111,4 +112,17 @@ func (c *command) flagSet() *flag.FlagSet {
 		fs.PrintDefaults()
 	}
 	return fs
+}
+
+type handle struct {
+	cmd     *command
+	flagSet func() *flag.FlagSet
+}
+
+func newHandle(cmd *command) *handle {
+	h := &handle{
+		cmd:     cmd,
+		flagSet: sync.OnceValue(cmd.flagSet),
+	}
+	return h
 }

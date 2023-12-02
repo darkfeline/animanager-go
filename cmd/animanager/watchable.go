@@ -33,8 +33,8 @@ var watchableCmd = command{
 	shortDesc: "show watchable anime",
 	longDesc: `Show watchable anime.
 `,
-	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+	run: func(h *handle, args []string) error {
+		f := h.flagSet()
 		cfgv := vars.Config(f)
 		all := f.Bool("all", false, "Show all files.")
 		missing := f.Bool("missing", false, "Show next episodes missing files.")

@@ -36,8 +36,8 @@ var addCmd = command{
 	shortDesc: "add an anime",
 	longDesc: `Add an anime.
 `,
-	run: func(cmd *command, args []string) error {
-		f := cmd.flagSet()
+	run: func(h *handle, args []string) error {
+		f := h.flagSet()
 		cfgv := vars.Config(f)
 		addIncomplete := f.Bool("incomplete", false, "Re-add incomplete anime.")
 		if err := f.Parse(args); err != nil {
