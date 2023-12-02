@@ -151,11 +151,10 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
 VALUES (?, ?, ?, ?, ?, ?)
 ON CONFLICT (aid) DO UPDATE SET
-title=?, type=?, episodecount=?, startdate=?, enddate=?
-WHERE aid=?`,
+title=excluded.title, type=excluded.type, episodecount=excluded.episodecount,
+startdate=excluded.startdate, enddate=excluded.enddate
+WHERE aid=excluded.aid`,
 		a.AID, title, a.Type, a.EpisodeCount, startDate, endDate,
-		title, a.Type, a.EpisodeCount, startDate, endDate,
-		a.AID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
