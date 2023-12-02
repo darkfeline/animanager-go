@@ -58,17 +58,11 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
 func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMatch, error) {
-	f, err := os.Open(file)
+	fk, err := getFileKey(file)
 	if err != nil {
 		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
 	}
-	fi, err := f.Stat()
-	if err != nil {
-		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
-	}
-	h := ed2k.New()
-	sum := h.Sum(nil)
-	row, err := c.FileByHash(ctx, fi.Size(), string(formatHash(sum)), fmask, amask)
+	row, err := c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
 	if err != nil {
 		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -89,11 +83,33 @@ func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMat
 	}, nil
 }
 
-func formatHash(sum []byte) query.Hash {
-	return query.Hash(fmt.Sprintf("%x", sum))
-}
-
 type epMatch struct {
 	aid query.AID
 	eid query.EID
+}
+
+type fileKey struct {
+	size int64
+	hash query.Hash
+}
+
+func getFileKey(file string) (fileKey, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return fileKey{}, fmt.Errorf("get file key: %s", err)
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		return fileKey{}, fmt.Errorf("get file key: %s", err)
+	}
+	h := ed2k.New()
+	sum := h.Sum(nil)
+	return fileKey{
+		size: fi.Size(),
+		hash: formatHash(sum),
+	}, nil
+}
+
+func formatHash(sum []byte) query.Hash {
+	return query.Hash(fmt.Sprintf("%x", sum))
 }
