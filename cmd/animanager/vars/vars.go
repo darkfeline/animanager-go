@@ -22,7 +22,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"sync"
 
@@ -83,25 +82,4 @@ func userInfo(cfg *config.Config) udpapi.UserInfo {
 		UserPassword: cfg.AniDB.Password,
 		APIKey:       cfg.AniDB.APIKey,
 	}
-}
-
-type SlogVar struct {
-	verbose bool
-}
-
-func Slog(fs FlagSet) *SlogVar {
-	v := &SlogVar{}
-	fs.BoolVar(&v.verbose, "verbose", false, "Enable verbose logging")
-	return v
-}
-
-func (v SlogVar) SetDefault() {
-	if !v.verbose {
-		return
-	}
-	h := slog.NewTextHandler(log.Default().Writer(), &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.LevelDebug,
-	})
-	slog.SetDefault(slog.New(h))
 }
