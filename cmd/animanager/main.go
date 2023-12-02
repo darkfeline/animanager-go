@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"strings"
 	"sync"
@@ -117,6 +118,9 @@ func (c *command) flagSet() *flag.FlagSet {
 type handle struct {
 	cmd     *command
 	flagSet func() *flagSet
+
+	// Flags
+	verbose bool
 }
 
 func newHandle(cmd *command) *handle {
@@ -124,13 +128,45 @@ func newHandle(cmd *command) *handle {
 		cmd: cmd,
 	}
 	h.flagSet = sync.OnceValue(func() *flagSet {
-		return &flagSet{
-			FlagSet: cmd.flagSet(),
+		f := cmd.flagSet()
+		h.setupFlags(f)
+		f2 := &flagSet{
+			FlagSet: f,
+			h:       h,
 		}
+		return f2
 	})
 	return h
 }
 
+func (h *handle) setupFlags(f *flag.FlagSet) {
+	f.BoolVar(&h.verbose, "verbose", false, "Enable verbose logging")
+}
+
+func (h *handle) postFlagParse() {
+	h.configureLogging()
+}
+
+func (h *handle) configureLogging() {
+	if !h.verbose {
+		return
+	}
+	th := slog.NewTextHandler(log.Default().Writer(), &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	})
+	slog.SetDefault(slog.New(th))
+}
+
 type flagSet struct {
 	*flag.FlagSet
+	h *handle
+}
+
+func (f *flagSet) Parse(args []string) error {
+	if err := f.FlagSet.Parse(args); err != nil {
+		return err
+	}
+	f.h.postFlagParse()
+	return nil
 }
