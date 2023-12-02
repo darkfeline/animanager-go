@@ -21,7 +21,7 @@ package clientid
 
 const (
 	HTTPName    = "kfanimanager"
-	HTTPVersion = 22
+	HTTPVersion = 23
 	UDPName     = "animanagerudp"
-	UDPVersion  = 22
+	UDPVersion  = 23
 )
