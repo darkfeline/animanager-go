@@ -21,7 +21,6 @@ package vars
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"log/slog"
@@ -33,12 +32,17 @@ import (
 	"go.felesatra.moe/animanager/internal/udp"
 )
 
+type FlagSet interface {
+	BoolVar(p *bool, name string, value bool, usage string)
+	StringVar(p *string, name string, value string, usage string)
+}
+
 type ConfigVar struct {
 	cfgPath string
 	getCfg  func() (*config.Config, error)
 }
 
-func Config(fs *flag.FlagSet) *ConfigVar {
+func Config(fs FlagSet) *ConfigVar {
 	v := &ConfigVar{}
 	v.getCfg = sync.OnceValues(func() (*config.Config, error) { return config.Load(v.cfgPath) })
 	fs.StringVar(&v.cfgPath, "config", config.DefaultPath, "Path to config file")
@@ -85,7 +89,7 @@ type SlogVar struct {
 	verbose bool
 }
 
-func Slog(fs *flag.FlagSet) *SlogVar {
+func Slog(fs FlagSet) *SlogVar {
 	v := &SlogVar{}
 	fs.BoolVar(&v.verbose, "verbose", false, "Enable verbose logging")
 	return v

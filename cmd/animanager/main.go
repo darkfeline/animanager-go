@@ -116,13 +116,21 @@ func (c *command) flagSet() *flag.FlagSet {
 
 type handle struct {
 	cmd     *command
-	flagSet func() *flag.FlagSet
+	flagSet func() *flagSet
 }
 
 func newHandle(cmd *command) *handle {
 	h := &handle{
-		cmd:     cmd,
-		flagSet: sync.OnceValue(cmd.flagSet),
+		cmd: cmd,
 	}
+	h.flagSet = sync.OnceValue(func() *flagSet {
+		return &flagSet{
+			FlagSet: cmd.flagSet(),
+		}
+	})
 	return h
+}
+
+type flagSet struct {
+	*flag.FlagSet
 }
