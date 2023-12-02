@@ -2,6 +2,10 @@
 
 ## 0.22.0
 
+### Added
+
+* Added `-verbose` flag (which is mainly for debugging).
+
 ### Removed
 
 * Removed `-no-eid` flag to `add` command.
