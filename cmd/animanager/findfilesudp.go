@@ -90,9 +90,10 @@ EXPERIMENTAL; DO NOT USE
 // paths.
 func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []string) error {
 	l := slog.Default().With("method", "udp")
+	m := fileid.NewMatcher(l, db, c)
 	for _, f := range files {
 		l.Debug("matching file", "file", f)
-		if err := fileid.MatchEpisode(ctx, db, c, f); err != nil {
+		if err := m.MatchEpisode(ctx, f); err != nil {
 			l.Warn("match file to episode returned error", "file", f, "error", err)
 		}
 	}

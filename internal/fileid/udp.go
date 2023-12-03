@@ -37,11 +37,25 @@ func init() {
 	fmask.Set("aid", "eid")
 }
 
+type Matcher struct {
+	l  *slog.Logger
+	db *sql.DB
+	c  *udp.Client
+}
+
+func NewMatcher(l *slog.Logger, db *sql.DB, c *udp.Client) Matcher {
+	return Matcher{
+		l:  l,
+		db: db,
+		c:  c,
+	}
+}
+
 // MatchEpisode adds the given file as an episode file.
 // Episode matching is done via AniDB UDP API.
-func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) error {
-	l := slog.Default().With("file", file)
-	fh, err := matchFileToEpisode(ctx, l, db, c, file)
+func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
+	m.l = m.l.With("file", file)
+	fh, err := m.matchFileToEpisode(ctx, file)
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
@@ -50,7 +64,7 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 		return nil
 	}
 	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
-	if err := query.InsertEpisodeFiles(db, efs); err != nil {
+	if err := query.InsertEpisodeFiles(m.db, efs); err != nil {
 		return fmt.Errorf("match episode: %w", err)
 	}
 	return nil
@@ -58,28 +72,28 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
-func matchFileToEpisode(ctx context.Context, l *slog.Logger, db *sql.DB, c *udp.Client, file string) (*query.FileHash, error) {
+func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.FileHash, error) {
 	fk, err := getFileKey(file)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	l = l.With("size", fk.size, "hash", fk.hash)
-	fh, err := query.GetFileHash(db, fk.size, fk.hash)
+	m.l = m.l.With("size", fk.size, "hash", fk.hash)
+	fh, err := query.GetFileHash(m.db, fk.size, fk.hash)
 	if err == nil {
-		l.Debug("got file hash from db", "FileHash", fh)
+		m.l.Debug("got file hash from db", "FileHash", fh)
 		return fh, nil
 	}
-	l.Debug("error getting file hash from db", "error", err)
-	row, err := c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
+	m.l.Debug("error getting file hash from db", "error", err)
+	row, err := m.c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	l.Debug("got file hash response", "row", row)
+	m.l.Debug("got file hash response", "row", row)
 	fh, err = parseFileHashRow(fk, row)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	if err := query.InsertFileHash(db, fh); err != nil {
+	if err := query.InsertFileHash(m.db, fh); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
 	return fh, nil
