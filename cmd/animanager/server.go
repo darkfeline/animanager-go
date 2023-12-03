@@ -23,9 +23,7 @@ import (
 	"os/signal"
 	"time"
 
-	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
-	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/server"
 	"go.felesatra.moe/animanager/internal/server/api"
 	"golang.org/x/sys/unix"
@@ -79,12 +77,4 @@ EXPERIMENTAL; DO NOT USE
 		}()
 		return rs.Serve(l)
 	},
-}
-
-func userInfo(cfg *config.Config) udpapi.UserInfo {
-	return udpapi.UserInfo{
-		UserName:     cfg.AniDB.Username,
-		UserPassword: cfg.AniDB.Password,
-		APIKey:       cfg.AniDB.APIKey,
-	}
 }
