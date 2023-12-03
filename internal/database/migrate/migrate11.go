@@ -1,4 +1,4 @@
-// Copyright (C) 2021  Allen Li
+// Copyright (C) 2023  Allen Li
 //
 // This file is part of Animanager.
 //
