@@ -41,6 +41,7 @@ func TestAnimeDefaultRegexp(t *testing.T) {
 		{"[Meme-raws] Keit-ai 2nd Season - 13 END [720p].mkv", "13"},
 	}
 	for _, c := range cases {
+		c := c
 		t.Run(c.String, func(t *testing.T) {
 			t.Parallel()
 			got := p.FindStringSubmatch(c.String)

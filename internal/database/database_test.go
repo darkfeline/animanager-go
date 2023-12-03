@@ -37,6 +37,7 @@ func TestSourcePath(t *testing.T) {
 		{"file:some/path?arg=true", "some/path"},
 	}
 	for _, c := range cases {
+		c := c
 		t.Run(c.src, func(t *testing.T) {
 			t.Parallel()
 			got := sourcePath(c.src)

@@ -32,6 +32,7 @@ func TestIsUnnamed(t *testing.T) {
 		{"named", "挑・発", false},
 	}
 	for _, c := range cases {
+		c := c
 		t.Run(c.name, func(t *testing.T) {
 			t.Parallel()
 			e := Episode{Title: c.title}

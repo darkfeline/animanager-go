@@ -34,6 +34,7 @@ func TestParseEpNo(t *testing.T) {
 		{"Clarion", EpUnknown, 0},
 	}
 	for _, c := range cases {
+		c := c
 		t.Run(c.EpNo, func(t *testing.T) {
 			t.Parallel()
 			eptype, n := parseEpNo(c.EpNo)
@@ -56,6 +57,7 @@ func TestEpisodeType_Prefix(t *testing.T) {
 		{EpTrailer, "T"},
 	}
 	for _, c := range cases {
+		c := c
 		t.Run(c.Type.String(), func(t *testing.T) {
 			t.Parallel()
 			got := c.Type.Prefix()
