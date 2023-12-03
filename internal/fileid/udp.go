@@ -39,7 +39,7 @@ func init() {
 // MatchEpisode adds the given file as an episode file.
 // Episode matching is done via AniDB UDP API.
 func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) error {
-	m, err := matchFileToEpisodes(ctx, c, file)
+	m, err := matchFileToEpisode(ctx, db, c, file)
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
@@ -52,7 +52,7 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
-func matchFileToEpisodes(ctx context.Context, c *udp.Client, file string) (epMatch, error) {
+func matchFileToEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) (epMatch, error) {
 	fk, err := getFileKey(file)
 	if err != nil {
 		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
