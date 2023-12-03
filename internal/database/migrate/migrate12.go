@@ -15,34 +15,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package query
+package migrate
 
 import (
-	"reflect"
-	"testing"
-
-	"go.felesatra.moe/animanager/internal/database"
+	"context"
+	"database/sql"
+	"fmt"
 )
 
-func TestInsertAndGetFileHash(t *testing.T) {
-	db := database.OpenMem(t)
-	fh := &FileHash{
-		Size:     135,
-		Hash:     "shirasuazusa",
-		EID:      555,
-		AID:      444,
-		Filename: "Where all miracles begin",
+func migrate12(ctx context.Context, d *sql.DB) error {
+	c, err := d.Conn(ctx)
+	if err != nil {
+		return err
 	}
-	if err := InsertFileHash(db, fh); err != nil {
-		t.Fatalf("Error inserting file hash: %s", err)
+	defer c.Close()
+
+	t, err := c.BeginTx(ctx, nil)
+	if err != nil {
+		return err
 	}
-	t.Run("get anime", func(t *testing.T) {
-		got, err := GetFileHash(db, 135, "shirasuazusa")
-		if err != nil {
-			t.Fatalf("Error getting file hash: %s", err)
-		}
-		if !reflect.DeepEqual(got, fh) {
-			t.Errorf("GetFileHash() = %#v; want %#v", got, fh)
-		}
-	})
+	defer t.Rollback()
+
+	_, err = t.Exec(`ALTER TABLE filehash ADD COLUMN filename TEXT`)
+	if err != nil {
+		return fmt.Errorf("CREATE TABLE filehash: %s", err)
+	}
+
+	return t.Commit()
 }

@@ -35,30 +35,31 @@ func (h *Hash) Scan(src any) error {
 }
 
 type FileHash struct {
-	_table struct{} `sql:"filehash"`
-	Size   int64    `sql:"size"`
-	Hash   Hash     `sql:"hash"`
-	EID    EID      `sql:"eid"`
-	AID    AID      `sql:"aid"`
+	_table   struct{} `sql:"filehash"`
+	Size     int64    `sql:"size"`
+	Hash     Hash     `sql:"hash"`
+	EID      EID      `sql:"eid"`
+	AID      AID      `sql:"aid"`
+	Filename string   `sql:"filename"`
 }
 
 func InsertFileHash(db *sql.DB, fh *FileHash) error {
 	_, err := db.Exec(`
-INSERT INTO filehash (size, hash, eid, aid)
-VALUES (?, ?, ?, ?)
+INSERT INTO filehash (size, hash, eid, aid, filename)
+VALUES (?, ?, ?, ?, ?)
 ON CONFLICT (size, hash) DO UPDATE SET
-eid=excluded.eid, aid=excluded.aid
+eid=excluded.eid, aid=excluded.aid, filename=excluded.filename
 WHERE size=excluded.size AND hash=excluded.hash`,
-		fh.Size, fh.Hash, fh.EID, fh.AID)
+		fh.Size, fh.Hash, fh.EID, fh.AID, fh.Filename)
 	return err
 }
 
 func GetFileHash(db *sql.DB, size int64, hash Hash) (*FileHash, error) {
 	r := db.QueryRow(`
-SELECT size, hash, eid, aid FROM filehash WHERE size=? AND hash=?`,
+SELECT size, hash, eid, aid, filename FROM filehash WHERE size=? AND hash=?`,
 		size, hash)
 	var fh FileHash
-	if err := r.Scan(&fh.Size, &fh.Hash, &fh.EID, &fh.AID); err != nil {
+	if err := r.Scan(&fh.Size, &fh.Hash, &fh.EID, &fh.AID, &fh.Filename); err != nil {
 		return nil, err
 	}
 	return &fh, nil
