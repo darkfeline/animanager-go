@@ -45,6 +45,9 @@ var unfinishedCmd = command{
 		}
 		defer db.Close()
 		as, err := query.GetUnfinishedAnime(db)
+		if err != nil {
+			return err
+		}
 		bw := bufio.NewWriter(os.Stdout)
 		sort.Slice(as, func(i, j int) bool { return as[i].AID < as[j].AID })
 		for _, a := range as {
