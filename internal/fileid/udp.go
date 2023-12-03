@@ -41,17 +41,12 @@ func init() {
 // Episode matching is done via AniDB UDP API.
 func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) error {
 	l := slog.Default().With("file", file)
-	fk, err := getFileKey(file)
-	if err != nil {
-		return fmt.Errorf("match episode: %s", err)
-	}
-	l = l.With("size", fk.size, "hash", fk.hash)
-	fh, err := matchFileToEpisode(ctx, l, db, c, fk)
+	fh, err := matchFileToEpisode(ctx, l, db, c, file)
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
 	if fh.EID != 0 {
-		l.Debug("file hash missing EID", "FileHash", fh)
+		slog.Debug("file hash missing EID", "FileHash", fh)
 		return nil
 	}
 	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
@@ -63,7 +58,12 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
-func matchFileToEpisode(ctx context.Context, l *slog.Logger, db *sql.DB, c *udp.Client, fk fileKey) (*query.FileHash, error) {
+func matchFileToEpisode(ctx context.Context, l *slog.Logger, db *sql.DB, c *udp.Client, file string) (*query.FileHash, error) {
+	fk, err := getFileKey(file)
+	if err != nil {
+		return nil, fmt.Errorf("match file to episode: %s", err)
+	}
+	l = l.With("size", fk.size, "hash", fk.hash)
 	fh, err := query.GetFileHash(db, fk.size, fk.hash)
 	if err == nil {
 		l.Debug("got file hash from db", "FileHash", fh)
