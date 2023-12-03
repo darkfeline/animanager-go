@@ -21,6 +21,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"go.felesatra.moe/anidb/udpapi"
@@ -39,11 +40,21 @@ func init() {
 // MatchEpisode adds the given file as an episode file.
 // Episode matching is done via AniDB UDP API.
 func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) error {
-	m, err := matchFileToEpisode(ctx, db, c, file)
+	l := slog.Default().With("file", file)
+	fk, err := getFileKey(file)
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
-	efs := []query.EpisodeFile{{EID: m.eid, Path: file}}
+	l = l.With("size", fk.size, "hash", fk.hash)
+	fh, err := matchFileToEpisode(ctx, l, db, c, fk)
+	if err != nil {
+		return fmt.Errorf("match episode: %s", err)
+	}
+	if fh.EID != 0 {
+		l.Debug("file hash missing EID", "FileHash", fh)
+		return nil
+	}
+	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
 	if err := query.InsertEpisodeFiles(db, efs); err != nil {
 		return fmt.Errorf("match episode: %w", err)
 	}
@@ -52,35 +63,46 @@ func MatchEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) e
 
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
-func matchFileToEpisode(ctx context.Context, db *sql.DB, c *udp.Client, file string) (epMatch, error) {
-	fk, err := getFileKey(file)
-	if err != nil {
-		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
+func matchFileToEpisode(ctx context.Context, l *slog.Logger, db *sql.DB, c *udp.Client, fk fileKey) (*query.FileHash, error) {
+	fh, err := query.GetFileHash(db, fk.size, fk.hash)
+	if err == nil {
+		l.Debug("got file hash from db", "FileHash", fh)
+		return fh, nil
 	}
+	l.Debug("error getting file hash from db", "error", err)
 	row, err := c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
 	if err != nil {
-		return epMatch{}, fmt.Errorf("match file to episode: %s", err)
+		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
+	l.Debug("got file hash response", "row", row)
+	fh, err = parseFileHashRow(fk, row)
+	if err != nil {
+		return nil, fmt.Errorf("match file to episode: %s", err)
+	}
+	if err := query.InsertFileHash(db, fh); err != nil {
+		return nil, fmt.Errorf("match file to episode: %s", err)
+	}
+	return fh, nil
+}
+
+func parseFileHashRow(fk fileKey, row []string) (*query.FileHash, error) {
 	if n := len(row); n != 3 {
-		return epMatch{}, fmt.Errorf("match file to episode: unexpected number of values in response: %d", n)
+		return nil, fmt.Errorf("parse file has row: unexpected number of values in response: %d", n)
 	}
 	aid, err := query.ParseID[query.AID](row[1])
 	if err != nil {
-		return epMatch{}, fmt.Errorf("match file to episode: parse aid: %s", err)
+		return nil, fmt.Errorf("parse file has row: parse aid: %s", err)
 	}
 	eid, err := query.ParseID[query.EID](row[2])
 	if err != nil {
-		return epMatch{}, fmt.Errorf("match file to episode: parse eid: %s", err)
+		return nil, fmt.Errorf("parse file has row: parse eid: %s", err)
 	}
-	return epMatch{
-		aid: aid,
-		eid: eid,
+	return &query.FileHash{
+		Size: fk.size,
+		Hash: fk.hash,
+		EID:  eid,
+		AID:  aid,
 	}, nil
-}
-
-type epMatch struct {
-	aid query.AID
-	eid query.EID
 }
 
 type fileKey struct {
