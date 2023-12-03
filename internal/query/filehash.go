@@ -36,7 +36,7 @@ func (h *Hash) Scan(src any) error {
 
 type FileHash struct {
 	_table struct{} `sql:"filehash"`
-	Size   int      `sql:"size"`
+	Size   int64    `sql:"size"`
 	Hash   Hash     `sql:"hash"`
 	EID    EID      `sql:"eid"`
 	AID    AID      `sql:"aid"`
