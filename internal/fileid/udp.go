@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/query"
@@ -89,17 +90,20 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
 	m.l.Debug("got file hash response", "row", row)
-	fh, err = parseFileHashRow(fk, row)
+	fh, err = parseFileHashRow(row)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
+	fh.Size = fk.size
+	fh.Hash = fk.hash
+	fh.Filename = filepath.Base(file)
 	if err := query.InsertFileHash(m.db, fh); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
 	return fh, nil
 }
 
-func parseFileHashRow(fk fileKey, row []string) (*query.FileHash, error) {
+func parseFileHashRow(row []string) (*query.FileHash, error) {
 	if n := len(row); n != 3 {
 		return nil, fmt.Errorf("parse file has row: unexpected number of values in response: %d", n)
 	}
@@ -112,10 +116,8 @@ func parseFileHashRow(fk fileKey, row []string) (*query.FileHash, error) {
 		return nil, fmt.Errorf("parse file has row: parse eid: %s", err)
 	}
 	return &query.FileHash{
-		Size: fk.size,
-		Hash: fk.hash,
-		EID:  eid,
-		AID:  aid,
+		EID: eid,
+		AID: aid,
 	}, nil
 }
 
