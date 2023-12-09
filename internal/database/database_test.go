@@ -21,6 +21,7 @@ import (
 	"testing"
 )
 
+// Also tests migrate
 func TestOpenMem(t *testing.T) {
 	_ = OpenMem(t)
 }

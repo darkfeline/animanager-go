@@ -20,26 +20,8 @@
 package migrate
 
 import (
-	"context"
-	"database/sql"
-	"fmt"
-
 	"go.felesatra.moe/database/sql/sqlite3/migrate"
 )
-
-// Migrate migrates the database to the latest version.
-func Migrate(ctx context.Context, d *sql.DB) error {
-	return migrationSet.Migrate(ctx, d)
-}
-
-// NeedsMigrate returns true if the database needs migration.
-func NeedsMigrate(d *sql.DB) (bool, error) {
-	v, err := migrationSet.NeedsMigrate(d)
-	if err != nil {
-		return false, fmt.Errorf("is latest version: %s", err)
-	}
-	return v, nil
-}
 
 var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
 	{From: 0, To: 3, Func: migrate3},
@@ -53,3 +35,8 @@ var migrationSet = migrate.NewMigrationSet([]migrate.Migration{
 	{From: 10, To: 11, Func: migrate11},
 	{From: 11, To: 12, Func: migrate12},
 })
+
+var (
+	Migrate      = migrationSet.Migrate
+	NeedsMigrate = migrationSet.NeedsMigrate
+)
