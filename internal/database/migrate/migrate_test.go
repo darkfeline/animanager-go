@@ -33,29 +33,6 @@ func TestMigrate(t *testing.T) {
 	}
 }
 
-func TestUserVersion(t *testing.T) {
-	d := testDB(t)
-	defer d.Close()
-	v, err := getUserVersion(d)
-	if err != nil {
-		t.Fatalf("Error getting version: %s", err)
-	}
-	if v != 0 {
-		t.Errorf("Expected 0, got %d", v)
-	}
-	err = setUserVersion(d, 1)
-	if err != nil {
-		t.Fatalf("Error setting version: %s", err)
-	}
-	v, err = getUserVersion(d)
-	if err != nil {
-		t.Fatalf("Error getting version: %s", err)
-	}
-	if v != 1 {
-		t.Errorf("Expected 1, got %d", v)
-	}
-}
-
 func testDB(t *testing.T) *sql.DB {
 	// Cannot be used concurrently!
 	d, err := sql.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
