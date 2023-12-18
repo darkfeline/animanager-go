@@ -79,12 +79,16 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
 	m.l = m.l.With("size", fk.size, "hash", fk.hash)
+
+	// Try getting from cache
 	fh, err := query.GetFileHash(m.db, fk.size, fk.hash)
 	if err == nil {
 		m.l.Debug("got file hash from db", "FileHash", fh)
 		return fh, nil
 	}
 	m.l.Debug("error getting file hash from db", "error", err)
+
+	// Get from AniDB
 	row, err := m.c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
@@ -97,6 +101,8 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	fh.Size = fk.size
 	fh.Hash = fk.hash
 	fh.Filename = filepath.Base(file)
+
+	// Add to cache
 	if err := query.InsertFileHash(m.db, fh); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
