@@ -27,7 +27,6 @@ import (
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/query"
-	"go.felesatra.moe/animanager/internal/udp"
 	"go.felesatra.moe/hash/ed2k"
 )
 
@@ -38,13 +37,17 @@ func init() {
 	fmask.Set("aid", "eid")
 }
 
+type UDPClient interface {
+	FileByHash(context.Context, int64, string, udpapi.FileFmask, udpapi.FileAmask) ([]string, error)
+}
+
 type Matcher struct {
 	l  *slog.Logger
 	db *sql.DB
-	c  *udp.Client
+	c  UDPClient
 }
 
-func NewMatcher(l *slog.Logger, db *sql.DB, c *udp.Client) Matcher {
+func NewMatcher(l *slog.Logger, db *sql.DB, c UDPClient) Matcher {
 	return Matcher{
 		l:  l,
 		db: db,
