@@ -5,7 +5,7 @@ go 1.21.4
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/mattn/go-sqlite3 v1.14.19
-	go.felesatra.moe/anidb v1.3.0-alpha10
+	go.felesatra.moe/anidb v1.3.0-beta
 	go.felesatra.moe/database/sql/sqlite3/migrate v1.1.1
 	go.felesatra.moe/hash/ed2k v1.0.1
 	golang.org/x/sys v0.15.0

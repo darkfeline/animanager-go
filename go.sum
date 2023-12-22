@@ -10,6 +10,8 @@ github.com/mattn/go-sqlite3 v1.14.19 h1:fhGleo2h1p8tVChob4I9HpmVFIAkKGpiukdrgQbW
 github.com/mattn/go-sqlite3 v1.14.19/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 go.felesatra.moe/anidb v1.3.0-alpha10 h1:MQFXHM2aaY36cbf4+YyS+hvwg1PRKemuZIST7A7zAQg=
 go.felesatra.moe/anidb v1.3.0-alpha10/go.mod h1:pUclVr98/aB7MrKk1aa6hfANBuD5sKFlvFPjbcW6SBo=
+go.felesatra.moe/anidb v1.3.0-beta h1:HScgR5coJflISkTAYVmGXh2mYTvp0/PAzIMCEccfc9o=
+go.felesatra.moe/anidb v1.3.0-beta/go.mod h1:pUclVr98/aB7MrKk1aa6hfANBuD5sKFlvFPjbcW6SBo=
 go.felesatra.moe/database/sql/sqlite3/migrate v1.1.1 h1:Pob/wv34z8kovLSeSftjQUl9q6WtWBwdZEeNq/oQQ5A=
 go.felesatra.moe/database/sql/sqlite3/migrate v1.1.1/go.mod h1:JvgOme7DLq3uZasrsU7ArUoJ6zpVR7TRtPY4/hId0hg=
 go.felesatra.moe/hash/ed2k v1.0.1 h1:+zylLMgEmREJt0YrBaHNBpThTfqFlQuM1SHoCjpulko=
