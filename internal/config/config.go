@@ -23,6 +23,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 )
@@ -35,6 +37,26 @@ type Config struct {
 	AniDB         AniDBConfig `toml:"anidb"`
 	ServerAddr    string      `toml:"server_addr"`
 	UDPServerAddr string      `toml:"udp_server_addr"`
+	FilePatterns  []string    `toml:"file_patterns"`
+
+	regexps func() ([]*regexp.Regexp, error)
+}
+
+func (c *Config) FileRegexps() ([]*regexp.Regexp, error) {
+	if c.regexps == nil {
+		c.regexps = sync.OnceValues(func() ([]*regexp.Regexp, error) {
+			rs := make([]*regexp.Regexp, len(c.FilePatterns))
+			for i, p := range c.FilePatterns {
+				r, err := regexp.Compile(p)
+				if err != nil {
+					return nil, err
+				}
+				rs[i] = r
+			}
+			return rs, nil
+		})
+	}
+	return c.regexps()
 }
 
 // AniDBConfig is the configuration for AniDB (mainly UDP API).
