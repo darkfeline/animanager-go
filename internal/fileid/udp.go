@@ -63,7 +63,7 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
-	if fh.EID != 0 {
+	if fh.EID == 0 {
 		slog.Debug("file hash missing EID", "FileHash", fh)
 		return nil
 	}
