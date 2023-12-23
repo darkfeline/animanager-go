@@ -15,6 +15,8 @@
 package query
 
 import (
+	"context"
+	"log/slog"
 	"reflect"
 	"testing"
 
@@ -44,7 +46,7 @@ func TestGetAnimeFiles(t *testing.T) {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
 	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
-	if err := InsertEpisodeFiles(db, efs); err != nil {
+	if err := InsertEpisodeFiles(db, nullLogger(), efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
 	got, err := GetAnimeFiles(db, aid)
@@ -93,7 +95,7 @@ func TestDeleteAnimeFiles(t *testing.T) {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
 	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
-	if err := InsertEpisodeFiles(db, efs); err != nil {
+	if err := InsertEpisodeFiles(db, nullLogger(), efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
 	if err := DeleteAnimeFiles(db, aid); err != nil {
@@ -120,3 +122,16 @@ func TestDeleteAnimeFiles(t *testing.T) {
 		t.Errorf("GetAnimeFiles() = %#v; want %#v", got, want)
 	}
 }
+
+func nullLogger() *slog.Logger {
+	return slog.New(nullHandler{})
+}
+
+type nullHandler struct{}
+
+var _ slog.Handler = nullHandler{}
+
+func (nullHandler) Enabled(context.Context, slog.Level) bool  { return false }
+func (nullHandler) Handle(context.Context, slog.Record) error { return nil }
+func (h nullHandler) WithAttrs([]slog.Attr) slog.Handler      { return h }
+func (h nullHandler) WithGroup(string) slog.Handler           { return h }

@@ -55,7 +55,7 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		efs = append(efs, efs2...)
 	}
 	l.Info("start insert files")
-	if err = query.InsertEpisodeFiles(db, efs); err != nil {
+	if err = query.InsertEpisodeFiles(db, slog.Default(), efs); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
 	return nil
