@@ -27,12 +27,7 @@ type EpisodeFile struct {
 
 // InsertEpisodeFile inserts episode files into the database.
 func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
-	t, err := db.Begin()
-	if err != nil {
-		return fmt.Errorf("insert episode files: %w", err)
-	}
-	defer t.Rollback()
-	s, err := t.Prepare(`INSERT INTO episode_file (eid, path) VALUES (?, ?)`)
+	s, err := db.Prepare(`INSERT INTO episode_file (eid, path) VALUES (?, ?)`)
 	if err != nil {
 		return fmt.Errorf("insert episode files: %w", err)
 	}
@@ -40,9 +35,6 @@ func InsertEpisodeFiles(db *sql.DB, efs []EpisodeFile) error {
 		if _, err = s.Exec(ef.EID, ef.Path); err != nil {
 			return fmt.Errorf("insert episode files: %w", err)
 		}
-	}
-	if err := t.Commit(); err != nil {
-		return fmt.Errorf("insert episode files: %w", err)
 	}
 	return nil
 }
