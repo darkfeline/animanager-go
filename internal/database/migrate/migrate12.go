@@ -38,7 +38,7 @@ func migrate12(ctx context.Context, d *sql.DB) error {
 
 	_, err = t.Exec(`ALTER TABLE filehash ADD COLUMN filename TEXT`)
 	if err != nil {
-		return fmt.Errorf("CREATE TABLE filehash: %s", err)
+		return fmt.Errorf("ALTER TABLE filehash: %s", err)
 	}
 
 	return t.Commit()
