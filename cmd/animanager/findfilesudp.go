@@ -58,6 +58,11 @@ EXPERIMENTAL; DO NOT USE
 		if err != nil {
 			return err
 		}
+		rs, err := cfg.FileRegexps()
+		if err != nil {
+			return err
+		}
+		files = fileid.FilterFiles(rs, files)
 		log.Printf("Finished finding video files")
 
 		db, err := cfgv.OpenDB()

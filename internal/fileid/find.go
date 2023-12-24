@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 // FindVideoFiles returns a slice of paths of all video files found
@@ -57,6 +58,22 @@ func findVideoFilesSingle(path string) (result []string, err error) {
 		return nil, fmt.Errorf("find video files in %q: %s", path, err)
 	}
 	return result, nil
+}
+
+// FilterFiles returns only the files whose filenames match at least
+// one of the regexps.
+func FilterFiles(rs []*regexp.Regexp, paths []string) []string {
+	filtered := make([]string, 0, len(paths))
+	for _, p := range paths {
+		f := filepath.Base(p)
+		for _, r := range rs {
+			if r.MatchString(f) {
+				filtered = append(filtered, p)
+				break
+			}
+		}
+	}
+	return filtered
 }
 
 var videoExts = []string{".mkv", ".mp4", ".avi"}
