@@ -30,13 +30,12 @@ import (
 
 // Config is the configuration for Animanager.
 type Config struct {
-	DBPath        string      `toml:"database"`
-	WatchDirs     []string    `toml:"watch_dirs"`
-	Player        []string    `toml:"player"`
-	AniDB         AniDBConfig `toml:"anidb"`
-	ServerAddr    string      `toml:"server_addr"`
-	UDPServerAddr string      `toml:"udp_server_addr"`
-	FilePatterns  []string    `toml:"file_patterns"`
+	DBPath       string      `toml:"database"`
+	WatchDirs    []string    `toml:"watch_dirs"`
+	Player       []string    `toml:"player"`
+	AniDB        AniDBConfig `toml:"anidb"`
+	ServerAddr   string      `toml:"server_addr"`
+	FilePatterns []string    `toml:"file_patterns"`
 
 	regexps func() ([]*regexp.Regexp, error)
 }
@@ -60,9 +59,10 @@ func (c *Config) FileRegexps() ([]*regexp.Regexp, error) {
 
 // AniDBConfig is the configuration for AniDB (mainly UDP API).
 type AniDBConfig struct {
-	Username string `toml:"username"`
-	Password string `toml:"password"`
-	APIKey   string `toml:"api_key"`
+	UDPServerAddr string `toml:"udp_server_addr"`
+	Username      string `toml:"username"`
+	Password      string `toml:"password"`
+	APIKey        string `toml:"api_key"`
 }
 
 // DefaultPath is the default config file path.
@@ -77,9 +77,11 @@ func init() {
 }
 
 var defaultConfig = Config{
-	Player:        []string{"mpv", "--quiet"},
-	ServerAddr:    "127.0.0.1:1234",
-	UDPServerAddr: "api.anidb.net:9000",
+	Player:     []string{"mpv", "--quiet"},
+	ServerAddr: "127.0.0.1:1234",
+	AniDB: AniDBConfig{
+		UDPServerAddr: "api.anidb.net:9000",
+	},
 }
 
 func init() {

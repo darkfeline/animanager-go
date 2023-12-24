@@ -70,7 +70,7 @@ func (v ConfigVar) DialUDP(ctx context.Context) (*udp.Client, error) {
 		return nil, err
 	}
 	return udp.Dial(ctx, &udp.Config{
-		ServerAddr: cfg.UDPServerAddr,
+		ServerAddr: cfg.AniDB.UDPServerAddr,
 		UserInfo:   userInfo(cfg),
 		Logger:     slog.Default(),
 	})
