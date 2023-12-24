@@ -8,8 +8,9 @@
   AniDB UDP API.
 * Added `file_patterns` option to config, which filters the files to be
   matched by the `findfilesudp` command.
-* Added `anidb` section to config, with the options `username`,
-  `password`, and `api_key` to configure the AniDB UDP API.
+* Added `anidb` section to config, with the options
+  `udp_server_address`, `username`, `password`, and `api_key` to
+  configure the AniDB UDP API.
 
 ## 0.22.0 - 2023-12-02
 

@@ -34,7 +34,7 @@ type Config struct {
 	WatchDirs    []string    `toml:"watch_dirs"`
 	Player       []string    `toml:"player"`
 	AniDB        AniDBConfig `toml:"anidb"`
-	ServerAddr   string      `toml:"server_addr"`
+	ServerAddr   string      `toml:"server_address"`
 	FilePatterns []string    `toml:"file_patterns"`
 
 	regexps func() ([]*regexp.Regexp, error)
@@ -59,7 +59,7 @@ func (c *Config) FileRegexps() ([]*regexp.Regexp, error) {
 
 // AniDBConfig is the configuration for AniDB (mainly UDP API).
 type AniDBConfig struct {
-	UDPServerAddr string `toml:"udp_server_addr"`
+	UDPServerAddr string `toml:"udp_server_address"`
 	Username      string `toml:"username"`
 	Password      string `toml:"password"`
 	APIKey        string `toml:"api_key"`
