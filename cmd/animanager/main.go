@@ -115,6 +115,9 @@ func (c *command) flagSet() *flag.FlagSet {
 	return fs
 }
 
+// A handle wraps a [command] and holds state while running the
+// command.
+// This lets us not store state on the command struct directly.
 type handle struct {
 	cmd     *command
 	flagSet func() *flagSet
