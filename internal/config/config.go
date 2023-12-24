@@ -20,7 +20,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -96,7 +95,7 @@ func init() {
 func Load(p string) (*Config, error) {
 	// Copy default config.
 	c := defaultConfig
-	d, err := ioutil.ReadFile(p)
+	d, err := os.ReadFile(p)
 	if err != nil {
 		return &c, fmt.Errorf("load config: %s", err)
 	}

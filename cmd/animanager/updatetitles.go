@@ -20,7 +20,7 @@ package main
 import (
 	"compress/gzip"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"go.felesatra.moe/anidb"
@@ -51,7 +51,7 @@ var updateTitlesCmd = command{
 			return err
 		}
 		defer r.Close()
-		d, err := ioutil.ReadAll(r)
+		d, err := io.ReadAll(r)
 		if err != nil {
 			return err
 		}
