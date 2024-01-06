@@ -33,7 +33,6 @@ import (
 
 func main() {
 	log.SetPrefix("animanager: ")
-	log.SetFlags(log.LstdFlags | log.Lmsgprefix)
 	if len(os.Args) < 2 {
 		printUsage(os.Stdout)
 		os.Exit(0)
