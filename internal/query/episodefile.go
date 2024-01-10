@@ -15,9 +15,12 @@
 package query
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 type EpisodeFile struct {
@@ -43,30 +46,13 @@ func InsertEpisodeFiles(db *sql.DB, l *slog.Logger, efs []EpisodeFile) error {
 }
 
 // GetEpisodeFiles returns the EpisodeFiles for the episode.
-func GetEpisodeFiles(db *sql.DB, eid EID) (es []EpisodeFile, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("get episode %d files: %w", eid, err)
-		}
-	}()
-	r, err := db.Query(`
-SELECT eid, path
-FROM episode_file WHERE eid=?`, eid)
+func GetEpisodeFiles(db sqlc.DBTX, eid EID) ([]EpisodeFile, error) {
+	ctx := context.Background()
+	es, err := sqlc.New(db).GetEpisodeFiles(ctx, int64(eid))
 	if err != nil {
 		return nil, err
 	}
-	defer r.Close()
-	for r.Next() {
-		var e EpisodeFile
-		if err := r.Scan(&e.EID, &e.Path); err != nil {
-			return nil, err
-		}
-		es = append(es, e)
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	return es, nil
+	return convertMany(es, convertEpisodeFile), nil
 }
 
 // DeleteAllEpisodeFiles deletes all episode files.
@@ -76,4 +62,11 @@ func DeleteAllEpisodeFiles(db Executor) error {
 		return err
 	}
 	return nil
+}
+
+func convertEpisodeFile(e sqlc.EpisodeFile) EpisodeFile {
+	return EpisodeFile{
+		EID:  EID(e.Eid),
+		Path: e.Path,
+	}
 }
