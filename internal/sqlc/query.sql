@@ -31,3 +31,9 @@ SELECT SUM(length) FROM episode WHERE user_watched=1;
 
 -- name: GetEpisodeFiles :many
 SELECT * FROM episode_file WHERE eid=?;
+
+-- name: InsertWatching :exec
+INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
+ON CONFLICT (aid) DO UPDATE
+SET regexp=excluded.regexp, offset=excluded.offset
+WHERE aid=excluded.aid;

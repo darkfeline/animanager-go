@@ -1,9 +1,12 @@
 package query
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 type Watching struct {
@@ -18,21 +21,16 @@ func InsertWatching(db *sql.DB, w Watching) error {
 	if _, err := regexp.Compile(w.Regexp); err != nil {
 		return fmt.Errorf("insert watching %d: %w", w.AID, err)
 	}
-	t, err := db.Begin()
-	if err != nil {
-		return err
+	ctx := context.Background()
+	p := sqlc.InsertWatchingParams{
+		Aid:    nullint64(w.AID),
+		Regexp: w.Regexp,
+		Offset: int64(w.Offset),
 	}
-	defer t.Rollback()
-	_, err = t.Exec(`
-INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
-ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
-		w.AID, w.Regexp, w.Offset,
-		w.Regexp, w.Offset, w.AID,
-	)
-	if err != nil {
+	if err := sqlc.New(db).InsertWatching(ctx, p); err != nil {
 		return fmt.Errorf("insert watching %d: %w", w.AID, err)
 	}
-	return t.Commit()
+	return nil
 }
 
 // GetWatching gets the watching entry for an anime from the

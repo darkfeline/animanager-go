@@ -181,6 +181,24 @@ func (q *Queries) GetWatchedMinutes(ctx context.Context) (sql.NullFloat64, error
 	return sum, err
 }
 
+const insertWatching = `-- name: InsertWatching :exec
+INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
+ON CONFLICT (aid) DO UPDATE
+SET regexp=excluded.regexp, offset=excluded.offset
+WHERE aid=excluded.aid
+`
+
+type InsertWatchingParams struct {
+	Aid    sql.NullInt64
+	Regexp string
+	Offset int64
+}
+
+func (q *Queries) InsertWatching(ctx context.Context, arg InsertWatchingParams) error {
+	_, err := q.db.ExecContext(ctx, insertWatching, arg.Aid, arg.Regexp, arg.Offset)
+	return err
+}
+
 const updateEpisodeDone = `-- name: UpdateEpisodeDone :exec
 UPDATE episode SET user_watched = ? WHERE eid = ?
 `
