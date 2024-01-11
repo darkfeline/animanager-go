@@ -32,6 +32,7 @@ func InsertEpisodeFiles(db *sql.DB, l *slog.Logger, efs []EpisodeFile) error {
 	if err != nil {
 		return fmt.Errorf("insert episode files: %w", err)
 	}
+	defer s.Close()
 	for _, ef := range efs {
 		if _, err = s.Exec(ef.EID, ef.Path); err != nil {
 			// This is most likely due to EID foreign key error.
