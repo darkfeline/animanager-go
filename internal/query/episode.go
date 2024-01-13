@@ -19,20 +19,10 @@ package query
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"go.felesatra.moe/animanager/internal/sqlc"
 )
-
-// An Executor executes queries.
-// This interface is used for functions that can be used by both
-// sql.DB and sql.Tx.
-type Executor interface {
-	Query(string, ...any) (*sql.Rows, error)
-	QueryRow(string, ...any) *sql.Row
-	Exec(string, ...any) (sql.Result, error)
-}
 
 type Episode struct {
 	_table      struct{}    `sql:"episode"`
