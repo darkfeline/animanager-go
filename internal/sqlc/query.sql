@@ -40,3 +40,12 @@ WHERE aid=excluded.aid;
 
 -- name: GetWatching :one
 SELECT * FROM watching WHERE aid = ?;
+
+-- name: GetWatchingCount :one
+SELECT COUNT(*) FROM watching;
+
+-- name: GetAllWatching :many
+SELECT * FROM watching;
+
+-- name: DeleteWatching :exec
+DELETE FROM watching WHERE aid = ?;

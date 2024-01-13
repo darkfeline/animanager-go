@@ -32,6 +32,15 @@ func (q *Queries) DeleteEpisode(ctx context.Context, eid sql.NullInt64) error {
 	return err
 }
 
+const deleteWatching = `-- name: DeleteWatching :exec
+DELETE FROM watching WHERE aid = ?
+`
+
+func (q *Queries) DeleteWatching(ctx context.Context, aid sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteWatching, aid)
+	return err
+}
+
 const getAllEpisodes = `-- name: GetAllEpisodes :many
 SELECT eid, aid, type, number, title, length, user_watched FROM episode
 `
@@ -54,6 +63,33 @@ func (q *Queries) GetAllEpisodes(ctx context.Context) ([]Episode, error) {
 			&i.Length,
 			&i.UserWatched,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllWatching = `-- name: GetAllWatching :many
+SELECT aid, "regexp", "offset" FROM watching
+`
+
+func (q *Queries) GetAllWatching(ctx context.Context) ([]Watching, error) {
+	rows, err := q.db.QueryContext(ctx, getAllWatching)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Watching
+	for rows.Next() {
+		var i Watching
+		if err := rows.Scan(&i.Aid, &i.Regexp, &i.Offset); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -190,6 +226,17 @@ func (q *Queries) GetWatching(ctx context.Context, aid sql.NullInt64) (Watching,
 	var i Watching
 	err := row.Scan(&i.Aid, &i.Regexp, &i.Offset)
 	return i, err
+}
+
+const getWatchingCount = `-- name: GetWatchingCount :one
+SELECT COUNT(*) FROM watching
+`
+
+func (q *Queries) GetWatchingCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getWatchingCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const insertWatching = `-- name: InsertWatching :exec

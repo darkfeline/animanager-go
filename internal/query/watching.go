@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"regexp"
 
@@ -17,7 +16,7 @@ type Watching struct {
 }
 
 // InsertWatching inserts or updates a watching entry into the database.
-func InsertWatching(db *sql.DB, w Watching) error {
+func InsertWatching(db sqlc.DBTX, w Watching) error {
 	if _, err := regexp.Compile(w.Regexp); err != nil {
 		return fmt.Errorf("insert watching %d: %w", w.AID, err)
 	}
@@ -45,39 +44,33 @@ func GetWatching(db sqlc.DBTX, aid AID) (Watching, error) {
 }
 
 // GetWatchingCount returns the number of watching rows.
-func GetWatchingCount(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT COUNT(*) FROM watching`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetWatchingCount(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	r, err := sqlc.New(db).GetWatchingCount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetWatchingCount: %s", err)
+	}
+	return int(r), nil
 }
 
 // GetAllWatching gets all watching entries.
-func GetAllWatching(db *sql.DB) ([]Watching, error) {
-	r, err := db.Query(`SELECT aid, regexp, offset FROM watching`)
+func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
+	ctx := context.Background()
+	w, err := sqlc.New(db).GetAllWatching(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAllWatching: %s", err)
 	}
-	defer r.Close()
-	var result []Watching
-	for r.Next() {
-		var w Watching
-		if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-			return nil, err
-		}
-		result = append(result, w)
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	return result, nil
+	return convertMany(w, convertWatching), nil
 }
 
 // DeleteWatching deletes the watching entry for an anime from the
 // database.
-func DeleteWatching(db *sql.DB, aid AID) error {
-	_, err := db.Exec(`DELETE FROM watching WHERE aid=?`, aid)
-	return err
+func DeleteWatching(db sqlc.DBTX, aid AID) error {
+	ctx := context.Background()
+	if err := sqlc.New(db).DeleteWatching(ctx, nullint64(aid)); err != nil {
+		return fmt.Errorf("DeleteWatching %d: %s", aid, err)
+	}
+	return nil
 }
 
 func convertWatching(w sqlc.Watching) Watching {
