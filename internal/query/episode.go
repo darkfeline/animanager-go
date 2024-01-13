@@ -53,11 +53,6 @@ func (e Episode) Key() EpisodeKey {
 	}
 }
 
-// A Scanner supports both sql.Row and sql.Rows.
-type Scanner interface {
-	Scan(dest ...interface{}) error
-}
-
 // EpisodeKey represents the unique key for an Episode.  This is
 // separate from ID because SQLite treats numeric row IDs specially.
 type EpisodeKey struct {
