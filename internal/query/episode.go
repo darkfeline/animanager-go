@@ -93,7 +93,7 @@ func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("GetWatchedMinutes: %s", err)
 	}
-	// Sum should be int.
+	// BUG: GetWatchedMinutes sqlc query returns float instead of int.
 	// https://github.com/sqlc-dev/sqlc/issues/3122
 	return int(r.Float64), err
 }
@@ -101,7 +101,7 @@ func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 // GetEpisode gets the episode from the database.
 func GetEpisode(db sqlc.DBTX, eid EID) (*Episode, error) {
 	ctx := context.Background()
-	e, err := sqlc.New(db).GetEpisode(ctx, nullint64(eid))
+	e, err := sqlc.New(db).GetEpisode(ctx, int64(eid))
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisode %d: %s", eid, err)
 	}
@@ -112,7 +112,7 @@ func GetEpisode(db sqlc.DBTX, eid EID) (*Episode, error) {
 // DeleteEpisode deletes the episode from the database.
 func DeleteEpisode(db sqlc.DBTX, eid EID) error {
 	ctx := context.Background()
-	err := sqlc.New(db).DeleteEpisode(ctx, nullint64(eid))
+	err := sqlc.New(db).DeleteEpisode(ctx, int64(eid))
 	if err != nil {
 		return fmt.Errorf("DeleteEpisode %v: %w", eid, err)
 	}
@@ -157,7 +157,7 @@ func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
 // UpdateEpisodeDone updates the episode's done status.
 func UpdateEpisodeDone(db sqlc.DBTX, eid EID, done bool) error {
 	p := sqlc.UpdateEpisodeDoneParams{
-		Eid: nullint64(eid),
+		Eid: int64(eid),
 	}
 	if done {
 		p.UserWatched = 1
@@ -174,7 +174,7 @@ func UpdateEpisodeDone(db sqlc.DBTX, eid EID, done bool) error {
 
 func convertEpisode(e sqlc.Episode) Episode {
 	e2 := Episode{
-		EID:         EID(e.Eid.Int64),
+		EID:         EID(e.Eid),
 		AID:         AID(e.Aid),
 		Type:        EpisodeType(e.Type),
 		Number:      int(e.Number),
@@ -194,10 +194,4 @@ func convertMany[T, T2 any](v []T, f func(T) T2) []T2 {
 		v2[i] = f(v)
 	}
 	return v2
-}
-
-// nullint64 converts various types to nullable.
-// Needed due to https://github.com/sqlc-dev/sqlc/issues/3119
-func nullint64[T ~int](v T) sql.NullInt64 {
-	return sql.NullInt64{Int64: int64(v), Valid: true}
 }

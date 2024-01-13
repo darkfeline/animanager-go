@@ -27,7 +27,7 @@ const deleteEpisode = `-- name: DeleteEpisode :exec
 DELETE FROM episode WHERE eid = ?
 `
 
-func (q *Queries) DeleteEpisode(ctx context.Context, eid sql.NullInt64) error {
+func (q *Queries) DeleteEpisode(ctx context.Context, eid int64) error {
 	_, err := q.db.ExecContext(ctx, deleteEpisode, eid)
 	return err
 }
@@ -36,7 +36,7 @@ const deleteWatching = `-- name: DeleteWatching :exec
 DELETE FROM watching WHERE aid = ?
 `
 
-func (q *Queries) DeleteWatching(ctx context.Context, aid sql.NullInt64) error {
+func (q *Queries) DeleteWatching(ctx context.Context, aid int64) error {
 	_, err := q.db.ExecContext(ctx, deleteWatching, aid)
 	return err
 }
@@ -45,15 +45,15 @@ const getAIDs = `-- name: GetAIDs :many
 SELECT aid FROM anime
 `
 
-func (q *Queries) GetAIDs(ctx context.Context) ([]sql.NullInt64, error) {
+func (q *Queries) GetAIDs(ctx context.Context) ([]int64, error) {
 	rows, err := q.db.QueryContext(ctx, getAIDs)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []sql.NullInt64
+	var items []int64
 	for rows.Next() {
-		var aid sql.NullInt64
+		var aid int64
 		if err := rows.Scan(&aid); err != nil {
 			return nil, err
 		}
@@ -168,7 +168,7 @@ const getAnime = `-- name: GetAnime :one
 SELECT aid, title, type, episodecount, startdate, enddate FROM anime WHERE aid = ?
 `
 
-func (q *Queries) GetAnime(ctx context.Context, aid sql.NullInt64) (Anime, error) {
+func (q *Queries) GetAnime(ctx context.Context, aid int64) (Anime, error) {
 	row := q.db.QueryRowContext(ctx, getAnime, aid)
 	var i Anime
 	err := row.Scan(
@@ -197,7 +197,7 @@ const getEpisode = `-- name: GetEpisode :one
 SELECT eid, aid, type, number, title, length, user_watched FROM episode WHERE eid = ? LIMIT 1
 `
 
-func (q *Queries) GetEpisode(ctx context.Context, eid sql.NullInt64) (Episode, error) {
+func (q *Queries) GetEpisode(ctx context.Context, eid int64) (Episode, error) {
 	row := q.db.QueryRowContext(ctx, getEpisode, eid)
 	var i Episode
 	err := row.Scan(
@@ -311,7 +311,7 @@ const getWatching = `-- name: GetWatching :one
 SELECT aid, "regexp", "offset" FROM watching WHERE aid = ?
 `
 
-func (q *Queries) GetWatching(ctx context.Context, aid sql.NullInt64) (Watching, error) {
+func (q *Queries) GetWatching(ctx context.Context, aid int64) (Watching, error) {
 	row := q.db.QueryRowContext(ctx, getWatching, aid)
 	var i Watching
 	err := row.Scan(&i.Aid, &i.Regexp, &i.Offset)
@@ -339,7 +339,7 @@ WHERE eid=excluded.eid
 `
 
 type InsertEpisodeParams struct {
-	Eid    sql.NullInt64
+	Eid    int64
 	Aid    int64
 	Type   int64
 	Number int64
@@ -367,7 +367,7 @@ WHERE aid=excluded.aid
 `
 
 type InsertWatchingParams struct {
-	Aid    sql.NullInt64
+	Aid    int64
 	Regexp string
 	Offset int64
 }
@@ -383,7 +383,7 @@ UPDATE episode SET user_watched = ? WHERE eid = ?
 
 type UpdateEpisodeDoneParams struct {
 	UserWatched int64
-	Eid         sql.NullInt64
+	Eid         int64
 }
 
 func (q *Queries) UpdateEpisodeDone(ctx context.Context, arg UpdateEpisodeDoneParams) error {

@@ -9,7 +9,7 @@ import (
 )
 
 type Anime struct {
-	Aid          sql.NullInt64
+	Aid          int64
 	Title        string
 	Type         string
 	Episodecount int64
@@ -18,7 +18,7 @@ type Anime struct {
 }
 
 type Episode struct {
-	Eid         sql.NullInt64
+	Eid         int64
 	Aid         int64
 	Type        int64
 	Number      int64
@@ -28,7 +28,7 @@ type Episode struct {
 }
 
 type EpisodeFile struct {
-	ID   sql.NullInt64
+	ID   int64
 	Eid  int64
 	Path string
 }
@@ -42,7 +42,7 @@ type Filehash struct {
 }
 
 type Watching struct {
-	Aid    sql.NullInt64
+	Aid    int64
 	Regexp string
 	Offset int64
 }
