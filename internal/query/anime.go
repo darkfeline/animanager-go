@@ -114,27 +114,18 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 		return err
 	}
 	defer t.Rollback()
-	var startDate any
-	var endDate any
-	startDate, err = date.Parse(a.StartDate)
-	if err != nil {
-		startDate = nil
-	}
-	endDate, err = date.Parse(a.EndDate)
-	if err != nil {
-		endDate = nil
-	}
 	title := mainTitle(a.Titles)
-	_, err = t.Exec(`
-INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
-VALUES (?, ?, ?, ?, ?, ?)
-ON CONFLICT (aid) DO UPDATE SET
-title=excluded.title, type=excluded.type, episodecount=excluded.episodecount,
-startdate=excluded.startdate, enddate=excluded.enddate
-WHERE aid=excluded.aid`,
-		a.AID, title, a.Type, a.EpisodeCount, startDate, endDate,
-	)
-	if err != nil {
+	ctx := context.Background()
+	p := sqlc.InsertAnimeParams{
+		Aid:          int64(a.AID),
+		Title:        title,
+		Type:         a.Type,
+		Episodecount: int64(a.EpisodeCount),
+		Startdate:    parseDate(a.StartDate),
+		Enddate:      parseDate(a.EndDate),
+	}
+
+	if err := sqlc.New(db).InsertAnime(ctx, p); err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	em, err := GetEpisodesMap(t, AID(a.AID))
@@ -214,5 +205,17 @@ func convertAnime(a sqlc.Anime) Anime {
 		EpisodeCount:  int(a.Episodecount),
 		NullStartDate: a.Startdate,
 		NullEndDate:   a.Enddate,
+	}
+}
+
+// parseDate parses a date into a Unix timestamp or NULL.
+func parseDate(s string) sql.NullInt64 {
+	d, err := date.Parse(s)
+	if err != nil {
+		return sql.NullInt64{}
+	}
+	return sql.NullInt64{
+		Int64: int64(d),
+		Valid: true,
 	}
 }

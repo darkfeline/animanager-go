@@ -1,3 +1,11 @@
+-- name: InsertAnime :exec
+INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT (aid) DO UPDATE SET
+title=excluded.title, type=excluded.type, episodecount=excluded.episodecount,
+startdate=excluded.startdate, enddate=excluded.enddate
+WHERE aid=excluded.aid;
+
 -- name: GetAnimeCount :one
 SELECT COUNT(*) FROM anime;
 

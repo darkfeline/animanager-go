@@ -351,6 +351,36 @@ func (q *Queries) GetWatchingCount(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const insertAnime = `-- name: InsertAnime :exec
+INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT (aid) DO UPDATE SET
+title=excluded.title, type=excluded.type, episodecount=excluded.episodecount,
+startdate=excluded.startdate, enddate=excluded.enddate
+WHERE aid=excluded.aid
+`
+
+type InsertAnimeParams struct {
+	Aid          int64
+	Title        string
+	Type         string
+	Episodecount int64
+	Startdate    sql.NullInt64
+	Enddate      sql.NullInt64
+}
+
+func (q *Queries) InsertAnime(ctx context.Context, arg InsertAnimeParams) error {
+	_, err := q.db.ExecContext(ctx, insertAnime,
+		arg.Aid,
+		arg.Title,
+		arg.Type,
+		arg.Episodecount,
+		arg.Startdate,
+		arg.Enddate,
+	)
+	return err
+}
+
 const insertEpisode = `-- name: InsertEpisode :exec
 INSERT INTO episode (eid, aid, type, number, title, length)
 VALUES (?, ?, ?, ?, ?, ?)
