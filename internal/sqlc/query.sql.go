@@ -285,6 +285,28 @@ func (q *Queries) GetEpisodes(ctx context.Context, aid int64) ([]Episode, error)
 	return items, nil
 }
 
+const getFileHash = `-- name: GetFileHash :one
+SELECT size, hash, eid, aid, filename FROM filehash WHERE size=? AND hash=?
+`
+
+type GetFileHashParams struct {
+	Size int64
+	Hash string
+}
+
+func (q *Queries) GetFileHash(ctx context.Context, arg GetFileHashParams) (Filehash, error) {
+	row := q.db.QueryRowContext(ctx, getFileHash, arg.Size, arg.Hash)
+	var i Filehash
+	err := row.Scan(
+		&i.Size,
+		&i.Hash,
+		&i.Eid,
+		&i.Aid,
+		&i.Filename,
+	)
+	return i, err
+}
+
 const getWatchedEpisodeCount = `-- name: GetWatchedEpisodeCount :one
 SELECT COUNT(*) FROM episode WHERE user_watched=1
 `

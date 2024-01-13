@@ -19,7 +19,6 @@ package query
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"go.felesatra.moe/animanager/internal/sqlc"
@@ -67,13 +66,26 @@ func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
 	return sqlc.New(db).InsertFileHash(ctx, p)
 }
 
-func GetFileHash(db *sql.DB, size int64, hash Hash) (*FileHash, error) {
-	r := db.QueryRow(`
-SELECT size, hash, eid, aid, filename FROM filehash WHERE size=? AND hash=?`,
-		size, hash)
-	var fh FileHash
-	if err := r.Scan(&fh.Size, &fh.Hash, &fh.EID, &fh.AID, &fh.Filename); err != nil {
-		return nil, err
+func GetFileHash(db sqlc.DBTX, size int64, hash Hash) (*FileHash, error) {
+	ctx := context.Background()
+	p := sqlc.GetFileHashParams{
+		Size: size,
+		Hash: string(hash),
 	}
-	return &fh, nil
+	fh, err := sqlc.New(db).GetFileHash(ctx, p)
+	if err != nil {
+		return nil, fmt.Errorf("GetFileHash %d %q: %s", size, hash, err)
+	}
+	fh2 := convertFileHash(fh)
+	return &fh2, nil
+}
+
+func convertFileHash(v sqlc.Filehash) FileHash {
+	return FileHash{
+		Size:     v.Size,
+		Hash:     Hash(v.Hash),
+		EID:      EID(v.Eid.Int64),
+		AID:      AID(v.Aid.Int64),
+		Filename: string(v.Filename.String),
+	}
 }

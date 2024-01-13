@@ -59,6 +59,9 @@ ON CONFLICT (size, hash) DO UPDATE SET
 eid=excluded.eid, aid=excluded.aid, filename=excluded.filename
 WHERE size=excluded.size AND hash=excluded.hash;
 
+-- name: GetFileHash :one
+SELECT * FROM filehash WHERE size=? AND hash=?;
+
 -- name: InsertWatching :exec
 INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE
