@@ -56,12 +56,9 @@ func GetEpisodeFiles(db sqlc.DBTX, eid EID) ([]EpisodeFile, error) {
 }
 
 // DeleteAllEpisodeFiles deletes all episode files.
-func DeleteAllEpisodeFiles(db Executor) error {
-	_, err := db.Exec(`DELETE FROM episode_file`)
-	if err != nil {
-		return err
-	}
-	return nil
+func DeleteAllEpisodeFiles(db sqlc.DBTX) error {
+	ctx := context.Background()
+	return sqlc.New(db).DeleteAllEpisodeFiles(ctx)
 }
 
 func convertEpisodeFile(e sqlc.EpisodeFile) EpisodeFile {

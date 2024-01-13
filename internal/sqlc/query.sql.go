@@ -10,6 +10,15 @@ import (
 	"database/sql"
 )
 
+const deleteAllEpisodeFiles = `-- name: DeleteAllEpisodeFiles :exec
+DELETE FROM episode_file
+`
+
+func (q *Queries) DeleteAllEpisodeFiles(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllEpisodeFiles)
+	return err
+}
+
 const deleteAnimeFiles = `-- name: DeleteAnimeFiles :exec
 DELETE FROM episode_file WHERE ROWID IN (
     SELECT episode_file.ROWID FROM episode_file
