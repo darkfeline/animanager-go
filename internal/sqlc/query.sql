@@ -52,6 +52,13 @@ SELECT SUM(length) FROM episode WHERE user_watched=1;
 -- name: GetEpisodeFiles :many
 SELECT * FROM episode_file WHERE eid=?;
 
+-- name: InsertFileHash :exec
+INSERT INTO filehash (size, hash, eid, aid, filename)
+VALUES (?, ?, ?, ?, ?)
+ON CONFLICT (size, hash) DO UPDATE SET
+eid=excluded.eid, aid=excluded.aid, filename=excluded.filename
+WHERE size=excluded.size AND hash=excluded.hash;
+
 -- name: InsertWatching :exec
 INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE

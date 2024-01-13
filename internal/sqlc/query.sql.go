@@ -359,6 +359,33 @@ func (q *Queries) InsertEpisode(ctx context.Context, arg InsertEpisodeParams) er
 	return err
 }
 
+const insertFileHash = `-- name: InsertFileHash :exec
+INSERT INTO filehash (size, hash, eid, aid, filename)
+VALUES (?, ?, ?, ?, ?)
+ON CONFLICT (size, hash) DO UPDATE SET
+eid=excluded.eid, aid=excluded.aid, filename=excluded.filename
+WHERE size=excluded.size AND hash=excluded.hash
+`
+
+type InsertFileHashParams struct {
+	Size     int64
+	Hash     string
+	Eid      sql.NullInt64
+	Aid      sql.NullInt64
+	Filename sql.NullString
+}
+
+func (q *Queries) InsertFileHash(ctx context.Context, arg InsertFileHashParams) error {
+	_, err := q.db.ExecContext(ctx, insertFileHash,
+		arg.Size,
+		arg.Hash,
+		arg.Eid,
+		arg.Aid,
+		arg.Filename,
+	)
+	return err
+}
+
 const insertWatching = `-- name: InsertWatching :exec
 INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE

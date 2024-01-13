@@ -18,8 +18,11 @@
 package query
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // A Hash is an eD2k formatted as a hex string.
@@ -43,15 +46,25 @@ type FileHash struct {
 	Filename string   `sql:"filename"`
 }
 
-func InsertFileHash(db *sql.DB, fh *FileHash) error {
-	_, err := db.Exec(`
-INSERT INTO filehash (size, hash, eid, aid, filename)
-VALUES (?, ?, ?, ?, ?)
-ON CONFLICT (size, hash) DO UPDATE SET
-eid=excluded.eid, aid=excluded.aid, filename=excluded.filename
-WHERE size=excluded.size AND hash=excluded.hash`,
-		fh.Size, fh.Hash, fh.EID, fh.AID, fh.Filename)
-	return err
+func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
+	ctx := context.Background()
+	p := sqlc.InsertFileHashParams{
+		Size: fh.Size,
+		Hash: string(fh.Hash),
+	}
+	if fh.EID != 0 {
+		p.Eid.Int64 = int64(fh.EID)
+		p.Eid.Valid = true
+	}
+	if fh.AID != 0 {
+		p.Aid.Int64 = int64(fh.AID)
+		p.Aid.Valid = true
+	}
+	if fh.Filename != "" {
+		p.Filename.String = fh.Filename
+		p.Filename.Valid = true
+	}
+	return sqlc.New(db).InsertFileHash(ctx, p)
 }
 
 func GetFileHash(db *sql.DB, size int64, hash Hash) (*FileHash, error) {
