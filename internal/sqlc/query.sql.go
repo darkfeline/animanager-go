@@ -41,6 +41,33 @@ func (q *Queries) DeleteWatching(ctx context.Context, aid sql.NullInt64) error {
 	return err
 }
 
+const getAIDs = `-- name: GetAIDs :many
+SELECT aid FROM anime
+`
+
+func (q *Queries) GetAIDs(ctx context.Context) ([]sql.NullInt64, error) {
+	rows, err := q.db.QueryContext(ctx, getAIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []sql.NullInt64
+	for rows.Next() {
+		var aid sql.NullInt64
+		if err := rows.Scan(&aid); err != nil {
+			return nil, err
+		}
+		items = append(items, aid)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllEpisodes = `-- name: GetAllEpisodes :many
 SELECT eid, aid, type, number, title, length, user_watched FROM episode
 `
@@ -101,6 +128,17 @@ func (q *Queries) GetAllWatching(ctx context.Context) ([]Watching, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getAnimeCount = `-- name: GetAnimeCount :one
+SELECT COUNT(*) FROM anime
+`
+
+func (q *Queries) GetAnimeCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getAnimeCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const getEpisode = `-- name: GetEpisode :one

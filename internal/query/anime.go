@@ -18,6 +18,7 @@
 package query
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -25,6 +26,7 @@ import (
 	"go.felesatra.moe/anidb"
 
 	"go.felesatra.moe/animanager/internal/date"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // Anime values correspond to rows in the anime table.
@@ -65,32 +67,23 @@ func (a Anime) EndDate() date.Date {
 type AnimeType string
 
 // GetAnimeCount returns the number of anime rows.
-func GetAnimeCount(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT COUNT(*) FROM anime`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetAnimeCount(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	n, err := sqlc.New(db).GetAnimeCount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetAnimeCount: %s", err)
+	}
+	return int(n), nil
 }
 
 // GetAIDs returns all AIDs.
-func GetAIDs(db *sql.DB) ([]AID, error) {
-	r, err := db.Query(`SELECT aid FROM anime`)
+func GetAIDs(db sqlc.DBTX) ([]AID, error) {
+	ctx := context.Background()
+	aids, err := sqlc.New(db).GetAIDs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAIDs: %s", err)
 	}
-	defer r.Close()
-	var aids []AID
-	for r.Next() {
-		var aid AID
-		if err := r.Scan(&aid); err != nil {
-			return nil, err
-		}
-		aids = append(aids, aid)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return aids, nil
+	return convertMany(aids, func(v sql.NullInt64) AID { return AID(v.Int64) }), nil
 }
 
 // GetAnime gets the anime from the database.

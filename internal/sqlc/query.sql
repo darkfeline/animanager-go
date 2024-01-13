@@ -1,3 +1,9 @@
+-- name: GetAnimeCount :one
+SELECT COUNT(*) FROM anime;
+
+-- name: GetAIDs :many
+SELECT aid FROM anime;
+
 -- name: DeleteAnimeFiles :exec
 DELETE FROM episode_file WHERE ROWID IN (
     SELECT episode_file.ROWID FROM episode_file
