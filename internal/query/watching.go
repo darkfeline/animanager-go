@@ -1,9 +1,11 @@
 package query
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"regexp"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 type Watching struct {
@@ -14,70 +16,67 @@ type Watching struct {
 }
 
 // InsertWatching inserts or updates a watching entry into the database.
-func InsertWatching(db *sql.DB, w Watching) error {
+func InsertWatching(db sqlc.DBTX, w Watching) error {
 	if _, err := regexp.Compile(w.Regexp); err != nil {
 		return fmt.Errorf("insert watching %d: %w", w.AID, err)
 	}
-	t, err := db.Begin()
-	if err != nil {
-		return err
+	ctx := context.Background()
+	p := sqlc.InsertWatchingParams{
+		Aid:    int64(w.AID),
+		Regexp: w.Regexp,
+		Offset: int64(w.Offset),
 	}
-	defer t.Rollback()
-	_, err = t.Exec(`
-INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
-ON CONFLICT (aid) DO UPDATE SET regexp=?, offset=? WHERE aid=?`,
-		w.AID, w.Regexp, w.Offset,
-		w.Regexp, w.Offset, w.AID,
-	)
-	if err != nil {
+	if err := sqlc.New(db).InsertWatching(ctx, p); err != nil {
 		return fmt.Errorf("insert watching %d: %w", w.AID, err)
 	}
-	return t.Commit()
+	return nil
 }
 
 // GetWatching gets the watching entry for an anime from the
 // database.
-func GetWatching(db *sql.DB, aid AID) (Watching, error) {
-	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
-	var w Watching
-	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-		return w, fmt.Errorf("GetWatching %d: %w", aid, err)
+func GetWatching(db sqlc.DBTX, aid AID) (Watching, error) {
+	ctx := context.Background()
+	w, err := sqlc.New(db).GetWatching(ctx, int64(aid))
+	if err != nil {
+		return Watching{}, fmt.Errorf("GetWatching %d: %w", aid, err)
 	}
-	return w, nil
+	return convertWatching(w), nil
 }
 
 // GetWatchingCount returns the number of watching rows.
-func GetWatchingCount(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT COUNT(*) FROM watching`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetWatchingCount(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	r, err := sqlc.New(db).GetWatchingCount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetWatchingCount: %s", err)
+	}
+	return int(r), nil
 }
 
 // GetAllWatching gets all watching entries.
-func GetAllWatching(db *sql.DB) ([]Watching, error) {
-	r, err := db.Query(`SELECT aid, regexp, offset FROM watching`)
+func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
+	ctx := context.Background()
+	w, err := sqlc.New(db).GetAllWatching(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAllWatching: %s", err)
 	}
-	defer r.Close()
-	var result []Watching
-	for r.Next() {
-		var w Watching
-		if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-			return nil, err
-		}
-		result = append(result, w)
-	}
-	if r.Err() != nil {
-		return nil, r.Err()
-	}
-	return result, nil
+	return smap(w, convertWatching), nil
 }
 
 // DeleteWatching deletes the watching entry for an anime from the
 // database.
-func DeleteWatching(db *sql.DB, aid AID) error {
-	_, err := db.Exec(`DELETE FROM watching WHERE aid=?`, aid)
-	return err
+func DeleteWatching(db sqlc.DBTX, aid AID) error {
+	ctx := context.Background()
+	if err := sqlc.New(db).DeleteWatching(ctx, int64(aid)); err != nil {
+		return fmt.Errorf("DeleteWatching %d: %s", aid, err)
+	}
+	return nil
+}
+
+func convertWatching(w sqlc.Watching) Watching {
+	return Watching{
+		AID:    AID(w.Aid),
+		Regexp: w.Regexp,
+		Offset: int(w.Offset),
+	}
 }

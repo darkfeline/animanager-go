@@ -18,18 +18,11 @@
 package query
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
-)
 
-// An Executor executes queries.
-// This interface is used for functions that can be used by both
-// sql.DB and sql.Tx.
-type Executor interface {
-	Query(string, ...any) (*sql.Rows, error)
-	QueryRow(string, ...any) *sql.Row
-	Exec(string, ...any) (sql.Result, error)
-}
+	"go.felesatra.moe/animanager/internal/sqlc"
+)
 
 type Episode struct {
 	_table      struct{}    `sql:"episode"`
@@ -50,18 +43,6 @@ func (e Episode) Key() EpisodeKey {
 	}
 }
 
-const selectEpisodeFields = `eid, aid, type, number, title, length, user_watched`
-
-// A Scanner supports both sql.Row and sql.Rows.
-type Scanner interface {
-	Scan(dest ...interface{}) error
-}
-
-func scanEpisode(r Scanner, e *Episode) error {
-	return r.Scan(&e.EID, &e.AID, &e.Type, &e.Number,
-		&e.Title, &e.Length, &e.UserWatched)
-}
-
 // EpisodeKey represents the unique key for an Episode.  This is
 // separate from ID because SQLite treats numeric row IDs specially.
 type EpisodeKey struct {
@@ -71,77 +52,74 @@ type EpisodeKey struct {
 }
 
 // GetEpisodeCount returns the number of episode rows.
-func GetEpisodeCount(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT COUNT(*) FROM episode`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetEpisodeCount(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	r, err := sqlc.New(db).GetEpisodeCount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetEpisodeCount: %s", err)
+	}
+	return int(r), nil
 }
 
 // GetWatchedEpisodeCount returns the number of watched episodes.
-func GetWatchedEpisodeCount(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT COUNT(*) FROM episode where user_watched=1`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetWatchedEpisodeCount(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	r, err := sqlc.New(db).GetWatchedEpisodeCount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetWatchedEpisodeCount: %s", err)
+	}
+	return int(r), nil
 }
 
 // GetWatchedMinutes returns the number of minutes watched.
-func GetWatchedMinutes(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT SUM(length) FROM episode where user_watched=1`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	r, err := sqlc.New(db).GetWatchedMinutes(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetWatchedMinutes: %s", err)
+	}
+	// BUG: GetWatchedMinutes sqlc query returns float instead of int.
+	// https://github.com/sqlc-dev/sqlc/issues/3122
+	return int(r.Float64), err
 }
 
 // GetEpisode gets the episode from the database.
-func GetEpisode(db *sql.DB, eid EID) (*Episode, error) {
-	r := db.QueryRow(`
-SELECT `+selectEpisodeFields+`
-FROM episode WHERE eid=?`, eid)
-	var e Episode
-	if err := scanEpisode(r, &e); err != nil {
-		return nil, err
+func GetEpisode(db sqlc.DBTX, eid EID) (*Episode, error) {
+	ctx := context.Background()
+	e, err := sqlc.New(db).GetEpisode(ctx, int64(eid))
+	if err != nil {
+		return nil, fmt.Errorf("GetEpisode %d: %s", eid, err)
 	}
-	return &e, nil
+	e2 := convertEpisode(e)
+	return &e2, nil
 }
 
 // DeleteEpisode deletes the episode from the database.
-func DeleteEpisode(db Executor, eid EID) error {
-	if _, err := db.Exec(`DELETE FROM episode WHERE eid=?`, eid); err != nil {
-		return fmt.Errorf("delete episode %v: %w", eid, err)
+func DeleteEpisode(db sqlc.DBTX, eid EID) error {
+	ctx := context.Background()
+	err := sqlc.New(db).DeleteEpisode(ctx, int64(eid))
+	if err != nil {
+		return fmt.Errorf("DeleteEpisode %v: %w", eid, err)
 	}
 	return nil
 }
 
 // GetEpisodes gets the episodes for an anime from the database.
-func GetEpisodes(db Executor, aid AID) ([]Episode, error) {
-	r, err := db.Query(`
-SELECT `+selectEpisodeFields+`
-FROM episode WHERE aid=? ORDER BY type, number`, aid)
+func GetEpisodes(db sqlc.DBTX, aid AID) ([]Episode, error) {
+	ctx := context.Background()
+	e, err := sqlc.New(db).GetEpisodes(ctx, int64(aid))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetEpisodes %d: %s", aid, err)
 	}
-	defer r.Close()
-	var es []Episode
-	for r.Next() {
-		var e Episode
-		if err := scanEpisode(r, &e); err != nil {
-			return nil, err
-		}
-		es = append(es, e)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return es, nil
+	e2 := smap(e, convertEpisode)
+	return e2, nil
 }
 
 // GetEpisodesMap returns a map of the episodes for an anime.
-func GetEpisodesMap(db Executor, aid AID) (map[EID]*Episode, error) {
+func GetEpisodesMap(db sqlc.DBTX, aid AID) (map[EID]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
-		return nil, fmt.Errorf("get episodes map %v: %w", aid, err)
+		return nil, fmt.Errorf("GetEpisodesMap %v: %w", aid, err)
 	}
 	m := make(map[EID]*Episode, len(es))
 	for i, e := range es {
@@ -151,46 +129,54 @@ func GetEpisodesMap(db Executor, aid AID) (map[EID]*Episode, error) {
 }
 
 // GetAllEpisodes gets all episodes from the database.
-func GetAllEpisodes(db *sql.DB) ([]Episode, error) {
-	r, err := db.Query(`SELECT ` + selectEpisodeFields + ` FROM episode`)
+func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
+	ctx := context.Background()
+	e, err := sqlc.New(db).GetAllEpisodes(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAllEpisodes: %s", err)
 	}
-	defer r.Close()
-	var es []Episode
-	for r.Next() {
-		var e Episode
-		if err := scanEpisode(r, &e); err != nil {
-			return nil, err
-		}
-		es = append(es, e)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return es, nil
+	e2 := smap(e, convertEpisode)
+	return e2, nil
 }
 
 // UpdateEpisodeDone updates the episode's done status.
-func UpdateEpisodeDone(db *sql.DB, eid EID, done bool) error {
-	var watched uint8
+func UpdateEpisodeDone(db sqlc.DBTX, eid EID, done bool) error {
+	p := sqlc.UpdateEpisodeDoneParams{
+		Eid: int64(eid),
+	}
 	if done {
-		watched = 1
+		p.UserWatched = 1
 	} else {
-		watched = 0
+		p.UserWatched = 0
 	}
-	t, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer t.Rollback()
-	_, err = t.Exec(`UPDATE episode SET user_watched=? WHERE eid=?`,
-		watched, eid)
-	if err != nil {
-		return fmt.Errorf("update episode %d done: %w", eid, err)
-	}
-	if err := t.Commit(); err != nil {
-		return fmt.Errorf("update episode %d done: %w", eid, err)
+
+	ctx := context.Background()
+	if err := sqlc.New(db).UpdateEpisodeDone(ctx, p); err != nil {
+		return fmt.Errorf("UpdateEpisodeDone: %s", err)
 	}
 	return nil
+}
+
+func convertEpisode(e sqlc.Episode) Episode {
+	e2 := Episode{
+		EID:         EID(e.Eid),
+		AID:         AID(e.Aid),
+		Type:        EpisodeType(e.Type),
+		Number:      int(e.Number),
+		Title:       e.Title,
+		Length:      int(e.Length),
+		UserWatched: e.UserWatched != 0,
+	}
+	return e2
+}
+
+func smap[T, T2 any](v []T, f func(T) T2) []T2 {
+	if len(v) == 0 {
+		return nil
+	}
+	v2 := make([]T2, len(v))
+	for i, v := range v {
+		v2[i] = f(v)
+	}
+	return v2
 }

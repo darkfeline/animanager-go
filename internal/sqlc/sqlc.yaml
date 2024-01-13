@@ -1,0 +1,37 @@
+# Copyright (C) 2024  Allen Li
+#
+# This file is part of Animanager.
+#
+# Animanager is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Animanager is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
+
+version: "2"
+sql:
+- engine: "sqlite"
+  schema: "schema.sql"
+  queries: "query.sql"
+  gen:
+    go:
+      package: "sqlc"
+      out: "."
+      overrides:
+      # Integer primary keys are incorrectly inferred as nullable.
+      # https://github.com/sqlc-dev/sqlc/issues/3119
+      - column: anime.aid
+        go_type: int64
+      - column: episode.eid
+        go_type: int64
+      - column: episode_file.id
+        go_type: int64
+      - column: watching.aid
+        go_type: int64

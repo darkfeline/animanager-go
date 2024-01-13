@@ -15,12 +15,14 @@
 package query
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // GetAnimeFiles gets the episode files for all of the anime's episodes.
-func GetAnimeFiles(db *sql.DB, aid AID) ([]EpisodeFiles, error) {
+func GetAnimeFiles(db sqlc.DBTX, aid AID) ([]EpisodeFiles, error) {
 	eps, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("get anime %d files: %w", aid, err)
@@ -46,15 +48,11 @@ type EpisodeFiles struct {
 }
 
 // DeleteAnimeFiles deletes episode files for the given anime.
-func DeleteAnimeFiles(db Executor, aid AID) error {
-	_, err := db.Exec(`DELETE FROM episode_file
-WHERE ROWID IN (
-    SELECT episode_file.ROWID FROM episode_file
-    JOIN episode ON (episode_file.eid = episode.eid)
-    WHERE episode.aid=?
-)`, aid)
+func DeleteAnimeFiles(db sqlc.DBTX, aid AID) error {
+	ctx := context.Background()
+	err := sqlc.New(db).DeleteAnimeFiles(ctx, int64(aid))
 	if err != nil {
-		return err
+		return fmt.Errorf("DeleteAnimeFiles %d: %s", aid, err)
 	}
 	return nil
 }

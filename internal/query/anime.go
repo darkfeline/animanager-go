@@ -18,6 +18,7 @@
 package query
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -25,6 +26,7 @@ import (
 	"go.felesatra.moe/anidb"
 
 	"go.felesatra.moe/animanager/internal/date"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // Anime values correspond to rows in the anime table.
@@ -65,68 +67,44 @@ func (a Anime) EndDate() date.Date {
 type AnimeType string
 
 // GetAnimeCount returns the number of anime rows.
-func GetAnimeCount(db *sql.DB) (int, error) {
-	r := db.QueryRow(`SELECT COUNT(*) FROM anime`)
-	var n int
-	err := r.Scan(&n)
-	return n, err
+func GetAnimeCount(db sqlc.DBTX) (int, error) {
+	ctx := context.Background()
+	n, err := sqlc.New(db).GetAnimeCount(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetAnimeCount: %s", err)
+	}
+	return int(n), nil
 }
 
 // GetAIDs returns all AIDs.
-func GetAIDs(db *sql.DB) ([]AID, error) {
-	r, err := db.Query(`SELECT aid FROM anime`)
+func GetAIDs(db sqlc.DBTX) ([]AID, error) {
+	ctx := context.Background()
+	aids, err := sqlc.New(db).GetAIDs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAIDs: %s", err)
 	}
-	defer r.Close()
-	var aids []AID
-	for r.Next() {
-		var aid AID
-		if err := r.Scan(&aid); err != nil {
-			return nil, err
-		}
-		aids = append(aids, aid)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return aids, nil
+	return smap(aids, func(v int64) AID { return AID(v) }), nil
 }
 
 // GetAnime gets the anime from the database.
-func GetAnime(db *sql.DB, aid AID) (*Anime, error) {
-	r := db.QueryRow(`
-SELECT aid, title, type, episodecount, startdate, enddate
-FROM anime WHERE aid=?`, aid)
-	var a Anime
-	if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount,
-		&a.NullStartDate, &a.NullEndDate); err != nil {
-		return nil, err
+func GetAnime(db sqlc.DBTX, aid AID) (*Anime, error) {
+	ctx := context.Background()
+	a, err := sqlc.New(db).GetAnime(ctx, int64(aid))
+	if err != nil {
+		return nil, fmt.Errorf("GetAnime %d: %s", aid, err)
 	}
-	return &a, nil
+	a2 := convertAnime(a)
+	return &a2, nil
 }
 
 // GetAllAnime returns all anime.
-func GetAllAnime(db *sql.DB) ([]Anime, error) {
-	r, err := db.Query(`
-SELECT aid, title, type, episodecount, startdate, enddate FROM anime`)
+func GetAllAnime(db sqlc.DBTX) ([]Anime, error) {
+	ctx := context.Background()
+	a, err := sqlc.New(db).GetAllAnime(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAllAnime: %s", err)
 	}
-	defer r.Close()
-	var as []Anime
-	for r.Next() {
-		var a Anime
-		if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount,
-			&a.NullStartDate, &a.NullEndDate); err != nil {
-			return nil, err
-		}
-		as = append(as, a)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return as, nil
+	return smap(a, convertAnime), nil
 }
 
 // InsertAnime inserts or updates an anime into the database.
@@ -136,27 +114,18 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 		return err
 	}
 	defer t.Rollback()
-	var startDate any
-	var endDate any
-	startDate, err = date.Parse(a.StartDate)
-	if err != nil {
-		startDate = nil
-	}
-	endDate, err = date.Parse(a.EndDate)
-	if err != nil {
-		endDate = nil
-	}
 	title := mainTitle(a.Titles)
-	_, err = t.Exec(`
-INSERT INTO anime (aid, title, type, episodecount, startdate, enddate)
-VALUES (?, ?, ?, ?, ?, ?)
-ON CONFLICT (aid) DO UPDATE SET
-title=excluded.title, type=excluded.type, episodecount=excluded.episodecount,
-startdate=excluded.startdate, enddate=excluded.enddate
-WHERE aid=excluded.aid`,
-		a.AID, title, a.Type, a.EpisodeCount, startDate, endDate,
-	)
-	if err != nil {
+	ctx := context.Background()
+	p := sqlc.InsertAnimeParams{
+		Aid:          int64(a.AID),
+		Title:        title,
+		Type:         a.Type,
+		Episodecount: int64(a.EpisodeCount),
+		Startdate:    parseDate(a.StartDate),
+		Enddate:      parseDate(a.EndDate),
+	}
+
+	if err := sqlc.New(db).InsertAnime(ctx, p); err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	em, err := GetEpisodesMap(t, AID(a.AID))
@@ -202,15 +171,16 @@ func insertEpisode(t *sql.Tx, aid AID, e anidb.Episode) error {
 	if typ == EpUnknown {
 		return fmt.Errorf("failed to insert anime %d: invalid epno %s", aid, e.EpNo)
 	}
-	_, err := t.Exec(`
-INSERT INTO episode (eid, aid, type, number, title, length)
-VALUES (?, ?, ?, ?, ?, ?)
-ON CONFLICT (eid) DO UPDATE SET
-aid=excluded.aid, type=excluded.type, number=excluded.number,
-title=excluded.title, length=excluded.length
-WHERE eid=excluded.eid`,
-		e.EID, aid, typ, num, title, e.Length,
-	)
+	ctx := context.Background()
+	p := sqlc.InsertEpisodeParams{
+		Eid:    int64(e.EID),
+		Aid:    int64(aid),
+		Type:   int64(typ),
+		Number: int64(num),
+		Title:  title,
+		Length: int64(e.Length),
+	}
+	err := sqlc.New(t).InsertEpisode(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -225,4 +195,27 @@ func mainEpTitle(ts []anidb.EpTitle) string {
 		}
 	}
 	return ts[0].Title
+}
+
+func convertAnime(a sqlc.Anime) Anime {
+	return Anime{
+		AID:           AID(a.Aid),
+		Title:         a.Title,
+		Type:          AnimeType(a.Type),
+		EpisodeCount:  int(a.Episodecount),
+		NullStartDate: a.Startdate,
+		NullEndDate:   a.Enddate,
+	}
+}
+
+// parseDate parses a date into a Unix timestamp or NULL.
+func parseDate(s string) sql.NullInt64 {
+	d, err := date.Parse(s)
+	if err != nil {
+		return sql.NullInt64{}
+	}
+	return sql.NullInt64{
+		Int64: int64(d),
+		Valid: true,
+	}
 }

@@ -18,8 +18,10 @@
 package query
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // A Hash is an eD2k formatted as a hex string.
@@ -43,24 +45,47 @@ type FileHash struct {
 	Filename string   `sql:"filename"`
 }
 
-func InsertFileHash(db *sql.DB, fh *FileHash) error {
-	_, err := db.Exec(`
-INSERT INTO filehash (size, hash, eid, aid, filename)
-VALUES (?, ?, ?, ?, ?)
-ON CONFLICT (size, hash) DO UPDATE SET
-eid=excluded.eid, aid=excluded.aid, filename=excluded.filename
-WHERE size=excluded.size AND hash=excluded.hash`,
-		fh.Size, fh.Hash, fh.EID, fh.AID, fh.Filename)
-	return err
+func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
+	ctx := context.Background()
+	p := sqlc.InsertFileHashParams{
+		Size: fh.Size,
+		Hash: string(fh.Hash),
+	}
+	if fh.EID != 0 {
+		p.Eid.Int64 = int64(fh.EID)
+		p.Eid.Valid = true
+	}
+	if fh.AID != 0 {
+		p.Aid.Int64 = int64(fh.AID)
+		p.Aid.Valid = true
+	}
+	if fh.Filename != "" {
+		p.Filename.String = fh.Filename
+		p.Filename.Valid = true
+	}
+	return sqlc.New(db).InsertFileHash(ctx, p)
 }
 
-func GetFileHash(db *sql.DB, size int64, hash Hash) (*FileHash, error) {
-	r := db.QueryRow(`
-SELECT size, hash, eid, aid, filename FROM filehash WHERE size=? AND hash=?`,
-		size, hash)
-	var fh FileHash
-	if err := r.Scan(&fh.Size, &fh.Hash, &fh.EID, &fh.AID, &fh.Filename); err != nil {
-		return nil, err
+func GetFileHash(db sqlc.DBTX, size int64, hash Hash) (*FileHash, error) {
+	ctx := context.Background()
+	p := sqlc.GetFileHashParams{
+		Size: size,
+		Hash: string(hash),
 	}
-	return &fh, nil
+	fh, err := sqlc.New(db).GetFileHash(ctx, p)
+	if err != nil {
+		return nil, fmt.Errorf("GetFileHash %d %q: %s", size, hash, err)
+	}
+	fh2 := convertFileHash(fh)
+	return &fh2, nil
+}
+
+func convertFileHash(v sqlc.Filehash) FileHash {
+	return FileHash{
+		Size:     v.Size,
+		Hash:     Hash(v.Hash),
+		EID:      EID(v.Eid.Int64),
+		AID:      AID(v.Aid.Int64),
+		Filename: string(v.Filename.String),
+	}
 }

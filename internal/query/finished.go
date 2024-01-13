@@ -15,13 +15,14 @@
 package query
 
 import (
-	"database/sql"
 	"fmt"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // GetFinishedAnime returns finished anime.
 // Finished anime have all EpRegular episodes marked as user_watched.
-func GetFinishedAnime(db *sql.DB) ([]*Anime, error) {
+func GetFinishedAnime(db sqlc.DBTX) ([]*Anime, error) {
 	anime, err := GetAnimeFinished(db)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func GetFinishedAnime(db *sql.DB) ([]*Anime, error) {
 // GetUnfinishedAnime returns unfinished anime.
 // Unfinished anime either are incomplete or don't have all EpRegular
 // episodes marked as user_watched.
-func GetUnfinishedAnime(db *sql.DB) ([]*Anime, error) {
+func GetUnfinishedAnime(db sqlc.DBTX) ([]*Anime, error) {
 	anime, err := GetAnimeFinished(db)
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func (b AnimeBool) GoString() string {
 
 // GetAnimeFinished returns all anime annotated with whether they are finished.
 // Finished anime have all EpRegular episodes marked as user_watched.
-func GetAnimeFinished(db *sql.DB) ([]AnimeBool, error) {
+func GetAnimeFinished(db sqlc.DBTX) ([]AnimeBool, error) {
 	anime, err := GetAllAnime(db)
 	if err != nil {
 		return nil, fmt.Errorf("get anime finished: %s", err)

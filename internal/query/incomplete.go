@@ -18,16 +18,16 @@
 package query
 
 import (
-	"database/sql"
 	"fmt"
 
 	"go.felesatra.moe/animanager/internal/date"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // GetIncompleteAnime returns the AIDs for incomplete anime.  An anime
 // is incomplete if it is still missing some information (e.g.,
 // missing episodes, missing episode titles).
-func GetIncompleteAnime(db *sql.DB) ([]AID, error) {
+func GetIncompleteAnime(db sqlc.DBTX) ([]AID, error) {
 	aids, err := GetAIDs(db)
 	if err != nil {
 		return nil, fmt.Errorf("get incomplete anime: %s", err)
@@ -49,7 +49,7 @@ func GetIncompleteAnime(db *sql.DB) ([]AID, error) {
 // using some heuristics.  An anime is incomplete if it is still
 // missing some information (e.g., missing episodes, missing episode
 // titles).
-func isIncomplete(db *sql.DB, aid AID) (bool, error) {
+func isIncomplete(db sqlc.DBTX, aid AID) (bool, error) {
 	a, err := GetAnime(db, aid)
 	if err != nil {
 		return false, fmt.Errorf("is incomplete: %s", err)
