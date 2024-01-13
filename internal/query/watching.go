@@ -35,13 +35,13 @@ func InsertWatching(db *sql.DB, w Watching) error {
 
 // GetWatching gets the watching entry for an anime from the
 // database.
-func GetWatching(db *sql.DB, aid AID) (Watching, error) {
-	r := db.QueryRow(`SELECT aid, regexp, offset FROM watching WHERE aid=?`, aid)
-	var w Watching
-	if err := r.Scan(&w.AID, &w.Regexp, &w.Offset); err != nil {
-		return w, fmt.Errorf("GetWatching %d: %w", aid, err)
+func GetWatching(db sqlc.DBTX, aid AID) (Watching, error) {
+	ctx := context.Background()
+	w, err := sqlc.New(db).GetWatching(ctx, nullint64(aid))
+	if err != nil {
+		return Watching{}, fmt.Errorf("GetWatching %d: %w", aid, err)
 	}
-	return w, nil
+	return convertWatching(w), nil
 }
 
 // GetWatchingCount returns the number of watching rows.
@@ -78,4 +78,12 @@ func GetAllWatching(db *sql.DB) ([]Watching, error) {
 func DeleteWatching(db *sql.DB, aid AID) error {
 	_, err := db.Exec(`DELETE FROM watching WHERE aid=?`, aid)
 	return err
+}
+
+func convertWatching(w sqlc.Watching) Watching {
+	return Watching{
+		AID:    AID(w.Aid.Int64),
+		Regexp: w.Regexp,
+		Offset: int(w.Offset),
+	}
 }

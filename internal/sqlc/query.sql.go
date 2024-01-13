@@ -181,6 +181,17 @@ func (q *Queries) GetWatchedMinutes(ctx context.Context) (sql.NullFloat64, error
 	return sum, err
 }
 
+const getWatching = `-- name: GetWatching :one
+SELECT aid, "regexp", "offset" FROM watching WHERE aid = ?
+`
+
+func (q *Queries) GetWatching(ctx context.Context, aid sql.NullInt64) (Watching, error) {
+	row := q.db.QueryRowContext(ctx, getWatching, aid)
+	var i Watching
+	err := row.Scan(&i.Aid, &i.Regexp, &i.Offset)
+	return i, err
+}
+
 const insertWatching = `-- name: InsertWatching :exec
 INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE

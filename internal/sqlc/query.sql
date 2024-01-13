@@ -37,3 +37,6 @@ INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE
 SET regexp=excluded.regexp, offset=excluded.offset
 WHERE aid=excluded.aid;
+
+-- name: GetWatching :one
+SELECT * FROM watching WHERE aid = ?;
