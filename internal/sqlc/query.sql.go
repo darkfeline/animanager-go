@@ -68,6 +68,40 @@ func (q *Queries) GetAIDs(ctx context.Context) ([]sql.NullInt64, error) {
 	return items, nil
 }
 
+const getAllAnime = `-- name: GetAllAnime :many
+SELECT aid, title, type, episodecount, startdate, enddate FROM anime
+`
+
+func (q *Queries) GetAllAnime(ctx context.Context) ([]Anime, error) {
+	rows, err := q.db.QueryContext(ctx, getAllAnime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Anime
+	for rows.Next() {
+		var i Anime
+		if err := rows.Scan(
+			&i.Aid,
+			&i.Title,
+			&i.Type,
+			&i.Episodecount,
+			&i.Startdate,
+			&i.Enddate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllEpisodes = `-- name: GetAllEpisodes :many
 SELECT eid, aid, type, number, title, length, user_watched FROM episode
 `
@@ -128,6 +162,24 @@ func (q *Queries) GetAllWatching(ctx context.Context) ([]Watching, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getAnime = `-- name: GetAnime :one
+SELECT aid, title, type, episodecount, startdate, enddate FROM anime WHERE aid = ?
+`
+
+func (q *Queries) GetAnime(ctx context.Context, aid sql.NullInt64) (Anime, error) {
+	row := q.db.QueryRowContext(ctx, getAnime, aid)
+	var i Anime
+	err := row.Scan(
+		&i.Aid,
+		&i.Title,
+		&i.Type,
+		&i.Episodecount,
+		&i.Startdate,
+		&i.Enddate,
+	)
+	return i, err
 }
 
 const getAnimeCount = `-- name: GetAnimeCount :one

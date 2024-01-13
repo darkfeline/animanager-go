@@ -87,39 +87,24 @@ func GetAIDs(db sqlc.DBTX) ([]AID, error) {
 }
 
 // GetAnime gets the anime from the database.
-func GetAnime(db *sql.DB, aid AID) (*Anime, error) {
-	r := db.QueryRow(`
-SELECT aid, title, type, episodecount, startdate, enddate
-FROM anime WHERE aid=?`, aid)
-	var a Anime
-	if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount,
-		&a.NullStartDate, &a.NullEndDate); err != nil {
-		return nil, err
+func GetAnime(db sqlc.DBTX, aid AID) (*Anime, error) {
+	ctx := context.Background()
+	a, err := sqlc.New(db).GetAnime(ctx, nullint64(aid))
+	if err != nil {
+		return nil, fmt.Errorf("GetAnime %d: %s", aid, err)
 	}
-	return &a, nil
+	a2 := convertAnime(a)
+	return &a2, nil
 }
 
 // GetAllAnime returns all anime.
-func GetAllAnime(db *sql.DB) ([]Anime, error) {
-	r, err := db.Query(`
-SELECT aid, title, type, episodecount, startdate, enddate FROM anime`)
+func GetAllAnime(db sqlc.DBTX) ([]Anime, error) {
+	ctx := context.Background()
+	a, err := sqlc.New(db).GetAllAnime(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAllAnime: %s", err)
 	}
-	defer r.Close()
-	var as []Anime
-	for r.Next() {
-		var a Anime
-		if err := r.Scan(&a.AID, &a.Title, &a.Type, &a.EpisodeCount,
-			&a.NullStartDate, &a.NullEndDate); err != nil {
-			return nil, err
-		}
-		as = append(as, a)
-	}
-	if err := r.Err(); err != nil {
-		return nil, err
-	}
-	return as, nil
+	return convertMany(a, convertAnime), nil
 }
 
 // InsertAnime inserts or updates an anime into the database.
@@ -218,4 +203,15 @@ func mainEpTitle(ts []anidb.EpTitle) string {
 		}
 	}
 	return ts[0].Title
+}
+
+func convertAnime(a sqlc.Anime) Anime {
+	return Anime{
+		AID:           AID(a.Aid.Int64),
+		Title:         a.Title,
+		Type:          AnimeType(a.Type),
+		EpisodeCount:  int(a.Episodecount),
+		NullStartDate: a.Startdate,
+		NullEndDate:   a.Enddate,
+	}
 }

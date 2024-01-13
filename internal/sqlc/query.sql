@@ -4,6 +4,12 @@ SELECT COUNT(*) FROM anime;
 -- name: GetAIDs :many
 SELECT aid FROM anime;
 
+-- name: GetAnime :one
+SELECT * FROM anime WHERE aid = ?;
+
+-- name: GetAllAnime :many
+SELECT * FROM anime;
+
 -- name: DeleteAnimeFiles :exec
 DELETE FROM episode_file WHERE ROWID IN (
     SELECT episode_file.ROWID FROM episode_file
