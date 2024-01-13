@@ -70,20 +70,29 @@ type EpisodeKey struct {
 func GetEpisodeCount(db sqlc.DBTX) (int, error) {
 	ctx := context.Background()
 	r, err := sqlc.New(db).GetEpisodeCount(ctx)
-	return int(r), err
+	if err != nil {
+		return 0, fmt.Errorf("GetEpisodeCount: %s", err)
+	}
+	return int(r), nil
 }
 
 // GetWatchedEpisodeCount returns the number of watched episodes.
 func GetWatchedEpisodeCount(db sqlc.DBTX) (int, error) {
 	ctx := context.Background()
 	r, err := sqlc.New(db).GetWatchedEpisodeCount(ctx)
-	return int(r), err
+	if err != nil {
+		return 0, fmt.Errorf("GetWatchedEpisodeCount: %s", err)
+	}
+	return int(r), nil
 }
 
 // GetWatchedMinutes returns the number of minutes watched.
 func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 	ctx := context.Background()
 	r, err := sqlc.New(db).GetWatchedMinutes(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("GetWatchedMinutes: %s", err)
+	}
 	// Sum should be int.
 	// https://github.com/sqlc-dev/sqlc/issues/3122
 	return int(r.Float64), err
@@ -94,7 +103,7 @@ func GetEpisode(db sqlc.DBTX, eid EID) (*Episode, error) {
 	ctx := context.Background()
 	e, err := sqlc.New(db).GetEpisode(ctx, nullint64(eid))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetEpisode %d: %s", eid, err)
 	}
 	e2 := convertEpisode(e)
 	return &e2, nil
@@ -105,7 +114,7 @@ func DeleteEpisode(db sqlc.DBTX, eid EID) error {
 	ctx := context.Background()
 	err := sqlc.New(db).DeleteEpisode(ctx, nullint64(eid))
 	if err != nil {
-		return fmt.Errorf("delete episode %v: %w", eid, err)
+		return fmt.Errorf("DeleteEpisode %v: %w", eid, err)
 	}
 	return nil
 }
@@ -115,7 +124,7 @@ func GetEpisodes(db sqlc.DBTX, aid AID) ([]Episode, error) {
 	ctx := context.Background()
 	e, err := sqlc.New(db).GetEpisodes(ctx, int64(aid))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetEpisodes %d: %s", aid, err)
 	}
 	e2 := convertMany(e, convertEpisode)
 	return e2, nil
@@ -125,7 +134,7 @@ func GetEpisodes(db sqlc.DBTX, aid AID) ([]Episode, error) {
 func GetEpisodesMap(db sqlc.DBTX, aid AID) (map[EID]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
-		return nil, fmt.Errorf("get episodes map %v: %w", aid, err)
+		return nil, fmt.Errorf("GetEpisodesMap %v: %w", aid, err)
 	}
 	m := make(map[EID]*Episode, len(es))
 	for i, e := range es {
@@ -139,7 +148,7 @@ func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
 	ctx := context.Background()
 	e, err := sqlc.New(db).GetAllEpisodes(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAllEpisodes: %s", err)
 	}
 	e2 := convertMany(e, convertEpisode)
 	return e2, nil
@@ -157,7 +166,10 @@ func UpdateEpisodeDone(db sqlc.DBTX, eid EID, done bool) error {
 	}
 
 	ctx := context.Background()
-	return sqlc.New(db).UpdateEpisodeDone(ctx, p)
+	if err := sqlc.New(db).UpdateEpisodeDone(ctx, p); err != nil {
+		return fmt.Errorf("UpdateEpisodeDone: %s", err)
+	}
+	return nil
 }
 
 func convertEpisode(e sqlc.Episode) Episode {

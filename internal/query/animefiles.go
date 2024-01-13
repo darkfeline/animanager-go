@@ -51,5 +51,9 @@ type EpisodeFiles struct {
 // DeleteAnimeFiles deletes episode files for the given anime.
 func DeleteAnimeFiles(db sqlc.DBTX, aid AID) error {
 	ctx := context.Background()
-	return sqlc.New(db).DeleteAnimeFiles(ctx, int64(aid))
+	err := sqlc.New(db).DeleteAnimeFiles(ctx, int64(aid))
+	if err != nil {
+		return fmt.Errorf("DeleteAnimeFiles %d: %s", aid, err)
+	}
+	return nil
 }

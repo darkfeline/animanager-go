@@ -50,7 +50,7 @@ func GetEpisodeFiles(db sqlc.DBTX, eid EID) ([]EpisodeFile, error) {
 	ctx := context.Background()
 	es, err := sqlc.New(db).GetEpisodeFiles(ctx, int64(eid))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetEpisodeFiles %d: %s", eid, err)
 	}
 	return convertMany(es, convertEpisodeFile), nil
 }
