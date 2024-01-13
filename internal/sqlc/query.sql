@@ -10,6 +10,14 @@ SELECT * FROM anime WHERE aid = ?;
 -- name: GetAllAnime :many
 SELECT * FROM anime;
 
+-- name: InsertEpisode :exec
+INSERT INTO episode (eid, aid, type, number, title, length)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT (eid) DO UPDATE SET
+aid=excluded.aid, type=excluded.type, number=excluded.number,
+title=excluded.title, length=excluded.length
+WHERE eid=excluded.eid;
+
 -- name: DeleteAnimeFiles :exec
 DELETE FROM episode_file WHERE ROWID IN (
     SELECT episode_file.ROWID FROM episode_file

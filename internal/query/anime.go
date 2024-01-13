@@ -180,15 +180,16 @@ func insertEpisode(t *sql.Tx, aid AID, e anidb.Episode) error {
 	if typ == EpUnknown {
 		return fmt.Errorf("failed to insert anime %d: invalid epno %s", aid, e.EpNo)
 	}
-	_, err := t.Exec(`
-INSERT INTO episode (eid, aid, type, number, title, length)
-VALUES (?, ?, ?, ?, ?, ?)
-ON CONFLICT (eid) DO UPDATE SET
-aid=excluded.aid, type=excluded.type, number=excluded.number,
-title=excluded.title, length=excluded.length
-WHERE eid=excluded.eid`,
-		e.EID, aid, typ, num, title, e.Length,
-	)
+	ctx := context.Background()
+	p := sqlc.InsertEpisodeParams{
+		Eid:    nullint64(e.EID),
+		Aid:    int64(aid),
+		Type:   int64(typ),
+		Number: int64(num),
+		Title:  title,
+		Length: int64(e.Length),
+	}
+	err := sqlc.New(t).InsertEpisode(ctx, p)
 	if err != nil {
 		return err
 	}

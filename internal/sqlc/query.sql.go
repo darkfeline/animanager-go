@@ -329,6 +329,36 @@ func (q *Queries) GetWatchingCount(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const insertEpisode = `-- name: InsertEpisode :exec
+INSERT INTO episode (eid, aid, type, number, title, length)
+VALUES (?, ?, ?, ?, ?, ?)
+ON CONFLICT (eid) DO UPDATE SET
+aid=excluded.aid, type=excluded.type, number=excluded.number,
+title=excluded.title, length=excluded.length
+WHERE eid=excluded.eid
+`
+
+type InsertEpisodeParams struct {
+	Eid    sql.NullInt64
+	Aid    int64
+	Type   int64
+	Number int64
+	Title  string
+	Length int64
+}
+
+func (q *Queries) InsertEpisode(ctx context.Context, arg InsertEpisodeParams) error {
+	_, err := q.db.ExecContext(ctx, insertEpisode,
+		arg.Eid,
+		arg.Aid,
+		arg.Type,
+		arg.Number,
+		arg.Title,
+		arg.Length,
+	)
+	return err
+}
+
 const insertWatching = `-- name: InsertWatching :exec
 INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE
