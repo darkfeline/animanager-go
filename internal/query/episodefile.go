@@ -52,7 +52,7 @@ func GetEpisodeFiles(db sqlc.DBTX, eid EID) ([]EpisodeFile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisodeFiles %d: %s", eid, err)
 	}
-	return convertMany(es, convertEpisodeFile), nil
+	return smap(es, convertEpisodeFile), nil
 }
 
 // DeleteAllEpisodeFiles deletes all episode files.

@@ -126,7 +126,7 @@ func GetEpisodes(db sqlc.DBTX, aid AID) ([]Episode, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisodes %d: %s", aid, err)
 	}
-	e2 := convertMany(e, convertEpisode)
+	e2 := smap(e, convertEpisode)
 	return e2, nil
 }
 
@@ -150,7 +150,7 @@ func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAllEpisodes: %s", err)
 	}
-	e2 := convertMany(e, convertEpisode)
+	e2 := smap(e, convertEpisode)
 	return e2, nil
 }
 
@@ -185,7 +185,7 @@ func convertEpisode(e sqlc.Episode) Episode {
 	return e2
 }
 
-func convertMany[T, T2 any](v []T, f func(T) T2) []T2 {
+func smap[T, T2 any](v []T, f func(T) T2) []T2 {
 	if len(v) == 0 {
 		return nil
 	}

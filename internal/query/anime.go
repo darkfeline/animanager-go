@@ -83,7 +83,7 @@ func GetAIDs(db sqlc.DBTX) ([]AID, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAIDs: %s", err)
 	}
-	return convertMany(aids, func(v int64) AID { return AID(v) }), nil
+	return smap(aids, func(v int64) AID { return AID(v) }), nil
 }
 
 // GetAnime gets the anime from the database.
@@ -104,7 +104,7 @@ func GetAllAnime(db sqlc.DBTX) ([]Anime, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAllAnime: %s", err)
 	}
-	return convertMany(a, convertAnime), nil
+	return smap(a, convertAnime), nil
 }
 
 // InsertAnime inserts or updates an anime into the database.

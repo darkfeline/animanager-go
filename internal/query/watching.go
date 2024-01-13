@@ -60,7 +60,7 @@ func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAllWatching: %s", err)
 	}
-	return convertMany(w, convertWatching), nil
+	return smap(w, convertWatching), nil
 }
 
 // DeleteWatching deletes the watching entry for an anime from the
