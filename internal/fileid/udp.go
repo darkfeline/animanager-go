@@ -25,6 +25,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/animanager/internal/query"
@@ -139,6 +140,12 @@ type fileKey struct {
 	Hash query.Hash
 }
 
+// getCopyBuf returns a large copy buffer for [getFileKey].
+// Since video files are kinda big, a small buffer makes hashing slow.
+// Allocate lazily so most commands don't do this.
+// Use 3D2k chunk size for this as that's the hash that is used.
+var copyBuf = sync.OnceValue(func() []byte { return make([]byte, 9728000) })
+
 func getFileKey(file string) (fileKey, error) {
 	f, err := os.Open(file)
 	if err != nil {
@@ -150,7 +157,7 @@ func getFileKey(file string) (fileKey, error) {
 		return fileKey{}, fmt.Errorf("get file key: %s", err)
 	}
 	h := ed2k.New()
-	if _, err := io.Copy(h, f); err != nil {
+	if _, err := io.CopyBuffer(h, f, copyBuf()); err != nil {
 		return fileKey{}, fmt.Errorf("get file key: %s", err)
 	}
 	sum := h.Sum(nil)
