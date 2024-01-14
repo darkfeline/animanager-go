@@ -85,6 +85,7 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	}
 	// Safe because method has value receiver
 	m.l = m.l.With("size", fk.Size, "hash", fk.Hash)
+	m.l.Debug("got file key")
 
 	// Try getting from cache
 	fh, err := query.GetFileHash(m.db, fk.Size, fk.Hash)
