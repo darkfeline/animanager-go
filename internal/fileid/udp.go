@@ -80,6 +80,10 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
 func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.FileHash, error) {
+	// Check the context first, because calculateFileKey is slow.
+	if err := ctx.Err(); err != nil {
+		return nil, fmt.Errorf("match file to episode: %s", err)
+	}
 	fk, err := calculateFileKey(file)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
