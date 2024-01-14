@@ -98,6 +98,9 @@ func refreshFilesUDP(ctx context.Context, db *sql.DB, c *udp.Client, files []str
 	m := fileid.NewMatcher(l, db, c)
 	for _, f := range files {
 		l.Debug("matching file", "file", f)
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		if err := m.MatchEpisode(ctx, f); err != nil {
 			l.Warn("match file to episode returned error", "file", f, "error", err)
 		}
