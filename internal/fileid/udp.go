@@ -58,6 +58,7 @@ func NewMatcher(l *slog.Logger, db *sql.DB, c UDPClient) Matcher {
 // MatchEpisode adds the given file as an episode file.
 // Episode matching is done via AniDB UDP API.
 func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
+	m.l = m.l.With("file", file)
 	fh, err := m.matchFileToEpisode(ctx, file)
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
@@ -67,7 +68,7 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 		return nil
 	}
 	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
-	if err := query.InsertEpisodeFiles(m.db, m.l.With("file", file), efs); err != nil {
+	if err := query.InsertEpisodeFiles(m.db, m.l, efs); err != nil {
 		return fmt.Errorf("match episode: %w", err)
 	}
 	return nil
@@ -76,27 +77,26 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
 func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.FileHash, error) {
-	logger := m.l.With("file", file)
 	fk, err := getFileKey(file)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	logger = logger.With("size", fk.size, "hash", fk.hash)
+	m.l = m.l.With("size", fk.size, "hash", fk.hash)
 
 	// Try getting from cache
 	fh, err := query.GetFileHash(m.db, fk.size, fk.hash)
 	if err == nil {
-		logger.Debug("got file hash from db", "FileHash", fh)
+		m.l.Debug("got file hash from db", "FileHash", fh)
 		return fh, nil
 	}
-	logger.Debug("error getting file hash from db", "error", err)
+	m.l.Debug("error getting file hash from db", "error", err)
 
 	// Get from AniDB
 	row, err := m.c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	logger.Debug("got file hash response", "row", row)
+	m.l.Debug("got file hash response", "row", row)
 	fh, err = parseFileHashRow(row)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
