@@ -26,14 +26,14 @@ import (
 	"go.felesatra.moe/animanager/internal/query"
 )
 
-func TestGetFileKey(t *testing.T) {
+func TestCalculateFileKey(t *testing.T) {
 	t.Parallel()
 	d := t.TempDir()
 	p := filepath.Join(d, "testfile")
 	if err := os.WriteFile(p, []byte("message digest"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	got, err := getFileKey(p)
+	got, err := calculateFileKey(p)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,6 +42,6 @@ func TestGetFileKey(t *testing.T) {
 		Hash: query.Hash("d9130a8164549fe818874806e1c7014b"),
 	}
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("getFileKey() mismatch (-want +got):\n%s", diff)
+		t.Errorf("calculateFileKey() mismatch (-want +got):\n%s", diff)
 	}
 }

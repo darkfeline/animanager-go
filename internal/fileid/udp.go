@@ -80,7 +80,7 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
 func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.FileHash, error) {
-	fk, err := getFileKey(file)
+	fk, err := calculateFileKey(file)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -146,7 +146,9 @@ type fileKey struct {
 // Use 3D2k chunk size for this as that's the hash that is used.
 var copyBuf = sync.OnceValue(func() []byte { return make([]byte, 9728000) })
 
-func getFileKey(file string) (fileKey, error) {
+// calculateFileKey calculates the fileKey for the file.
+// This is SLOW, because hashing the file is slow.
+func calculateFileKey(file string) (fileKey, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return fileKey{}, fmt.Errorf("get file key: %s", err)
