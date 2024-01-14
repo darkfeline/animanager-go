@@ -58,6 +58,7 @@ func NewMatcher(l *slog.Logger, db *sql.DB, c UDPClient) Matcher {
 // MatchEpisode adds the given file as an episode file.
 // Episode matching is done via AniDB UDP API.
 func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
+	// Safe because method has value receiver
 	m.l = m.l.With("file", file)
 	fh, err := m.matchFileToEpisode(ctx, file)
 	if err != nil {
@@ -81,6 +82,7 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
+	// Safe because method has value receiver
 	m.l = m.l.With("size", fk.size, "hash", fk.hash)
 
 	// Try getting from cache
