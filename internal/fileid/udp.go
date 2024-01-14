@@ -20,6 +20,7 @@ package fileid
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -28,6 +29,7 @@ import (
 	"sync"
 
 	"go.felesatra.moe/anidb/udpapi"
+	"go.felesatra.moe/anidb/udpapi/codes"
 	"go.felesatra.moe/animanager/internal/query"
 	"go.felesatra.moe/hash/ed2k"
 )
@@ -114,6 +116,9 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	return fh, nil
 }
 
+// lookupFileHash returns a [FileHash] that is looked up with the [UDPClient].
+// If the lookup does not find a file, then the returned FileHash will
+// have zero EID and AID values.
 func (m Matcher) lookupFileHash(ctx context.Context, fk fileKey) (*query.FileHash, error) {
 	fh := query.FileHash{
 		Size: fk.Size,
@@ -121,11 +126,15 @@ func (m Matcher) lookupFileHash(ctx context.Context, fk fileKey) (*query.FileHas
 	}
 	row, err := m.c.FileByHash(ctx, fk.Size, string(fk.Hash), fmask, amask)
 	if err != nil {
-		return nil, fmt.Errorf("lookup file hash: %s", err)
-	}
-	m.l.Debug("got file hash response", "row", row)
-	if err := parseFileHashRow(&fh, row); err != nil {
-		return nil, fmt.Errorf("lookup file hash: %s", err)
+		if !errors.Is(err, codes.NO_SUCH_FILE) {
+			return nil, fmt.Errorf("lookup file hash: %s", err)
+		}
+		m.l.Debug("got no such file response")
+	} else {
+		m.l.Debug("got file hash response", "row", row)
+		if err := parseFileHashRow(&fh, row); err != nil {
+			return nil, fmt.Errorf("lookup file hash: %s", err)
+		}
 	}
 	return &fh, nil
 }
