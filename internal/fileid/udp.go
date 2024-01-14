@@ -21,6 +21,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -83,10 +84,10 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
 	// Safe because method has value receiver
-	m.l = m.l.With("size", fk.size, "hash", fk.hash)
+	m.l = m.l.With("size", fk.Size, "hash", fk.Hash)
 
 	// Try getting from cache
-	fh, err := query.GetFileHash(m.db, fk.size, fk.hash)
+	fh, err := query.GetFileHash(m.db, fk.Size, fk.Hash)
 	if err == nil {
 		m.l.Debug("got file hash from db", "FileHash", fh)
 		return fh, nil
@@ -94,7 +95,7 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	m.l.Debug("error getting file hash from db", "error", err)
 
 	// Get from AniDB
-	row, err := m.c.FileByHash(ctx, fk.size, string(fk.hash), fmask, amask)
+	row, err := m.c.FileByHash(ctx, fk.Size, string(fk.Hash), fmask, amask)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -103,8 +104,8 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	fh.Size = fk.size
-	fh.Hash = fk.hash
+	fh.Size = fk.Size
+	fh.Hash = fk.Hash
 	fh.Filename = filepath.Base(file)
 
 	// Add to cache
@@ -133,8 +134,8 @@ func parseFileHashRow(row []string) (*query.FileHash, error) {
 }
 
 type fileKey struct {
-	size int64
-	hash query.Hash
+	Size int64
+	Hash query.Hash
 }
 
 func getFileKey(file string) (fileKey, error) {
@@ -142,15 +143,19 @@ func getFileKey(file string) (fileKey, error) {
 	if err != nil {
 		return fileKey{}, fmt.Errorf("get file key: %s", err)
 	}
+	defer f.Close()
 	fi, err := f.Stat()
 	if err != nil {
 		return fileKey{}, fmt.Errorf("get file key: %s", err)
 	}
 	h := ed2k.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return fileKey{}, fmt.Errorf("get file key: %s", err)
+	}
 	sum := h.Sum(nil)
 	return fileKey{
-		size: fi.Size(),
-		hash: formatHash(sum),
+		Size: fi.Size(),
+		Hash: formatHash(sum),
 	}, nil
 }
 
