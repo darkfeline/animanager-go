@@ -120,31 +120,30 @@ func (m Matcher) lookupFileHash(ctx context.Context, fk fileKey) (*query.FileHas
 		return nil, fmt.Errorf("lookup file hash: %s", err)
 	}
 	m.l.Debug("got file hash response", "row", row)
-	fh, err := parseFileHashRow(row)
-	if err != nil {
+	var fh query.FileHash
+	if err := parseFileHashRow(&fh, row); err != nil {
 		return nil, fmt.Errorf("lookup file hash: %s", err)
 	}
 	fh.Size = fk.Size
 	fh.Hash = fk.Hash
-	return fh, nil
+	return &fh, nil
 }
 
-func parseFileHashRow(row []string) (*query.FileHash, error) {
+func parseFileHashRow(fh *query.FileHash, row []string) error {
 	if n := len(row); n != 3 {
-		return nil, fmt.Errorf("parse file has row: unexpected number of values in response: %d", n)
+		return fmt.Errorf("parse file has row: unexpected number of values in response: %d", n)
 	}
 	aid, err := query.ParseID[query.AID](row[1])
 	if err != nil {
-		return nil, fmt.Errorf("parse file has row: parse aid: %s", err)
+		return fmt.Errorf("parse file has row: parse aid: %s", err)
 	}
 	eid, err := query.ParseID[query.EID](row[2])
 	if err != nil {
-		return nil, fmt.Errorf("parse file has row: parse eid: %s", err)
+		return fmt.Errorf("parse file has row: parse eid: %s", err)
 	}
-	return &query.FileHash{
-		EID: eid,
-		AID: aid,
-	}, nil
+	fh.EID = eid
+	fh.AID = aid
+	return nil
 }
 
 type fileKey struct {
