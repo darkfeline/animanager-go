@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/google/go-cmp v0.5.9
 	github.com/mattn/go-sqlite3 v1.14.19
-	go.felesatra.moe/anidb v1.3.0-beta
+	go.felesatra.moe/anidb v1.3.0-beta.1
 	go.felesatra.moe/database/sql/sqlite3/migrate v1.1.1
 	go.felesatra.moe/hash/ed2k v1.0.2
 	golang.org/x/sys v0.16.0
