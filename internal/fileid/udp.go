@@ -115,17 +115,18 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 }
 
 func (m Matcher) lookupFileHash(ctx context.Context, fk fileKey) (*query.FileHash, error) {
+	fh := query.FileHash{
+		Size: fk.Size,
+		Hash: fk.Hash,
+	}
 	row, err := m.c.FileByHash(ctx, fk.Size, string(fk.Hash), fmask, amask)
 	if err != nil {
 		return nil, fmt.Errorf("lookup file hash: %s", err)
 	}
 	m.l.Debug("got file hash response", "row", row)
-	var fh query.FileHash
 	if err := parseFileHashRow(&fh, row); err != nil {
 		return nil, fmt.Errorf("lookup file hash: %s", err)
 	}
-	fh.Size = fk.Size
-	fh.Hash = fk.Hash
 	return &fh, nil
 }
 
