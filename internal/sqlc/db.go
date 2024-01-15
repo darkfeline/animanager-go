@@ -295,6 +295,206 @@ type Queries struct {
 	updateEpisodeDoneStmt      *sql.Stmt
 }
 
+func (q *Queries) PrepareDeleteAllEpisodeFiles(ctx context.Context) error {
+	var err error
+	if q.deleteAllEpisodeFilesStmt, err = q.db.PrepareContext(ctx, deleteAllEpisodeFiles); err != nil {
+		return fmt.Errorf("error preparing query DeleteAllEpisodeFiles: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareDeleteAnimeFiles(ctx context.Context) error {
+	var err error
+	if q.deleteAnimeFilesStmt, err = q.db.PrepareContext(ctx, deleteAnimeFiles); err != nil {
+		return fmt.Errorf("error preparing query DeleteAnimeFiles: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareDeleteEpisode(ctx context.Context) error {
+	var err error
+	if q.deleteEpisodeStmt, err = q.db.PrepareContext(ctx, deleteEpisode); err != nil {
+		return fmt.Errorf("error preparing query DeleteEpisode: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareDeleteWatching(ctx context.Context) error {
+	var err error
+	if q.deleteWatchingStmt, err = q.db.PrepareContext(ctx, deleteWatching); err != nil {
+		return fmt.Errorf("error preparing query DeleteWatching: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetAIDs(ctx context.Context) error {
+	var err error
+	if q.getAIDsStmt, err = q.db.PrepareContext(ctx, getAIDs); err != nil {
+		return fmt.Errorf("error preparing query GetAIDs: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetAllAnime(ctx context.Context) error {
+	var err error
+	if q.getAllAnimeStmt, err = q.db.PrepareContext(ctx, getAllAnime); err != nil {
+		return fmt.Errorf("error preparing query GetAllAnime: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetAllEpisodes(ctx context.Context) error {
+	var err error
+	if q.getAllEpisodesStmt, err = q.db.PrepareContext(ctx, getAllEpisodes); err != nil {
+		return fmt.Errorf("error preparing query GetAllEpisodes: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetAllWatching(ctx context.Context) error {
+	var err error
+	if q.getAllWatchingStmt, err = q.db.PrepareContext(ctx, getAllWatching); err != nil {
+		return fmt.Errorf("error preparing query GetAllWatching: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetAnime(ctx context.Context) error {
+	var err error
+	if q.getAnimeStmt, err = q.db.PrepareContext(ctx, getAnime); err != nil {
+		return fmt.Errorf("error preparing query GetAnime: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetAnimeCount(ctx context.Context) error {
+	var err error
+	if q.getAnimeCountStmt, err = q.db.PrepareContext(ctx, getAnimeCount); err != nil {
+		return fmt.Errorf("error preparing query GetAnimeCount: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetEpisode(ctx context.Context) error {
+	var err error
+	if q.getEpisodeStmt, err = q.db.PrepareContext(ctx, getEpisode); err != nil {
+		return fmt.Errorf("error preparing query GetEpisode: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetEpisodeCount(ctx context.Context) error {
+	var err error
+	if q.getEpisodeCountStmt, err = q.db.PrepareContext(ctx, getEpisodeCount); err != nil {
+		return fmt.Errorf("error preparing query GetEpisodeCount: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetEpisodeFiles(ctx context.Context) error {
+	var err error
+	if q.getEpisodeFilesStmt, err = q.db.PrepareContext(ctx, getEpisodeFiles); err != nil {
+		return fmt.Errorf("error preparing query GetEpisodeFiles: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetEpisodes(ctx context.Context) error {
+	var err error
+	if q.getEpisodesStmt, err = q.db.PrepareContext(ctx, getEpisodes); err != nil {
+		return fmt.Errorf("error preparing query GetEpisodes: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetFileHash(ctx context.Context) error {
+	var err error
+	if q.getFileHashStmt, err = q.db.PrepareContext(ctx, getFileHash); err != nil {
+		return fmt.Errorf("error preparing query GetFileHash: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetWatchedEpisodeCount(ctx context.Context) error {
+	var err error
+	if q.getWatchedEpisodeCountStmt, err = q.db.PrepareContext(ctx, getWatchedEpisodeCount); err != nil {
+		return fmt.Errorf("error preparing query GetWatchedEpisodeCount: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetWatchedMinutes(ctx context.Context) error {
+	var err error
+	if q.getWatchedMinutesStmt, err = q.db.PrepareContext(ctx, getWatchedMinutes); err != nil {
+		return fmt.Errorf("error preparing query GetWatchedMinutes: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetWatching(ctx context.Context) error {
+	var err error
+	if q.getWatchingStmt, err = q.db.PrepareContext(ctx, getWatching); err != nil {
+		return fmt.Errorf("error preparing query GetWatching: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareGetWatchingCount(ctx context.Context) error {
+	var err error
+	if q.getWatchingCountStmt, err = q.db.PrepareContext(ctx, getWatchingCount); err != nil {
+		return fmt.Errorf("error preparing query GetWatchingCount: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareInsertAnime(ctx context.Context) error {
+	var err error
+	if q.insertAnimeStmt, err = q.db.PrepareContext(ctx, insertAnime); err != nil {
+		return fmt.Errorf("error preparing query InsertAnime: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareInsertEpisode(ctx context.Context) error {
+	var err error
+	if q.insertEpisodeStmt, err = q.db.PrepareContext(ctx, insertEpisode); err != nil {
+		return fmt.Errorf("error preparing query InsertEpisode: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareInsertEpisodeFile(ctx context.Context) error {
+	var err error
+	if q.insertEpisodeFileStmt, err = q.db.PrepareContext(ctx, insertEpisodeFile); err != nil {
+		return fmt.Errorf("error preparing query InsertEpisodeFile: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareInsertFileHash(ctx context.Context) error {
+	var err error
+	if q.insertFileHashStmt, err = q.db.PrepareContext(ctx, insertFileHash); err != nil {
+		return fmt.Errorf("error preparing query InsertFileHash: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareInsertWatching(ctx context.Context) error {
+	var err error
+	if q.insertWatchingStmt, err = q.db.PrepareContext(ctx, insertWatching); err != nil {
+		return fmt.Errorf("error preparing query InsertWatching: %w", err)
+	}
+	return nil
+}
+
+func (q *Queries) PrepareUpdateEpisodeDone(ctx context.Context) error {
+	var err error
+	if q.updateEpisodeDoneStmt, err = q.db.PrepareContext(ctx, updateEpisodeDone); err != nil {
+		return fmt.Errorf("error preparing query UpdateEpisodeDone: %w", err)
+	}
+	return nil
+}
+
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                         tx,

@@ -58,8 +58,8 @@ func RefreshFiles(db *sql.DB, files []string) error {
 	}
 	l.Info("start inserting files")
 	ctx := context.Background()
-	q, err := sqlc.Prepare(ctx, db)
-	if err != nil {
+	q := sqlc.New(db)
+	if err := q.PrepareInsertEpisodeFile(ctx); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
 	defer q.Close()

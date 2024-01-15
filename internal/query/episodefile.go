@@ -29,6 +29,8 @@ type EpisodeFile struct {
 }
 
 // InsertEpisodeFile inserts episode files into the database.
+// The caller should pre-emptively prepare
+// [sqlc.Queries.PrepareInsertEpisodeFile] for performance.
 func InsertEpisodeFiles(ctx context.Context, q *sqlc.Queries, l *slog.Logger, efs []EpisodeFile) error {
 	for _, ef := range efs {
 		p := sqlc.InsertEpisodeFileParams{
