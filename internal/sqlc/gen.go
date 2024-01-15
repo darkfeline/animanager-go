@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
+// Package sqlc contains type-safe wrappers for SQL queries generated
+// using sqlc.
 package sqlc
 
 //go:generate sqlc generate
