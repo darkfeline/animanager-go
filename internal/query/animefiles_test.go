@@ -46,7 +46,7 @@ func TestGetAnimeFiles(t *testing.T) {
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
+	efs := []EpisodeFile{{Eid: 113, Path: "/foobar"}}
 	ctx := context.Background()
 	if err := InsertEpisodeFiles(ctx, sqlc.New(db), nullLogger(), efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
@@ -66,7 +66,7 @@ func TestGetAnimeFiles(t *testing.T) {
 				Length: 25,
 			},
 			Files: []EpisodeFile{
-				{EID: 113, Path: "/foobar"},
+				{ID: 1, Eid: 113, Path: "/foobar"},
 			},
 		},
 	}
@@ -96,7 +96,7 @@ func TestDeleteAnimeFiles(t *testing.T) {
 	if err := InsertAnime(db, a); err != nil {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
-	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
+	efs := []EpisodeFile{{Eid: 113, Path: "/foobar"}}
 	ctx := context.Background()
 	if err := InsertEpisodeFiles(ctx, sqlc.New(db), nullLogger(), efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)

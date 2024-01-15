@@ -97,7 +97,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 			continue
 		}
 		result = append(result, query.EpisodeFile{
-			EID:  regEps[n].EID,
+			Eid:  regEps[n].EID,
 			Path: f,
 		})
 	}

@@ -47,10 +47,10 @@ func TestFilterFiles(t *testing.T) {
 		t.Errorf("filterFiles returned error: %#v", err)
 	}
 	want := []query.EpisodeFile{
-		{EID: 111, Path: "/foo/lacia1"},
-		{EID: 111, Path: "/foo/lacia1v2"},
-		{EID: 0, Path: "/foo/lacia2"},
-		{EID: 113, Path: "/foo/lacia5"},
+		{Eid: 111, Path: "/foo/lacia1"},
+		{Eid: 111, Path: "/foo/lacia1v2"},
+		{Eid: 0, Path: "/foo/lacia2"},
+		{Eid: 113, Path: "/foo/lacia5"},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("filterFiles() = %#v; want %#v", got, want)

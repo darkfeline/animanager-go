@@ -22,11 +22,7 @@ import (
 	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
-type EpisodeFile struct {
-	_table struct{} `sql:"episode_file"`
-	EID    sqlc.EID `sql:"eid"`
-	Path   string   `sql:"path"`
-}
+type EpisodeFile = sqlc.EpisodeFile
 
 // InsertEpisodeFile inserts episode files into the database.
 // The caller should pre-emptively prepare
@@ -34,7 +30,7 @@ type EpisodeFile struct {
 func InsertEpisodeFiles(ctx context.Context, q *sqlc.Queries, l *slog.Logger, efs []EpisodeFile) error {
 	for _, ef := range efs {
 		p := sqlc.InsertEpisodeFileParams{
-			Eid:  ef.EID,
+			Eid:  ef.Eid,
 			Path: ef.Path,
 		}
 		if err := q.InsertEpisodeFile(ctx, p); err != nil {
@@ -52,18 +48,11 @@ func GetEpisodeFiles(db sqlc.DBTX, eid sqlc.EID) ([]EpisodeFile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisodeFiles %d: %s", eid, err)
 	}
-	return smap(es, convertEpisodeFile), nil
+	return es, nil
 }
 
 // DeleteAllEpisodeFiles deletes all episode files.
 func DeleteAllEpisodeFiles(db sqlc.DBTX) error {
 	ctx := context.Background()
 	return sqlc.New(db).DeleteAllEpisodeFiles(ctx)
-}
-
-func convertEpisodeFile(e sqlc.EpisodeFile) EpisodeFile {
-	return EpisodeFile{
-		EID:  sqlc.EID(e.Eid),
-		Path: e.Path,
-	}
 }
