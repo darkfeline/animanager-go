@@ -69,8 +69,9 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
+	m.l = m.l.With("FileHash", fh)
 	if fh.EID == 0 {
-		slog.Debug("file hash missing EID", "FileHash", fh)
+		slog.Debug("file hash missing EID")
 		return nil
 	}
 	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
