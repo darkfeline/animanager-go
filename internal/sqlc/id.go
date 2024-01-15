@@ -75,7 +75,7 @@ func ParseID[T ~int](s string) (T, error) {
 	return T(id), nil
 }
 
-// A Hash is an eD2k formatted as a hex string.
+// A Hash is an eD2k hash formatted as a hex string.
 type Hash string
 
 func (h *Hash) Scan(src any) error {
