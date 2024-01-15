@@ -18,8 +18,8 @@ type Anime struct {
 }
 
 type Episode struct {
-	Eid         int64
-	Aid         int64
+	Eid         EID
+	Aid         AID
 	Type        int64
 	Number      int64
 	Title       string
@@ -29,7 +29,7 @@ type Episode struct {
 
 type EpisodeFile struct {
 	ID   int64
-	Eid  int64
+	Eid  EID
 	Path string
 }
 
@@ -42,7 +42,7 @@ type Filehash struct {
 }
 
 type Watching struct {
-	Aid    int64
+	Aid    AID
 	Regexp string
 	Offset int64
 }

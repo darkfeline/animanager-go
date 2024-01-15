@@ -28,17 +28,25 @@ sql:
       overrides:
       # Integer primary keys are incorrectly inferred as nullable.
       # https://github.com/sqlc-dev/sqlc/issues/3119
-      - column: episode.eid
-        go_type: int64
       - column: episode_file.id
-        go_type: int64
-      - column: watching.aid
         go_type: int64
 
       # Custom types
       - column: anime.aid
         go_type:
           type: AID
+      - column: episode.eid
+        go_type:
+          type: EID
+      - column: episode.aid
+        go_type:
+          type: AID
+      - column: episode_file.eid
+        go_type:
+          type: EID
       - column: filehash.hash
         go_type:
           type: Hash
+      - column: watching.aid
+        go_type:
+          type: AID

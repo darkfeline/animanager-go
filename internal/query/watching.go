@@ -22,7 +22,7 @@ func InsertWatching(db sqlc.DBTX, w Watching) error {
 	}
 	ctx := context.Background()
 	p := sqlc.InsertWatchingParams{
-		Aid:    int64(w.AID),
+		Aid:    w.AID,
 		Regexp: w.Regexp,
 		Offset: int64(w.Offset),
 	}
@@ -36,7 +36,7 @@ func InsertWatching(db sqlc.DBTX, w Watching) error {
 // database.
 func GetWatching(db sqlc.DBTX, aid sqlc.AID) (Watching, error) {
 	ctx := context.Background()
-	w, err := sqlc.New(db).GetWatching(ctx, int64(aid))
+	w, err := sqlc.New(db).GetWatching(ctx, aid)
 	if err != nil {
 		return Watching{}, fmt.Errorf("GetWatching %d: %w", aid, err)
 	}
@@ -67,7 +67,7 @@ func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
 // database.
 func DeleteWatching(db sqlc.DBTX, aid sqlc.AID) error {
 	ctx := context.Background()
-	if err := sqlc.New(db).DeleteWatching(ctx, int64(aid)); err != nil {
+	if err := sqlc.New(db).DeleteWatching(ctx, aid); err != nil {
 		return fmt.Errorf("DeleteWatching %d: %s", aid, err)
 	}
 	return nil

@@ -27,7 +27,7 @@ DELETE FROM episode_file WHERE ROWID IN (
 )
 `
 
-func (q *Queries) DeleteAnimeFiles(ctx context.Context, aid int64) error {
+func (q *Queries) DeleteAnimeFiles(ctx context.Context, aid AID) error {
 	_, err := q.exec(ctx, q.deleteAnimeFilesStmt, deleteAnimeFiles, aid)
 	return err
 }
@@ -36,7 +36,7 @@ const deleteEpisode = `-- name: DeleteEpisode :exec
 DELETE FROM episode WHERE eid = ?
 `
 
-func (q *Queries) DeleteEpisode(ctx context.Context, eid int64) error {
+func (q *Queries) DeleteEpisode(ctx context.Context, eid EID) error {
 	_, err := q.exec(ctx, q.deleteEpisodeStmt, deleteEpisode, eid)
 	return err
 }
@@ -45,7 +45,7 @@ const deleteWatching = `-- name: DeleteWatching :exec
 DELETE FROM watching WHERE aid = ?
 `
 
-func (q *Queries) DeleteWatching(ctx context.Context, aid int64) error {
+func (q *Queries) DeleteWatching(ctx context.Context, aid AID) error {
 	_, err := q.exec(ctx, q.deleteWatchingStmt, deleteWatching, aid)
 	return err
 }
@@ -206,7 +206,7 @@ const getEpisode = `-- name: GetEpisode :one
 SELECT eid, aid, type, number, title, length, user_watched FROM episode WHERE eid = ? LIMIT 1
 `
 
-func (q *Queries) GetEpisode(ctx context.Context, eid int64) (Episode, error) {
+func (q *Queries) GetEpisode(ctx context.Context, eid EID) (Episode, error) {
 	row := q.queryRow(ctx, q.getEpisodeStmt, getEpisode, eid)
 	var i Episode
 	err := row.Scan(
@@ -236,7 +236,7 @@ const getEpisodeFiles = `-- name: GetEpisodeFiles :many
 SELECT id, eid, path FROM episode_file WHERE eid=?
 `
 
-func (q *Queries) GetEpisodeFiles(ctx context.Context, eid int64) ([]EpisodeFile, error) {
+func (q *Queries) GetEpisodeFiles(ctx context.Context, eid EID) ([]EpisodeFile, error) {
 	rows, err := q.query(ctx, q.getEpisodeFilesStmt, getEpisodeFiles, eid)
 	if err != nil {
 		return nil, err
@@ -263,7 +263,7 @@ const getEpisodes = `-- name: GetEpisodes :many
 SELECT eid, aid, type, number, title, length, user_watched FROM episode WHERE aid = ? ORDER BY type, number
 `
 
-func (q *Queries) GetEpisodes(ctx context.Context, aid int64) ([]Episode, error) {
+func (q *Queries) GetEpisodes(ctx context.Context, aid AID) ([]Episode, error) {
 	rows, err := q.query(ctx, q.getEpisodesStmt, getEpisodes, aid)
 	if err != nil {
 		return nil, err
@@ -342,7 +342,7 @@ const getWatching = `-- name: GetWatching :one
 SELECT aid, "regexp", "offset" FROM watching WHERE aid = ?
 `
 
-func (q *Queries) GetWatching(ctx context.Context, aid int64) (Watching, error) {
+func (q *Queries) GetWatching(ctx context.Context, aid AID) (Watching, error) {
 	row := q.queryRow(ctx, q.getWatchingStmt, getWatching, aid)
 	var i Watching
 	err := row.Scan(&i.Aid, &i.Regexp, &i.Offset)
@@ -400,8 +400,8 @@ WHERE eid=excluded.eid
 `
 
 type InsertEpisodeParams struct {
-	Eid    int64
-	Aid    int64
+	Eid    EID
+	Aid    AID
 	Type   int64
 	Number int64
 	Title  string
@@ -425,7 +425,7 @@ INSERT INTO episode_file (eid, path) VALUES (?, ?)
 `
 
 type InsertEpisodeFileParams struct {
-	Eid  int64
+	Eid  EID
 	Path string
 }
 
@@ -469,7 +469,7 @@ WHERE aid=excluded.aid
 `
 
 type InsertWatchingParams struct {
-	Aid    int64
+	Aid    AID
 	Regexp string
 	Offset int64
 }
@@ -485,7 +485,7 @@ UPDATE episode SET user_watched = ? WHERE eid = ?
 
 type UpdateEpisodeDoneParams struct {
 	UserWatched int64
-	Eid         int64
+	Eid         EID
 }
 
 func (q *Queries) UpdateEpisodeDone(ctx context.Context, arg UpdateEpisodeDoneParams) error {

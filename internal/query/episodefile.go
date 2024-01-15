@@ -34,7 +34,7 @@ type EpisodeFile struct {
 func InsertEpisodeFiles(ctx context.Context, q *sqlc.Queries, l *slog.Logger, efs []EpisodeFile) error {
 	for _, ef := range efs {
 		p := sqlc.InsertEpisodeFileParams{
-			Eid:  int64(ef.EID),
+			Eid:  ef.EID,
 			Path: ef.Path,
 		}
 		if err := q.InsertEpisodeFile(ctx, p); err != nil {
@@ -48,7 +48,7 @@ func InsertEpisodeFiles(ctx context.Context, q *sqlc.Queries, l *slog.Logger, ef
 // GetEpisodeFiles returns the EpisodeFiles for the episode.
 func GetEpisodeFiles(db sqlc.DBTX, eid sqlc.EID) ([]EpisodeFile, error) {
 	ctx := context.Background()
-	es, err := sqlc.New(db).GetEpisodeFiles(ctx, int64(eid))
+	es, err := sqlc.New(db).GetEpisodeFiles(ctx, eid)
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisodeFiles %d: %s", eid, err)
 	}

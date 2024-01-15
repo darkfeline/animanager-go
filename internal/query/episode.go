@@ -86,7 +86,7 @@ func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 // GetEpisode gets the episode from the database.
 func GetEpisode(db sqlc.DBTX, eid sqlc.EID) (*Episode, error) {
 	ctx := context.Background()
-	e, err := sqlc.New(db).GetEpisode(ctx, int64(eid))
+	e, err := sqlc.New(db).GetEpisode(ctx, eid)
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisode %d: %s", eid, err)
 	}
@@ -97,7 +97,7 @@ func GetEpisode(db sqlc.DBTX, eid sqlc.EID) (*Episode, error) {
 // DeleteEpisode deletes the episode from the database.
 func DeleteEpisode(db sqlc.DBTX, eid sqlc.EID) error {
 	ctx := context.Background()
-	err := sqlc.New(db).DeleteEpisode(ctx, int64(eid))
+	err := sqlc.New(db).DeleteEpisode(ctx, eid)
 	if err != nil {
 		return fmt.Errorf("DeleteEpisode %v: %w", eid, err)
 	}
@@ -107,7 +107,7 @@ func DeleteEpisode(db sqlc.DBTX, eid sqlc.EID) error {
 // GetEpisodes gets the episodes for an anime from the database.
 func GetEpisodes(db sqlc.DBTX, aid sqlc.AID) ([]Episode, error) {
 	ctx := context.Background()
-	e, err := sqlc.New(db).GetEpisodes(ctx, int64(aid))
+	e, err := sqlc.New(db).GetEpisodes(ctx, aid)
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisodes %d: %s", aid, err)
 	}
@@ -142,7 +142,7 @@ func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
 // UpdateEpisodeDone updates the episode's done status.
 func UpdateEpisodeDone(db sqlc.DBTX, eid sqlc.EID, done bool) error {
 	p := sqlc.UpdateEpisodeDoneParams{
-		Eid: int64(eid),
+		Eid: eid,
 	}
 	if done {
 		p.UserWatched = 1
