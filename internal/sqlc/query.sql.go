@@ -445,8 +445,8 @@ WHERE size=excluded.size AND hash=excluded.hash
 type InsertFileHashParams struct {
 	Size     int64
 	Hash     Hash
-	Eid      int64
-	Aid      int64
+	Eid      EID
+	Aid      AID
 	Filename string
 }
 

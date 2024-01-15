@@ -38,8 +38,8 @@ func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
 	p := sqlc.InsertFileHashParams{
 		Size:     fh.Size,
 		Hash:     fh.Hash,
-		Eid:      int64(fh.EID),
-		Aid:      int64(fh.AID),
+		Eid:      fh.EID,
+		Aid:      fh.AID,
 		Filename: fh.Filename,
 	}
 	return sqlc.New(db).InsertFileHash(ctx, p)

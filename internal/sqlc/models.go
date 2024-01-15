@@ -36,8 +36,8 @@ type EpisodeFile struct {
 type Filehash struct {
 	Size     int64
 	Hash     Hash
-	Eid      int64
-	Aid      int64
+	Eid      EID
+	Aid      AID
 	Filename string
 }
 
