@@ -54,24 +54,11 @@ var unregisterCmd = command{
 		}
 		defer db.Close()
 		if *finished {
-			watching, err := query.GetAllWatching(db)
+			fas, err := query.GetFinishedWatchingAIDs(db)
 			if err != nil {
 				return err
 			}
-			watchingMap := make(map[sqlc.AID]bool)
-			for _, w := range watching {
-				watchingMap[w.AID] = true
-			}
-
-			finished, err := query.GetFinishedAnime(db)
-			if err != nil {
-				return err
-			}
-			for _, a := range finished {
-				if watchingMap[a.AID] {
-					aids = append(aids, a.AID)
-				}
-			}
+			aids = append(aids, fas...)
 		}
 		ctx := context.Background()
 		q := sqlc.New(db)

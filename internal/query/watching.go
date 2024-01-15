@@ -63,6 +63,31 @@ func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
 	return smap(w, convertWatching), nil
 }
 
+// GetFinishedWatchingAIDs returns the AIDs for finished anime with
+// watching entries.
+func GetFinishedWatchingAIDs(db sqlc.DBTX) ([]sqlc.AID, error) {
+	watching, err := GetAllWatching(db)
+	if err != nil {
+		return nil, fmt.Errorf("GetFinishedWatchingAIDs: %s", err)
+	}
+	watchingMap := make(map[sqlc.AID]bool)
+	for _, w := range watching {
+		watchingMap[w.AID] = true
+	}
+
+	finished, err := GetFinishedAnime(db)
+	if err != nil {
+		return nil, fmt.Errorf("GetFinishedWatchingAIDs: %s", err)
+	}
+	var aids []sqlc.AID
+	for _, a := range finished {
+		if watchingMap[a.AID] {
+			aids = append(aids, a.AID)
+		}
+	}
+	return aids, nil
+}
+
 func convertWatching(w sqlc.Watching) Watching {
 	return Watching{
 		AID:    sqlc.AID(w.Aid),
