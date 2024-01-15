@@ -86,6 +86,32 @@ func (t EpisodeType) Prefix() string {
 	}
 }
 
+// Valid returns whether the [EpisodeType] is a valid value.
 func (t EpisodeType) Valid() bool {
 	return 1 <= t && t <= 6
+}
+
+// ParseEpisodeType parses an [EpisodeType] from the string prefix.
+// The string is usually an episode number in AniDB format.
+// If parse fails, returns an invalid [EpisodeType].
+// Note that this function may return [EpRegular] even if the string
+// is an invalid episode number, as this function does not assume
+// AniDB format.
+func ParseEpisodeType(epno string) EpisodeType {
+	if len(epno) < 1 {
+		return 0
+	}
+	switch epno[:1] {
+	case EpSpecial.Prefix():
+		return EpSpecial
+	case EpCredit.Prefix():
+		return EpCredit
+	case EpTrailer.Prefix():
+		return EpTrailer
+	case EpParody.Prefix():
+		return EpParody
+	case EpOther.Prefix():
+		return EpOther
+	}
+	return EpRegular
 }

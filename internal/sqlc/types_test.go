@@ -1,4 +1,4 @@
-// Copyright (C) 2018  Allen Li
+// Copyright (C) 2024  Allen Li
 //
 // This file is part of Animanager.
 //
@@ -15,35 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Animanager.  If not, see <http://www.gnu.org/licenses/>.
 
-package query
+package sqlc
 
-import (
-	"strconv"
+import "testing"
 
-	"go.felesatra.moe/animanager/internal/sqlc"
-)
-
-type EpisodeType = sqlc.EpisodeType
-
-const (
-	EpRegular EpisodeType = 1
-	EpSpecial EpisodeType = 2
-	EpCredit  EpisodeType = 3
-	EpTrailer EpisodeType = 4
-	EpParody  EpisodeType = 5
-	EpOther   EpisodeType = 6
-)
-
-// parseEpNo parses episode number information from the AniDB format.
-// If parse fails, returns an invalid EpisodeType.
-func parseEpNo(epno string) (EpisodeType, int) {
-	t := sqlc.ParseEpisodeType(epno)
-	if !t.Valid() {
-		return 0, 0
+func TestParseEpisodeType(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		EpNo string
+		Type EpisodeType
+	}{
+		{"S1", EpSpecial},
+		{"T2", EpTrailer},
+		{"15", EpRegular},
+		{"Clarion", EpCredit},
 	}
-	n, err := strconv.Atoi(epno[len(t.Prefix()):])
-	if err != nil {
-		return 0, 0
+	for _, c := range cases {
+		c := c
+		t.Run(c.EpNo, func(t *testing.T) {
+			t.Parallel()
+			eptype := ParseEpisodeType(c.EpNo)
+			if eptype != c.Type {
+				t.Errorf("ParseEpisodeType(%s) = %v (expected %v)",
+					c.EpNo, eptype, c.Type)
+			}
+		})
 	}
-	return t, n
 }
