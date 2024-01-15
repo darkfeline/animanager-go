@@ -36,9 +36,9 @@ type EpisodeFile struct {
 type Filehash struct {
 	Size     int64
 	Hash     Hash
-	Eid      sql.NullInt64
-	Aid      sql.NullInt64
-	Filename sql.NullString
+	Eid      int64
+	Aid      int64
+	Filename string
 }
 
 type Watching struct {

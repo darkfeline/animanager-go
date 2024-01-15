@@ -36,20 +36,11 @@ type FileHash struct {
 func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
 	ctx := context.Background()
 	p := sqlc.InsertFileHashParams{
-		Size: fh.Size,
-		Hash: fh.Hash,
-	}
-	if fh.EID != 0 {
-		p.Eid.Int64 = int64(fh.EID)
-		p.Eid.Valid = true
-	}
-	if fh.AID != 0 {
-		p.Aid.Int64 = int64(fh.AID)
-		p.Aid.Valid = true
-	}
-	if fh.Filename != "" {
-		p.Filename.String = fh.Filename
-		p.Filename.Valid = true
+		Size:     fh.Size,
+		Hash:     fh.Hash,
+		Eid:      int64(fh.EID),
+		Aid:      int64(fh.AID),
+		Filename: fh.Filename,
 	}
 	return sqlc.New(db).InsertFileHash(ctx, p)
 }
@@ -72,8 +63,8 @@ func convertFileHash(v sqlc.Filehash) FileHash {
 	return FileHash{
 		Size:     v.Size,
 		Hash:     v.Hash,
-		EID:      sqlc.EID(v.Eid.Int64),
-		AID:      sqlc.AID(v.Aid.Int64),
-		Filename: string(v.Filename.String),
+		EID:      sqlc.EID(v.Eid),
+		AID:      sqlc.AID(v.Aid),
+		Filename: v.Filename,
 	}
 }

@@ -445,9 +445,9 @@ WHERE size=excluded.size AND hash=excluded.hash
 type InsertFileHashParams struct {
 	Size     int64
 	Hash     Hash
-	Eid      sql.NullInt64
-	Aid      sql.NullInt64
-	Filename sql.NullString
+	Eid      int64
+	Aid      int64
+	Filename string
 }
 
 func (q *Queries) InsertFileHash(ctx context.Context, arg InsertFileHashParams) error {

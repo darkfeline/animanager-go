@@ -51,9 +51,9 @@ CREATE TABLE episode_file (
 CREATE TABLE filehash (
     size INTEGER NOT NULL,
     hash TEXT NOT NULL,
-    eid INTEGER,
-    aid INTEGER,
-    filename TEXT,
+    eid INTEGER NOT NULL,
+    aid INTEGER NOT NULL,
+    filename TEXT NOT NULL,
     UNIQUE(size, hash)
 )
 
