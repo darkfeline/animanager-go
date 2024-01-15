@@ -64,9 +64,9 @@ var registerCmd = command{
 			*pattern = animeDefaultRegexp(a)
 		}
 		w := query.Watching{
-			AID:    aid,
+			Aid:    aid,
 			Regexp: *pattern,
-			Offset: *offset,
+			Offset: int64(*offset),
 		}
 		if err := query.InsertWatching(db, w); err != nil {
 			return err

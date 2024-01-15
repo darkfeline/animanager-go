@@ -43,7 +43,7 @@ func TestInsertAndGetWatching(t *testing.T) {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
 	want := Watching{
-		AID:    aid,
+		Aid:    aid,
 		Regexp: "foo",
 		Offset: 2,
 	}
@@ -77,7 +77,7 @@ func TestInsertInvalidRegexp(t *testing.T) {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
 	want := Watching{
-		AID:    aid,
+		Aid:    aid,
 		Regexp: "blah[",
 		Offset: 2,
 	}
@@ -104,7 +104,7 @@ func TestInsertAndGetAllWatching(t *testing.T) {
 		t.Fatalf("Error inserting anime: %s", err)
 	}
 	want := []Watching{
-		{AID: aid, Regexp: "foo", Offset: 2},
+		{Aid: aid, Regexp: "foo", Offset: 2},
 	}
 	if err := InsertWatching(db, want[0]); err != nil {
 		t.Fatalf("Error inserting watching: %s", err)

@@ -41,11 +41,11 @@ func RefreshFiles(db *sql.DB, files []string) error {
 	var efs []query.EpisodeFile
 	l.Info("start match files")
 	for _, w := range ws {
-		if err := query.DeleteAnimeFiles(db, w.AID); err != nil {
+		if err := query.DeleteAnimeFiles(db, w.Aid); err != nil {
 			return fmt.Errorf("refresh files: %w", err)
 		}
-		l.Info("start match files for anime", "aid", w.AID)
-		eps, err := query.GetEpisodes(db, w.AID)
+		l.Info("start match files for anime", "aid", w.Aid)
+		eps, err := query.GetEpisodes(db, w.Aid)
 		if err != nil {
 			return fmt.Errorf("refresh files: %w", err)
 		}
@@ -53,7 +53,7 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		if err != nil {
 			return fmt.Errorf("refresh files: %w", err)
 		}
-		l.Info("matched files for anime", "aid", w.AID, "files", efs2)
+		l.Info("matched files for anime", "aid", w.Aid, "files", efs2)
 		efs = append(efs, efs2...)
 	}
 	l.Info("start inserting files")
@@ -74,7 +74,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 	var result []query.EpisodeFile
 	r, err := regexp.Compile("(?i)" + w.Regexp)
 	if err != nil {
-		return nil, fmt.Errorf("filter files for %d: %w", w.AID, err)
+		return nil, fmt.Errorf("filter files for %d: %w", w.Aid, err)
 	}
 	regEps := reindexEpisodeByNumber(eps)
 	for _, f := range files {
@@ -84,15 +84,16 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 		}
 		if len(ms) < 2 {
 			return nil, fmt.Errorf("filter files for %d: regexp %#v has no submatch",
-				w.AID, w.Regexp)
+				w.Aid, w.Regexp)
 
 		}
 		n, err := strconv.Atoi(ms[1])
 		if err != nil {
 			return nil, fmt.Errorf("filter files for %d: regexp %#v submatch not a number",
-				w.AID, w.Regexp)
+				w.Aid, w.Regexp)
 		}
-		n += w.Offset
+		// BUG: watching offset gets truncated to int32 on 32-bit architectures, probably.
+		n += int(w.Offset)
 		if n >= len(regEps) || n < 1 {
 			continue
 		}

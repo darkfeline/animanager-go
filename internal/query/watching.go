@@ -8,26 +8,21 @@ import (
 	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
-type Watching struct {
-	_table struct{} `sql:"watching"`
-	AID    sqlc.AID `sql:"aid"`
-	Regexp string   `sql:"regexp"`
-	Offset int      `sql:"offset"`
-}
+type Watching = sqlc.Watching
 
 // InsertWatching inserts or updates a watching entry into the database.
 func InsertWatching(db sqlc.DBTX, w Watching) error {
 	if _, err := regexp.Compile(w.Regexp); err != nil {
-		return fmt.Errorf("insert watching %d: %w", w.AID, err)
+		return fmt.Errorf("insert watching %d: %w", w.Aid, err)
 	}
 	ctx := context.Background()
 	p := sqlc.InsertWatchingParams{
-		Aid:    w.AID,
+		Aid:    w.Aid,
 		Regexp: w.Regexp,
-		Offset: int64(w.Offset),
+		Offset: w.Offset,
 	}
 	if err := sqlc.New(db).InsertWatching(ctx, p); err != nil {
-		return fmt.Errorf("insert watching %d: %w", w.AID, err)
+		return fmt.Errorf("insert watching %d: %w", w.Aid, err)
 	}
 	return nil
 }
@@ -40,7 +35,7 @@ func GetWatching(db sqlc.DBTX, aid sqlc.AID) (Watching, error) {
 	if err != nil {
 		return Watching{}, fmt.Errorf("GetWatching %d: %w", aid, err)
 	}
-	return convertWatching(w), nil
+	return w, nil
 }
 
 // GetWatchingCount returns the number of watching rows.
@@ -60,7 +55,7 @@ func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAllWatching: %s", err)
 	}
-	return smap(w, convertWatching), nil
+	return w, nil
 }
 
 // GetFinishedWatchingAIDs returns the AIDs for finished anime with
@@ -72,7 +67,7 @@ func GetFinishedWatchingAIDs(db sqlc.DBTX) ([]sqlc.AID, error) {
 	}
 	watchingMap := make(map[sqlc.AID]bool)
 	for _, w := range watching {
-		watchingMap[w.AID] = true
+		watchingMap[w.Aid] = true
 	}
 
 	finished, err := GetFinishedAnime(db)
@@ -86,12 +81,4 @@ func GetFinishedWatchingAIDs(db sqlc.DBTX) ([]sqlc.AID, error) {
 		}
 	}
 	return aids, nil
-}
-
-func convertWatching(w sqlc.Watching) Watching {
-	return Watching{
-		AID:    sqlc.AID(w.Aid),
-		Regexp: w.Regexp,
-		Offset: int(w.Offset),
-	}
 }

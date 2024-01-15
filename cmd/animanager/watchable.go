@@ -74,7 +74,7 @@ func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {
 		return err
 	}
 	for _, w := range ws {
-		if err := showWatchableSingle(db, bw, w.AID, o); err != nil {
+		if err := showWatchableSingle(db, bw, w.Aid, o); err != nil {
 			return err
 		}
 	}
