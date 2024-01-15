@@ -28,6 +28,7 @@ import (
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 var showFilesCmd = command{
@@ -46,7 +47,7 @@ var showFilesCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		id, err := query.ParseID[int](f.Arg(0))
+		id, err := sqlc.ParseID[int](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
@@ -58,16 +59,16 @@ var showFilesCmd = command{
 		defer db.Close()
 		bw := bufio.NewWriter(os.Stdout)
 		if *episode {
-			err = showEpisodeFiles(bw, db, query.EID(id))
+			err = showEpisodeFiles(bw, db, sqlc.EID(id))
 		} else {
-			err = showAnimeFiles(bw, db, query.AID(id))
+			err = showAnimeFiles(bw, db, sqlc.AID(id))
 		}
 		bw.Flush()
 		return err
 	},
 }
 
-func showAnimeFiles(w io.Writer, db *sql.DB, aid query.AID) error {
+func showAnimeFiles(w io.Writer, db *sql.DB, aid sqlc.AID) error {
 	eps, err := query.GetEpisodes(db, aid)
 	if err != nil {
 		return err
@@ -85,7 +86,7 @@ func showAnimeFiles(w io.Writer, db *sql.DB, aid query.AID) error {
 	return nil
 }
 
-func showEpisodeFiles(w io.Writer, db *sql.DB, eid query.EID) error {
+func showEpisodeFiles(w io.Writer, db *sql.DB, eid sqlc.EID) error {
 	efs, err := query.GetEpisodeFiles(db, eid)
 	if err != nil {
 		return err

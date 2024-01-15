@@ -17,60 +17,7 @@
 
 package query
 
-import (
-	"fmt"
-	"strconv"
-)
+import "go.felesatra.moe/animanager/internal/sqlc"
 
-// An AID is an ID for [Anime].
-type AID int
-
-// Scan implements [database/sql.Scanner].
-func (t *AID) Scan(src any) error {
-	return scanID(t, src)
-}
-
-// An EID is an ID for [Episode].
-type EID int
-
-// Scan implements [database/sql.Scanner].
-func (t *EID) Scan(src any) error {
-	return scanID(t, src)
-}
-
-// scanID is a helper for implementing [database/sql.Scanner] for
-// custom int types.
-func scanID[T ~int](t *T, src any) error {
-	v, ok := src.(int64)
-	if !ok {
-		return fmt.Errorf("wrong type %T for %T", src, *t)
-	}
-	v2 := T(v)
-	if int64(v2) != v {
-		return fmt.Errorf("value does not fit in %T: %v", *t, src)
-	}
-	*t = v2
-	return nil
-}
-
-// ParseIDs parses multiple IDs using [ParseID].
-func ParseIDs[T ~int](args []string) ([]T, error) {
-	ids := make([]T, len(args))
-	for i, s := range args {
-		id, err := ParseID[T](s)
-		if err != nil {
-			return nil, err
-		}
-		ids[i] = id
-	}
-	return ids, nil
-}
-
-// ParseID parses an ID type like [AID].
-func ParseID[T ~int](s string) (T, error) {
-	id, err := strconv.Atoi(s)
-	if err != nil {
-		return 0, fmt.Errorf("failed to parse %q into %T: %s", s, T(0), err)
-	}
-	return T(id), nil
-}
+type AID = sqlc.AID
+type EID = sqlc.EID

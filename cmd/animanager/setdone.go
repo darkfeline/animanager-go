@@ -22,6 +22,7 @@ import (
 
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 var setDoneCmd = command{
@@ -41,7 +42,7 @@ var setDoneCmd = command{
 			return errors.New("no arguments provided")
 		}
 
-		ids, err := query.ParseIDs[query.EID](f.Args())
+		ids, err := sqlc.ParseIDs[sqlc.EID](f.Args())
 		if err != nil {
 			return err
 		}

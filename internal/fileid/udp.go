@@ -147,11 +147,11 @@ func parseFileHashRow(fh *query.FileHash, row []string) error {
 	if n := len(row); n != 3 {
 		return fmt.Errorf("parse file has row: unexpected number of values in response: %d", n)
 	}
-	aid, err := query.ParseID[query.AID](row[1])
+	aid, err := sqlc.ParseID[sqlc.AID](row[1])
 	if err != nil {
 		return fmt.Errorf("parse file has row: parse aid: %s", err)
 	}
-	eid, err := query.ParseID[query.EID](row[2])
+	eid, err := sqlc.ParseID[sqlc.EID](row[2])
 	if err != nil {
 		return fmt.Errorf("parse file has row: parse eid: %s", err)
 	}

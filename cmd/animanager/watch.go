@@ -30,6 +30,7 @@ import (
 	"go.felesatra.moe/animanager/internal/config"
 	"go.felesatra.moe/animanager/internal/input"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 var watchCmd = command{
@@ -52,7 +53,7 @@ var watchCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		id, err := query.ParseID[int](f.Arg(0))
+		id, err := sqlc.ParseID[int](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid ID %v: %v", id, err)
 		}
@@ -63,15 +64,15 @@ var watchCmd = command{
 		}
 		defer db.Close()
 		if *episode {
-			err = watchEpisode(cfg, db, query.EID(id))
+			err = watchEpisode(cfg, db, sqlc.EID(id))
 		} else {
-			err = watchAnime(cfg, db, query.AID(id))
+			err = watchAnime(cfg, db, sqlc.AID(id))
 		}
 		return err
 	},
 }
 
-func watchEpisode(cfg *config.Config, db *sql.DB, eid query.EID) error {
+func watchEpisode(cfg *config.Config, db *sql.DB, eid sqlc.EID) error {
 	e, err := query.GetEpisode(db, eid)
 	if err != nil {
 		return fmt.Errorf("get episode: %c", err)
@@ -121,7 +122,7 @@ func playFile(cfg *config.Config, p string) error {
 	return cmd.Run()
 }
 
-func watchAnime(cfg *config.Config, db *sql.DB, aid query.AID) error {
+func watchAnime(cfg *config.Config, db *sql.DB, aid sqlc.AID) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return fmt.Errorf("get anime: %c", err)

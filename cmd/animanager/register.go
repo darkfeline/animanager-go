@@ -26,6 +26,7 @@ import (
 
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 var registerCmd = command{
@@ -45,7 +46,7 @@ var registerCmd = command{
 		if f.NArg() != 1 {
 			return errors.New("must pass exactly one argument")
 		}
-		aid, err := query.ParseID[query.AID](f.Arg(0))
+		aid, err := sqlc.ParseID[sqlc.AID](f.Arg(0))
 		if err != nil {
 			return fmt.Errorf("invalid AID %v: %v", aid, err)
 		}

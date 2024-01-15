@@ -23,6 +23,7 @@ import (
 
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 var unregisterCmd = command{
@@ -41,7 +42,7 @@ var unregisterCmd = command{
 		if f.NArg() < 1 && !*finished {
 			return errors.New("no anime specified")
 		}
-		aids, err := query.ParseIDs[query.AID](f.Args())
+		aids, err := sqlc.ParseIDs[sqlc.AID](f.Args())
 		if err != nil {
 			return err
 		}
@@ -56,7 +57,7 @@ var unregisterCmd = command{
 			if err != nil {
 				return err
 			}
-			watchingMap := make(map[query.AID]bool)
+			watchingMap := make(map[sqlc.AID]bool)
 			for _, w := range watching {
 				watchingMap[w.AID] = true
 			}

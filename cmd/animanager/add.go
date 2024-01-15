@@ -28,6 +28,7 @@ import (
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/clientid"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 	"golang.org/x/time/rate"
 )
 
@@ -47,7 +48,7 @@ var addCmd = command{
 		if f.NArg() < 1 && !(*addIncomplete) {
 			return errors.New("no AIDs given")
 		}
-		aids, err := query.ParseIDs[query.AID](f.Args())
+		aids, err := sqlc.ParseIDs[sqlc.AID](f.Args())
 		if err != nil {
 			return err
 		}
