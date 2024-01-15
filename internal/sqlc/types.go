@@ -52,3 +52,40 @@ func ParseID[T ~int](s string) (T, error) {
 
 // A Hash is an eD2k hash formatted as a hex string.
 type Hash string
+
+// An EpisodeType is the type for an [Episode].
+type EpisodeType int
+
+const (
+	EpRegular EpisodeType = 1
+	EpSpecial EpisodeType = 2
+	EpCredit  EpisodeType = 3
+	EpTrailer EpisodeType = 4
+	EpParody  EpisodeType = 5
+	EpOther   EpisodeType = 6
+)
+
+//go:generate stringer -type=EpisodeType
+
+func (t EpisodeType) Prefix() string {
+	switch t {
+	case EpRegular:
+		return ""
+	case EpSpecial:
+		return "S"
+	case EpCredit:
+		return "C"
+	case EpTrailer:
+		return "T"
+	case EpParody:
+		return "P"
+	case EpOther:
+		return "O"
+	default:
+		panic(fmt.Sprintf("invalid %T=%v", t, t))
+	}
+}
+
+func (t EpisodeType) Valid() bool {
+	return 1 <= t && t <= 6
+}

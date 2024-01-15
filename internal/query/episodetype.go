@@ -21,9 +21,11 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
-type EpisodeType int
+type EpisodeType = sqlc.EpisodeType
 
 const (
 	EpUnknown EpisodeType = iota
@@ -34,17 +36,6 @@ const (
 	EpParody
 	EpOther
 )
-
-func (t EpisodeType) Prefix() string {
-	for _, p := range epnoPrefixes {
-		if t == p.Type {
-			return p.Prefix
-		}
-	}
-	panic(fmt.Sprintf("Unknown EpisodeType %d", t))
-}
-
-//go:generate stringer -type=EpisodeType
 
 type prefixPair struct {
 	Prefix string
