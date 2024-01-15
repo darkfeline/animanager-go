@@ -36,7 +36,7 @@ const (
 )
 
 // parseEpNo parses episode number information from the AniDB format.
-// If parse fails, EpUnknown is returned for the episode type.
+// If parse fails, returns an invalid EpisodeType.
 func parseEpNo(epno string) (EpisodeType, int) {
 	if len(epno) < 1 {
 		return 0, 0
