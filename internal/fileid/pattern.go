@@ -92,7 +92,7 @@ func filterFiles(w query.Watching, eps []query.Episode, files []string) ([]query
 			return nil, fmt.Errorf("filter files for %d: regexp %#v submatch not a number",
 				w.Aid, w.Regexp)
 		}
-		// BUG: watching offset gets truncated to int32 on 32-bit architectures, probably.
+		// BUG(kf): watching offset gets truncated to int32 on 32-bit architectures, probably.
 		n += int(w.Offset)
 		if n >= len(regEps) || n < 1 {
 			continue

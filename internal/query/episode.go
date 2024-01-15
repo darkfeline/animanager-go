@@ -78,7 +78,7 @@ func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("GetWatchedMinutes: %s", err)
 	}
-	// BUG: GetWatchedMinutes sqlc query returns float instead of int.
+	// BUG(kf): GetWatchedMinutes sqlc query returns float instead of int.
 	// https://github.com/sqlc-dev/sqlc/issues/3122
 	return int(r.Float64), err
 }
