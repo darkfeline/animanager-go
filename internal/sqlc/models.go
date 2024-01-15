@@ -35,7 +35,7 @@ type EpisodeFile struct {
 
 type Filehash struct {
 	Size     int64
-	Hash     string
+	Hash     Hash
 	Eid      sql.NullInt64
 	Aid      sql.NullInt64
 	Filename sql.NullString

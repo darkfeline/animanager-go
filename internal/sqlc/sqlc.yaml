@@ -39,3 +39,6 @@ sql:
       - column: anime.aid
         go_type:
           type: AID
+      - column: filehash.hash
+        go_type:
+          type: Hash

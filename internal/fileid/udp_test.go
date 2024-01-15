@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 func TestCalculateFileKey(t *testing.T) {
@@ -39,7 +39,7 @@ func TestCalculateFileKey(t *testing.T) {
 	}
 	want := fileKey{
 		Size: 14,
-		Hash: query.Hash("d9130a8164549fe818874806e1c7014b"),
+		Hash: sqlc.Hash("d9130a8164549fe818874806e1c7014b"),
 	}
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("calculateFileKey() mismatch (-want +got):\n%s", diff)

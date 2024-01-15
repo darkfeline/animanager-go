@@ -300,7 +300,7 @@ SELECT size, hash, eid, aid, filename FROM filehash WHERE size=? AND hash=?
 
 type GetFileHashParams struct {
 	Size int64
-	Hash string
+	Hash Hash
 }
 
 func (q *Queries) GetFileHash(ctx context.Context, arg GetFileHashParams) (Filehash, error) {
@@ -444,7 +444,7 @@ WHERE size=excluded.size AND hash=excluded.hash
 
 type InsertFileHashParams struct {
 	Size     int64
-	Hash     string
+	Hash     Hash
 	Eid      sql.NullInt64
 	Aid      sql.NullInt64
 	Filename sql.NullString

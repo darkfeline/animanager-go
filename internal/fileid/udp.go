@@ -162,7 +162,7 @@ func parseFileHashRow(fh *query.FileHash, row []string) error {
 
 type fileKey struct {
 	Size int64
-	Hash query.Hash
+	Hash sqlc.Hash
 }
 
 // getCopyBuf returns a large copy buffer for [getFileKey].
@@ -194,6 +194,6 @@ func calculateFileKey(file string) (fileKey, error) {
 	}, nil
 }
 
-func formatHash(sum []byte) query.Hash {
-	return query.Hash(fmt.Sprintf("%x", sum))
+func formatHash(sum []byte) sqlc.Hash {
+	return sqlc.Hash(fmt.Sprintf("%x", sum))
 }

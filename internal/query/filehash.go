@@ -24,32 +24,20 @@ import (
 	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
-// A Hash is an eD2k formatted as a hex string.
-type Hash string
-
-func (h *Hash) Scan(src any) error {
-	s, ok := src.(string)
-	if !ok {
-		return fmt.Errorf("wrong type %T for %T", src, h)
-	}
-	*h = Hash(s)
-	return nil
-}
-
 type FileHash struct {
-	_table   struct{} `sql:"filehash"`
-	Size     int64    `sql:"size"`
-	Hash     Hash     `sql:"hash"`
-	EID      sqlc.EID `sql:"eid"`
-	AID      sqlc.AID `sql:"aid"`
-	Filename string   `sql:"filename"`
+	_table   struct{}  `sql:"filehash"`
+	Size     int64     `sql:"size"`
+	Hash     sqlc.Hash `sql:"hash"`
+	EID      sqlc.EID  `sql:"eid"`
+	AID      sqlc.AID  `sql:"aid"`
+	Filename string    `sql:"filename"`
 }
 
 func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
 	ctx := context.Background()
 	p := sqlc.InsertFileHashParams{
 		Size: fh.Size,
-		Hash: string(fh.Hash),
+		Hash: fh.Hash,
 	}
 	if fh.EID != 0 {
 		p.Eid.Int64 = int64(fh.EID)
@@ -66,11 +54,11 @@ func InsertFileHash(db sqlc.DBTX, fh *FileHash) error {
 	return sqlc.New(db).InsertFileHash(ctx, p)
 }
 
-func GetFileHash(db sqlc.DBTX, size int64, hash Hash) (*FileHash, error) {
+func GetFileHash(db sqlc.DBTX, size int64, hash sqlc.Hash) (*FileHash, error) {
 	ctx := context.Background()
 	p := sqlc.GetFileHashParams{
 		Size: size,
-		Hash: string(hash),
+		Hash: hash,
 	}
 	fh, err := sqlc.New(db).GetFileHash(ctx, p)
 	if err != nil {
@@ -83,7 +71,7 @@ func GetFileHash(db sqlc.DBTX, size int64, hash Hash) (*FileHash, error) {
 func convertFileHash(v sqlc.Filehash) FileHash {
 	return FileHash{
 		Size:     v.Size,
-		Hash:     Hash(v.Hash),
+		Hash:     v.Hash,
 		EID:      sqlc.EID(v.Eid.Int64),
 		AID:      sqlc.AID(v.Aid.Int64),
 		Filename: string(v.Filename.String),
