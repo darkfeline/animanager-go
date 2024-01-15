@@ -125,7 +125,7 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 		Enddate:      parseDate(a.EndDate),
 	}
 
-	if err := sqlc.New(db).InsertAnime(ctx, p); err != nil {
+	if err := sqlc.New(t).InsertAnime(ctx, p); err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	em, err := GetEpisodesMap(t, AID(a.AID))
