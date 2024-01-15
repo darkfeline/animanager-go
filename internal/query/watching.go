@@ -63,16 +63,6 @@ func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
 	return smap(w, convertWatching), nil
 }
 
-// DeleteWatching deletes the watching entry for an anime from the
-// database.
-func DeleteWatching(db sqlc.DBTX, aid sqlc.AID) error {
-	ctx := context.Background()
-	if err := sqlc.New(db).DeleteWatching(ctx, aid); err != nil {
-		return fmt.Errorf("DeleteWatching %d: %s", aid, err)
-	}
-	return nil
-}
-
 func convertWatching(w sqlc.Watching) Watching {
 	return Watching{
 		AID:    sqlc.AID(w.Aid),

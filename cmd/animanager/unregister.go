@@ -18,6 +18,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -72,9 +73,15 @@ var unregisterCmd = command{
 				}
 			}
 		}
+		ctx := context.Background()
+		q := sqlc.New(db)
+		if err := q.PrepareDeleteWatching(ctx); err != nil {
+			return err
+		}
+		defer q.Close()
 		for _, aid := range aids {
 			fmt.Println(aid)
-			if err := query.DeleteWatching(db, aid); err != nil {
+			if err := q.DeleteWatching(ctx, aid); err != nil {
 				return err
 			}
 		}
