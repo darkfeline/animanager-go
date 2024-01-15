@@ -50,3 +50,15 @@ sql:
         go_type: {"type": "AID"}
       - column: watching.aid
         go_type: {"type": "AID"}
+
+      # Width restrictions
+      - column: anime.episodecount
+        go_type: int
+      - column: episode.number
+        go_type: int
+      - column: episode.length
+        go_type: int
+      - column: episode.user_watched
+        go_type: bool
+      - column: watching.offset
+        go_type: int

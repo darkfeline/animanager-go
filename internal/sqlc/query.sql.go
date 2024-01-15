@@ -373,7 +373,7 @@ type InsertAnimeParams struct {
 	Aid          AID
 	Title        string
 	Type         string
-	Episodecount int64
+	Episodecount int
 	Startdate    sql.NullInt64
 	Enddate      sql.NullInt64
 }
@@ -403,9 +403,9 @@ type InsertEpisodeParams struct {
 	Eid    EID
 	Aid    AID
 	Type   EpisodeType
-	Number int64
+	Number int
 	Title  string
-	Length int64
+	Length int
 }
 
 func (q *Queries) InsertEpisode(ctx context.Context, arg InsertEpisodeParams) error {
@@ -471,7 +471,7 @@ WHERE aid=excluded.aid
 type InsertWatchingParams struct {
 	Aid    AID
 	Regexp string
-	Offset int64
+	Offset int
 }
 
 func (q *Queries) InsertWatching(ctx context.Context, arg InsertWatchingParams) error {
@@ -484,7 +484,7 @@ UPDATE episode SET user_watched = ? WHERE eid = ?
 `
 
 type UpdateEpisodeDoneParams struct {
-	UserWatched int64
+	UserWatched bool
 	Eid         EID
 }
 

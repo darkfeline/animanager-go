@@ -120,7 +120,7 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 		Aid:          sqlc.AID(a.AID),
 		Title:        title,
 		Type:         a.Type,
-		Episodecount: int64(a.EpisodeCount),
+		Episodecount: a.EpisodeCount,
 		Startdate:    parseDate(a.StartDate),
 		Enddate:      parseDate(a.EndDate),
 	}
@@ -176,9 +176,9 @@ func insertEpisode(t *sql.Tx, aid sqlc.AID, e anidb.Episode) error {
 		Eid:    sqlc.EID(e.EID),
 		Aid:    sqlc.AID(aid),
 		Type:   typ,
-		Number: int64(num),
+		Number: num,
 		Title:  title,
-		Length: int64(e.Length),
+		Length: e.Length,
 	}
 	err := sqlc.New(t).InsertEpisode(ctx, p)
 	if err != nil {

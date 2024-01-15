@@ -66,7 +66,7 @@ var registerCmd = command{
 		w := query.Watching{
 			Aid:    aid,
 			Regexp: *pattern,
-			Offset: int64(*offset),
+			Offset: *offset,
 		}
 		if err := query.InsertWatching(db, w); err != nil {
 			return err

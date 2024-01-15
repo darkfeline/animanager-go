@@ -142,12 +142,8 @@ func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
 // UpdateEpisodeDone updates the episode's done status.
 func UpdateEpisodeDone(db sqlc.DBTX, eid sqlc.EID, done bool) error {
 	p := sqlc.UpdateEpisodeDoneParams{
-		Eid: eid,
-	}
-	if done {
-		p.UserWatched = 1
-	} else {
-		p.UserWatched = 0
+		Eid:         eid,
+		UserWatched: done,
 	}
 
 	ctx := context.Background()
@@ -159,13 +155,13 @@ func UpdateEpisodeDone(db sqlc.DBTX, eid sqlc.EID, done bool) error {
 
 func convertEpisode(e sqlc.Episode) Episode {
 	e2 := Episode{
-		EID:         sqlc.EID(e.Eid),
-		AID:         sqlc.AID(e.Aid),
-		Type:        EpisodeType(e.Type),
-		Number:      int(e.Number),
+		EID:         e.Eid,
+		AID:         e.Aid,
+		Type:        e.Type,
+		Number:      e.Number,
 		Title:       e.Title,
-		Length:      int(e.Length),
-		UserWatched: e.UserWatched != 0,
+		Length:      e.Length,
+		UserWatched: e.UserWatched,
 	}
 	return e2
 }

@@ -12,7 +12,7 @@ type Anime struct {
 	Aid          AID
 	Title        string
 	Type         string
-	Episodecount int64
+	Episodecount int
 	Startdate    sql.NullInt64
 	Enddate      sql.NullInt64
 }
@@ -21,10 +21,10 @@ type Episode struct {
 	Eid         EID
 	Aid         AID
 	Type        EpisodeType
-	Number      int64
+	Number      int
 	Title       string
-	Length      int64
-	UserWatched int64
+	Length      int
+	UserWatched bool
 }
 
 type EpisodeFile struct {
@@ -44,5 +44,5 @@ type Filehash struct {
 type Watching struct {
 	Aid    AID
 	Regexp string
-	Offset int64
+	Offset int
 }
