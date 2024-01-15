@@ -52,12 +52,3 @@ func ParseID[T ~int](s string) (T, error) {
 
 // A Hash is an eD2k hash formatted as a hex string.
 type Hash string
-
-func (h *Hash) Scan(src any) error {
-	s, ok := src.(string)
-	if !ok {
-		return fmt.Errorf("wrong type %T for %T", src, h)
-	}
-	*h = Hash(s)
-	return nil
-}
