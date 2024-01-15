@@ -26,13 +26,13 @@ import (
 type EpisodeType = sqlc.EpisodeType
 
 const (
-	EpUnknown EpisodeType = iota
-	EpRegular
-	EpSpecial
-	EpCredit
-	EpTrailer
-	EpParody
-	EpOther
+	EpUnknown EpisodeType = 0
+	EpRegular EpisodeType = 1
+	EpSpecial EpisodeType = 2
+	EpCredit  EpisodeType = 3
+	EpTrailer EpisodeType = 4
+	EpParody  EpisodeType = 5
+	EpOther   EpisodeType = 6
 )
 
 // parseEpNo parses episode number information from the AniDB format.
