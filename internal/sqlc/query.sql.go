@@ -420,6 +420,20 @@ func (q *Queries) InsertEpisode(ctx context.Context, arg InsertEpisodeParams) er
 	return err
 }
 
+const insertEpisodeFile = `-- name: InsertEpisodeFile :exec
+INSERT INTO episode_file (eid, path) VALUES (?, ?)
+`
+
+type InsertEpisodeFileParams struct {
+	Eid  int64
+	Path string
+}
+
+func (q *Queries) InsertEpisodeFile(ctx context.Context, arg InsertEpisodeFileParams) error {
+	_, err := q.exec(ctx, q.insertEpisodeFileStmt, insertEpisodeFile, arg.Eid, arg.Path)
+	return err
+}
+
 const insertFileHash = `-- name: InsertFileHash :exec
 INSERT INTO filehash (size, hash, eid, aid, filename)
 VALUES (?, ?, ?, ?, ?)

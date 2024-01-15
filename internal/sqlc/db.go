@@ -87,6 +87,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.insertEpisodeStmt, err = db.PrepareContext(ctx, insertEpisode); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertEpisode: %w", err)
 	}
+	if q.insertEpisodeFileStmt, err = db.PrepareContext(ctx, insertEpisodeFile); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertEpisodeFile: %w", err)
+	}
 	if q.insertFileHashStmt, err = db.PrepareContext(ctx, insertFileHash); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertFileHash: %w", err)
 	}
@@ -206,6 +209,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing insertEpisodeStmt: %w", cerr)
 		}
 	}
+	if q.insertEpisodeFileStmt != nil {
+		if cerr := q.insertEpisodeFileStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertEpisodeFileStmt: %w", cerr)
+		}
+	}
 	if q.insertFileHashStmt != nil {
 		if cerr := q.insertFileHashStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertFileHashStmt: %w", cerr)
@@ -281,6 +289,7 @@ type Queries struct {
 	getWatchingCountStmt       *sql.Stmt
 	insertAnimeStmt            *sql.Stmt
 	insertEpisodeStmt          *sql.Stmt
+	insertEpisodeFileStmt      *sql.Stmt
 	insertFileHashStmt         *sql.Stmt
 	insertWatchingStmt         *sql.Stmt
 	updateEpisodeDoneStmt      *sql.Stmt
@@ -311,6 +320,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getWatchingCountStmt:       q.getWatchingCountStmt,
 		insertAnimeStmt:            q.insertAnimeStmt,
 		insertEpisodeStmt:          q.insertEpisodeStmt,
+		insertEpisodeFileStmt:      q.insertEpisodeFileStmt,
 		insertFileHashStmt:         q.insertFileHashStmt,
 		insertWatchingStmt:         q.insertWatchingStmt,
 		updateEpisodeDoneStmt:      q.updateEpisodeDoneStmt,

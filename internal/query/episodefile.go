@@ -16,7 +16,6 @@ package query
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log/slog"
 
@@ -30,14 +29,13 @@ type EpisodeFile struct {
 }
 
 // InsertEpisodeFile inserts episode files into the database.
-func InsertEpisodeFiles(db *sql.DB, l *slog.Logger, efs []EpisodeFile) error {
-	s, err := db.Prepare(`INSERT INTO episode_file (eid, path) VALUES (?, ?)`)
-	if err != nil {
-		return fmt.Errorf("insert episode files: %w", err)
-	}
-	defer s.Close()
+func InsertEpisodeFiles(ctx context.Context, q *sqlc.Queries, l *slog.Logger, efs []EpisodeFile) error {
 	for _, ef := range efs {
-		if _, err = s.Exec(ef.EID, ef.Path); err != nil {
+		p := sqlc.InsertEpisodeFileParams{
+			Eid:  int64(ef.EID),
+			Path: ef.Path,
+		}
+		if err := q.InsertEpisodeFile(ctx, p); err != nil {
 			// This is most likely due to EID foreign key error.
 			l.Debug("error inserting episode file", "EpisodeFile", ef, "error", err)
 		}

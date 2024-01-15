@@ -60,6 +60,9 @@ SELECT SUM(length) FROM episode WHERE user_watched=1;
 -- name: GetEpisodeFiles :many
 SELECT * FROM episode_file WHERE eid=?;
 
+-- name: InsertEpisodeFile :exec
+INSERT INTO episode_file (eid, path) VALUES (?, ?);
+
 -- name: DeleteAllEpisodeFiles :exec
 DELETE FROM episode_file;
 

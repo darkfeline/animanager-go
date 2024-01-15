@@ -18,6 +18,7 @@
 package fileid
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -26,6 +27,7 @@ import (
 	"strconv"
 
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 // RefreshFiles updates all episode files in the database using
@@ -55,7 +57,13 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		efs = append(efs, efs2...)
 	}
 	l.Info("start inserting files")
-	if err = query.InsertEpisodeFiles(db, slog.Default(), efs); err != nil {
+	ctx := context.Background()
+	q, err := sqlc.Prepare(ctx, db)
+	if err != nil {
+		return fmt.Errorf("refresh files: %w", err)
+	}
+	defer q.Close()
+	if err = query.InsertEpisodeFiles(ctx, q, slog.Default(), efs); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
 	return nil

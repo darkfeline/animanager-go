@@ -31,6 +31,7 @@ import (
 	"go.felesatra.moe/anidb/udpapi"
 	"go.felesatra.moe/anidb/udpapi/codes"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 	"go.felesatra.moe/hash/ed2k"
 )
 
@@ -73,7 +74,12 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 		return nil
 	}
 	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
-	if err := query.InsertEpisodeFiles(m.db, m.l, efs); err != nil {
+	q, err := sqlc.Prepare(ctx, m.db)
+	if err != nil {
+		return fmt.Errorf("match episode: %w", err)
+	}
+	defer q.Close()
+	if err := query.InsertEpisodeFiles(ctx, q, m.l, efs); err != nil {
 		return fmt.Errorf("match episode: %w", err)
 	}
 	return nil
