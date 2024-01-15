@@ -9,7 +9,7 @@ import (
 )
 
 type Anime struct {
-	Aid          int64
+	Aid          AID
 	Title        string
 	Type         string
 	Episodecount int64

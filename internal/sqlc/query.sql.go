@@ -54,15 +54,15 @@ const getAIDs = `-- name: GetAIDs :many
 SELECT aid FROM anime
 `
 
-func (q *Queries) GetAIDs(ctx context.Context) ([]int64, error) {
+func (q *Queries) GetAIDs(ctx context.Context) ([]AID, error) {
 	rows, err := q.query(ctx, q.getAIDsStmt, getAIDs)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []int64
+	var items []AID
 	for rows.Next() {
-		var aid int64
+		var aid AID
 		if err := rows.Scan(&aid); err != nil {
 			return nil, err
 		}
@@ -177,7 +177,7 @@ const getAnime = `-- name: GetAnime :one
 SELECT aid, title, type, episodecount, startdate, enddate FROM anime WHERE aid = ?
 `
 
-func (q *Queries) GetAnime(ctx context.Context, aid int64) (Anime, error) {
+func (q *Queries) GetAnime(ctx context.Context, aid AID) (Anime, error) {
 	row := q.queryRow(ctx, q.getAnimeStmt, getAnime, aid)
 	var i Anime
 	err := row.Scan(
@@ -370,7 +370,7 @@ WHERE aid=excluded.aid
 `
 
 type InsertAnimeParams struct {
-	Aid          int64
+	Aid          AID
 	Title        string
 	Type         string
 	Episodecount int64

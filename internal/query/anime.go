@@ -83,13 +83,13 @@ func GetAIDs(db sqlc.DBTX) ([]sqlc.AID, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetAIDs: %s", err)
 	}
-	return smap(aids, func(v int64) sqlc.AID { return sqlc.AID(v) }), nil
+	return aids, nil
 }
 
 // GetAnime gets the anime from the database.
 func GetAnime(db sqlc.DBTX, aid sqlc.AID) (*Anime, error) {
 	ctx := context.Background()
-	a, err := sqlc.New(db).GetAnime(ctx, int64(aid))
+	a, err := sqlc.New(db).GetAnime(ctx, aid)
 	if err != nil {
 		return nil, fmt.Errorf("GetAnime %d: %s", aid, err)
 	}
@@ -117,7 +117,7 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 	title := mainTitle(a.Titles)
 	ctx := context.Background()
 	p := sqlc.InsertAnimeParams{
-		Aid:          int64(a.AID),
+		Aid:          sqlc.AID(a.AID),
 		Title:        title,
 		Type:         a.Type,
 		Episodecount: int64(a.EpisodeCount),
