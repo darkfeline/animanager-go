@@ -15,7 +15,7 @@ DELETE FROM episode_file
 `
 
 func (q *Queries) DeleteAllEpisodeFiles(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteAllEpisodeFiles)
+	_, err := q.exec(ctx, q.deleteAllEpisodeFilesStmt, deleteAllEpisodeFiles)
 	return err
 }
 
@@ -28,7 +28,7 @@ DELETE FROM episode_file WHERE ROWID IN (
 `
 
 func (q *Queries) DeleteAnimeFiles(ctx context.Context, aid int64) error {
-	_, err := q.db.ExecContext(ctx, deleteAnimeFiles, aid)
+	_, err := q.exec(ctx, q.deleteAnimeFilesStmt, deleteAnimeFiles, aid)
 	return err
 }
 
@@ -37,7 +37,7 @@ DELETE FROM episode WHERE eid = ?
 `
 
 func (q *Queries) DeleteEpisode(ctx context.Context, eid int64) error {
-	_, err := q.db.ExecContext(ctx, deleteEpisode, eid)
+	_, err := q.exec(ctx, q.deleteEpisodeStmt, deleteEpisode, eid)
 	return err
 }
 
@@ -46,7 +46,7 @@ DELETE FROM watching WHERE aid = ?
 `
 
 func (q *Queries) DeleteWatching(ctx context.Context, aid int64) error {
-	_, err := q.db.ExecContext(ctx, deleteWatching, aid)
+	_, err := q.exec(ctx, q.deleteWatchingStmt, deleteWatching, aid)
 	return err
 }
 
@@ -55,7 +55,7 @@ SELECT aid FROM anime
 `
 
 func (q *Queries) GetAIDs(ctx context.Context) ([]int64, error) {
-	rows, err := q.db.QueryContext(ctx, getAIDs)
+	rows, err := q.query(ctx, q.getAIDsStmt, getAIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ SELECT aid, title, type, episodecount, startdate, enddate FROM anime
 `
 
 func (q *Queries) GetAllAnime(ctx context.Context) ([]Anime, error) {
-	rows, err := q.db.QueryContext(ctx, getAllAnime)
+	rows, err := q.query(ctx, q.getAllAnimeStmt, getAllAnime)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ SELECT eid, aid, type, number, title, length, user_watched FROM episode
 `
 
 func (q *Queries) GetAllEpisodes(ctx context.Context) ([]Episode, error) {
-	rows, err := q.db.QueryContext(ctx, getAllEpisodes)
+	rows, err := q.query(ctx, q.getAllEpisodesStmt, getAllEpisodes)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ SELECT aid, "regexp", "offset" FROM watching
 `
 
 func (q *Queries) GetAllWatching(ctx context.Context) ([]Watching, error) {
-	rows, err := q.db.QueryContext(ctx, getAllWatching)
+	rows, err := q.query(ctx, q.getAllWatchingStmt, getAllWatching)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ SELECT aid, title, type, episodecount, startdate, enddate FROM anime WHERE aid =
 `
 
 func (q *Queries) GetAnime(ctx context.Context, aid int64) (Anime, error) {
-	row := q.db.QueryRowContext(ctx, getAnime, aid)
+	row := q.queryRow(ctx, q.getAnimeStmt, getAnime, aid)
 	var i Anime
 	err := row.Scan(
 		&i.Aid,
@@ -196,7 +196,7 @@ SELECT COUNT(*) FROM anime
 `
 
 func (q *Queries) GetAnimeCount(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getAnimeCount)
+	row := q.queryRow(ctx, q.getAnimeCountStmt, getAnimeCount)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -207,7 +207,7 @@ SELECT eid, aid, type, number, title, length, user_watched FROM episode WHERE ei
 `
 
 func (q *Queries) GetEpisode(ctx context.Context, eid int64) (Episode, error) {
-	row := q.db.QueryRowContext(ctx, getEpisode, eid)
+	row := q.queryRow(ctx, q.getEpisodeStmt, getEpisode, eid)
 	var i Episode
 	err := row.Scan(
 		&i.Eid,
@@ -226,7 +226,7 @@ SELECT COUNT(*) FROM episode
 `
 
 func (q *Queries) GetEpisodeCount(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getEpisodeCount)
+	row := q.queryRow(ctx, q.getEpisodeCountStmt, getEpisodeCount)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -237,7 +237,7 @@ SELECT id, eid, path FROM episode_file WHERE eid=?
 `
 
 func (q *Queries) GetEpisodeFiles(ctx context.Context, eid int64) ([]EpisodeFile, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodeFiles, eid)
+	rows, err := q.query(ctx, q.getEpisodeFilesStmt, getEpisodeFiles, eid)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +264,7 @@ SELECT eid, aid, type, number, title, length, user_watched FROM episode WHERE ai
 `
 
 func (q *Queries) GetEpisodes(ctx context.Context, aid int64) ([]Episode, error) {
-	rows, err := q.db.QueryContext(ctx, getEpisodes, aid)
+	rows, err := q.query(ctx, q.getEpisodesStmt, getEpisodes, aid)
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +304,7 @@ type GetFileHashParams struct {
 }
 
 func (q *Queries) GetFileHash(ctx context.Context, arg GetFileHashParams) (Filehash, error) {
-	row := q.db.QueryRowContext(ctx, getFileHash, arg.Size, arg.Hash)
+	row := q.queryRow(ctx, q.getFileHashStmt, getFileHash, arg.Size, arg.Hash)
 	var i Filehash
 	err := row.Scan(
 		&i.Size,
@@ -321,7 +321,7 @@ SELECT COUNT(*) FROM episode WHERE user_watched=1
 `
 
 func (q *Queries) GetWatchedEpisodeCount(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getWatchedEpisodeCount)
+	row := q.queryRow(ctx, q.getWatchedEpisodeCountStmt, getWatchedEpisodeCount)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -332,7 +332,7 @@ SELECT SUM(length) FROM episode WHERE user_watched=1
 `
 
 func (q *Queries) GetWatchedMinutes(ctx context.Context) (sql.NullFloat64, error) {
-	row := q.db.QueryRowContext(ctx, getWatchedMinutes)
+	row := q.queryRow(ctx, q.getWatchedMinutesStmt, getWatchedMinutes)
 	var sum sql.NullFloat64
 	err := row.Scan(&sum)
 	return sum, err
@@ -343,7 +343,7 @@ SELECT aid, "regexp", "offset" FROM watching WHERE aid = ?
 `
 
 func (q *Queries) GetWatching(ctx context.Context, aid int64) (Watching, error) {
-	row := q.db.QueryRowContext(ctx, getWatching, aid)
+	row := q.queryRow(ctx, q.getWatchingStmt, getWatching, aid)
 	var i Watching
 	err := row.Scan(&i.Aid, &i.Regexp, &i.Offset)
 	return i, err
@@ -354,7 +354,7 @@ SELECT COUNT(*) FROM watching
 `
 
 func (q *Queries) GetWatchingCount(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getWatchingCount)
+	row := q.queryRow(ctx, q.getWatchingCountStmt, getWatchingCount)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -379,7 +379,7 @@ type InsertAnimeParams struct {
 }
 
 func (q *Queries) InsertAnime(ctx context.Context, arg InsertAnimeParams) error {
-	_, err := q.db.ExecContext(ctx, insertAnime,
+	_, err := q.exec(ctx, q.insertAnimeStmt, insertAnime,
 		arg.Aid,
 		arg.Title,
 		arg.Type,
@@ -409,7 +409,7 @@ type InsertEpisodeParams struct {
 }
 
 func (q *Queries) InsertEpisode(ctx context.Context, arg InsertEpisodeParams) error {
-	_, err := q.db.ExecContext(ctx, insertEpisode,
+	_, err := q.exec(ctx, q.insertEpisodeStmt, insertEpisode,
 		arg.Eid,
 		arg.Aid,
 		arg.Type,
@@ -437,7 +437,7 @@ type InsertFileHashParams struct {
 }
 
 func (q *Queries) InsertFileHash(ctx context.Context, arg InsertFileHashParams) error {
-	_, err := q.db.ExecContext(ctx, insertFileHash,
+	_, err := q.exec(ctx, q.insertFileHashStmt, insertFileHash,
 		arg.Size,
 		arg.Hash,
 		arg.Eid,
@@ -461,7 +461,7 @@ type InsertWatchingParams struct {
 }
 
 func (q *Queries) InsertWatching(ctx context.Context, arg InsertWatchingParams) error {
-	_, err := q.db.ExecContext(ctx, insertWatching, arg.Aid, arg.Regexp, arg.Offset)
+	_, err := q.exec(ctx, q.insertWatchingStmt, insertWatching, arg.Aid, arg.Regexp, arg.Offset)
 	return err
 }
 
@@ -475,6 +475,6 @@ type UpdateEpisodeDoneParams struct {
 }
 
 func (q *Queries) UpdateEpisodeDone(ctx context.Context, arg UpdateEpisodeDoneParams) error {
-	_, err := q.db.ExecContext(ctx, updateEpisodeDone, arg.UserWatched, arg.Eid)
+	_, err := q.exec(ctx, q.updateEpisodeDoneStmt, updateEpisodeDone, arg.UserWatched, arg.Eid)
 	return err
 }
