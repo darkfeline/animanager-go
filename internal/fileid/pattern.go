@@ -54,7 +54,7 @@ func RefreshFiles(db *sql.DB, files []string) error {
 		l.Info("matched files for anime", "aid", w.AID, "files", efs2)
 		efs = append(efs, efs2...)
 	}
-	l.Info("start insert files")
+	l.Info("start inserting files")
 	if err = query.InsertEpisodeFiles(db, slog.Default(), efs); err != nil {
 		return fmt.Errorf("refresh files: %w", err)
 	}
