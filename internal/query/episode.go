@@ -78,9 +78,9 @@ func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("GetWatchedMinutes: %s", err)
 	}
-	// BUG(kf): GetWatchedMinutes sqlc query returns float instead of int.
-	// https://github.com/sqlc-dev/sqlc/issues/3122
-	return int(r.Float64), err
+	// BUG(kf): Watched minutes truncated to 32-bit, in case you
+	// have watched more than 8000 years of anime.
+	return int(r), err
 }
 
 // GetEpisode gets the episode from the database.

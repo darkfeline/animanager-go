@@ -328,14 +328,14 @@ func (q *Queries) GetWatchedEpisodeCount(ctx context.Context) (int64, error) {
 }
 
 const getWatchedMinutes = `-- name: GetWatchedMinutes :one
-SELECT SUM(length) FROM episode WHERE user_watched=1
+SELECT CAST(SUM(length) AS INT) FROM episode WHERE user_watched=1
 `
 
-func (q *Queries) GetWatchedMinutes(ctx context.Context) (sql.NullFloat64, error) {
+func (q *Queries) GetWatchedMinutes(ctx context.Context) (int64, error) {
 	row := q.queryRow(ctx, q.getWatchedMinutesStmt, getWatchedMinutes)
-	var sum sql.NullFloat64
-	err := row.Scan(&sum)
-	return sum, err
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const getWatching = `-- name: GetWatching :one

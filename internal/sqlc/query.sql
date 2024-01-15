@@ -55,7 +55,7 @@ UPDATE episode SET user_watched = ? WHERE eid = ?;
 SELECT COUNT(*) FROM episode WHERE user_watched=1;
 
 -- name: GetWatchedMinutes :one
-SELECT SUM(length) FROM episode WHERE user_watched=1;
+SELECT CAST(SUM(length) AS INT) FROM episode WHERE user_watched=1;
 
 -- name: GetEpisodeFiles :many
 SELECT * FROM episode_file WHERE eid=?;
