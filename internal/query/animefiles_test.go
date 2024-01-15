@@ -48,12 +48,7 @@ func TestGetAnimeFiles(t *testing.T) {
 	}
 	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
 	ctx := context.Background()
-	q, err := sqlc.Prepare(ctx, db)
-	if err != nil {
-		t.Fatalf("Error preparing queries: %s", err)
-	}
-	t.Cleanup(func() { q.Close() })
-	if err := InsertEpisodeFiles(ctx, q, nullLogger(), efs); err != nil {
+	if err := InsertEpisodeFiles(ctx, sqlc.New(db), nullLogger(), efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
 	got, err := GetAnimeFiles(db, aid)
@@ -103,12 +98,7 @@ func TestDeleteAnimeFiles(t *testing.T) {
 	}
 	efs := []EpisodeFile{{EID: 113, Path: "/foobar"}}
 	ctx := context.Background()
-	q, err := sqlc.Prepare(ctx, db)
-	if err != nil {
-		t.Fatalf("Error preparing queries: %s", err)
-	}
-	t.Cleanup(func() { q.Close() })
-	if err := InsertEpisodeFiles(ctx, q, nullLogger(), efs); err != nil {
+	if err := InsertEpisodeFiles(ctx, sqlc.New(db), nullLogger(), efs); err != nil {
 		t.Fatalf("Error inserting episode file: %s", err)
 	}
 	if err := DeleteAnimeFiles(db, aid); err != nil {

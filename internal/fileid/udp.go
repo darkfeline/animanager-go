@@ -74,12 +74,7 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 		return nil
 	}
 	efs := []query.EpisodeFile{{EID: fh.EID, Path: file}}
-	q, err := sqlc.Prepare(ctx, m.db)
-	if err != nil {
-		return fmt.Errorf("match episode: %w", err)
-	}
-	defer q.Close()
-	if err := query.InsertEpisodeFiles(ctx, q, m.l, efs); err != nil {
+	if err := query.InsertEpisodeFiles(ctx, sqlc.New(m.db), m.l, efs); err != nil {
 		return fmt.Errorf("match episode: %w", err)
 	}
 	return nil
