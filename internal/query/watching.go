@@ -10,7 +10,7 @@ import (
 
 type Watching struct {
 	_table struct{} `sql:"watching"`
-	AID    AID      `sql:"aid"`
+	AID    sqlc.AID `sql:"aid"`
 	Regexp string   `sql:"regexp"`
 	Offset int      `sql:"offset"`
 }
@@ -34,7 +34,7 @@ func InsertWatching(db sqlc.DBTX, w Watching) error {
 
 // GetWatching gets the watching entry for an anime from the
 // database.
-func GetWatching(db sqlc.DBTX, aid AID) (Watching, error) {
+func GetWatching(db sqlc.DBTX, aid sqlc.AID) (Watching, error) {
 	ctx := context.Background()
 	w, err := sqlc.New(db).GetWatching(ctx, int64(aid))
 	if err != nil {
@@ -65,7 +65,7 @@ func GetAllWatching(db sqlc.DBTX) ([]Watching, error) {
 
 // DeleteWatching deletes the watching entry for an anime from the
 // database.
-func DeleteWatching(db sqlc.DBTX, aid AID) error {
+func DeleteWatching(db sqlc.DBTX, aid sqlc.AID) error {
 	ctx := context.Background()
 	if err := sqlc.New(db).DeleteWatching(ctx, int64(aid)); err != nil {
 		return fmt.Errorf("DeleteWatching %d: %s", aid, err)
@@ -75,7 +75,7 @@ func DeleteWatching(db sqlc.DBTX, aid AID) error {
 
 func convertWatching(w sqlc.Watching) Watching {
 	return Watching{
-		AID:    AID(w.Aid),
+		AID:    sqlc.AID(w.Aid),
 		Regexp: w.Regexp,
 		Offset: int(w.Offset),
 	}

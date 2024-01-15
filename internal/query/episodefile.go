@@ -24,7 +24,7 @@ import (
 
 type EpisodeFile struct {
 	_table struct{} `sql:"episode_file"`
-	EID    EID      `sql:"eid"`
+	EID    sqlc.EID `sql:"eid"`
 	Path   string   `sql:"path"`
 }
 
@@ -46,7 +46,7 @@ func InsertEpisodeFiles(ctx context.Context, q *sqlc.Queries, l *slog.Logger, ef
 }
 
 // GetEpisodeFiles returns the EpisodeFiles for the episode.
-func GetEpisodeFiles(db sqlc.DBTX, eid EID) ([]EpisodeFile, error) {
+func GetEpisodeFiles(db sqlc.DBTX, eid sqlc.EID) ([]EpisodeFile, error) {
 	ctx := context.Background()
 	es, err := sqlc.New(db).GetEpisodeFiles(ctx, int64(eid))
 	if err != nil {
@@ -63,7 +63,7 @@ func DeleteAllEpisodeFiles(db sqlc.DBTX) error {
 
 func convertEpisodeFile(e sqlc.EpisodeFile) EpisodeFile {
 	return EpisodeFile{
-		EID:  EID(e.Eid),
+		EID:  sqlc.EID(e.Eid),
 		Path: e.Path,
 	}
 }

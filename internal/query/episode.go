@@ -26,8 +26,8 @@ import (
 
 type Episode struct {
 	_table      struct{}    `sql:"episode"`
-	EID         EID         `sql:"eid"`
-	AID         AID         `sql:"aid"`
+	EID         sqlc.EID    `sql:"eid"`
+	AID         sqlc.AID    `sql:"aid"`
 	Type        EpisodeType `sql:"type"`
 	Number      int         `sql:"number"`
 	Title       string      `sql:"title"`
@@ -46,7 +46,7 @@ func (e Episode) Key() EpisodeKey {
 // EpisodeKey represents the unique key for an Episode.  This is
 // separate from ID because SQLite treats numeric row IDs specially.
 type EpisodeKey struct {
-	AID    AID
+	AID    sqlc.AID
 	Type   EpisodeType
 	Number int
 }
@@ -84,7 +84,7 @@ func GetWatchedMinutes(db sqlc.DBTX) (int, error) {
 }
 
 // GetEpisode gets the episode from the database.
-func GetEpisode(db sqlc.DBTX, eid EID) (*Episode, error) {
+func GetEpisode(db sqlc.DBTX, eid sqlc.EID) (*Episode, error) {
 	ctx := context.Background()
 	e, err := sqlc.New(db).GetEpisode(ctx, int64(eid))
 	if err != nil {
@@ -95,7 +95,7 @@ func GetEpisode(db sqlc.DBTX, eid EID) (*Episode, error) {
 }
 
 // DeleteEpisode deletes the episode from the database.
-func DeleteEpisode(db sqlc.DBTX, eid EID) error {
+func DeleteEpisode(db sqlc.DBTX, eid sqlc.EID) error {
 	ctx := context.Background()
 	err := sqlc.New(db).DeleteEpisode(ctx, int64(eid))
 	if err != nil {
@@ -105,7 +105,7 @@ func DeleteEpisode(db sqlc.DBTX, eid EID) error {
 }
 
 // GetEpisodes gets the episodes for an anime from the database.
-func GetEpisodes(db sqlc.DBTX, aid AID) ([]Episode, error) {
+func GetEpisodes(db sqlc.DBTX, aid sqlc.AID) ([]Episode, error) {
 	ctx := context.Background()
 	e, err := sqlc.New(db).GetEpisodes(ctx, int64(aid))
 	if err != nil {
@@ -116,12 +116,12 @@ func GetEpisodes(db sqlc.DBTX, aid AID) ([]Episode, error) {
 }
 
 // GetEpisodesMap returns a map of the episodes for an anime.
-func GetEpisodesMap(db sqlc.DBTX, aid AID) (map[EID]*Episode, error) {
+func GetEpisodesMap(db sqlc.DBTX, aid sqlc.AID) (map[sqlc.EID]*Episode, error) {
 	es, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("GetEpisodesMap %v: %w", aid, err)
 	}
-	m := make(map[EID]*Episode, len(es))
+	m := make(map[sqlc.EID]*Episode, len(es))
 	for i, e := range es {
 		m[e.EID] = &es[i]
 	}
@@ -140,7 +140,7 @@ func GetAllEpisodes(db sqlc.DBTX) ([]Episode, error) {
 }
 
 // UpdateEpisodeDone updates the episode's done status.
-func UpdateEpisodeDone(db sqlc.DBTX, eid EID, done bool) error {
+func UpdateEpisodeDone(db sqlc.DBTX, eid sqlc.EID, done bool) error {
 	p := sqlc.UpdateEpisodeDoneParams{
 		Eid: int64(eid),
 	}
@@ -159,8 +159,8 @@ func UpdateEpisodeDone(db sqlc.DBTX, eid EID, done bool) error {
 
 func convertEpisode(e sqlc.Episode) Episode {
 	e2 := Episode{
-		EID:         EID(e.Eid),
-		AID:         AID(e.Aid),
+		EID:         sqlc.EID(e.Eid),
+		AID:         sqlc.AID(e.Aid),
 		Type:        EpisodeType(e.Type),
 		Number:      int(e.Number),
 		Title:       e.Title,

@@ -32,7 +32,7 @@ import (
 // Anime values correspond to rows in the anime table.
 type Anime struct {
 	_table       struct{}  `sql:"anime"`
-	AID          AID       `sql:"aid"`
+	AID          sqlc.AID  `sql:"aid"`
 	Title        string    `sql:"title"`
 	Type         AnimeType `sql:"type"`
 	EpisodeCount int       `sql:"episodecount"`
@@ -77,17 +77,17 @@ func GetAnimeCount(db sqlc.DBTX) (int, error) {
 }
 
 // GetAIDs returns all AIDs.
-func GetAIDs(db sqlc.DBTX) ([]AID, error) {
+func GetAIDs(db sqlc.DBTX) ([]sqlc.AID, error) {
 	ctx := context.Background()
 	aids, err := sqlc.New(db).GetAIDs(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("GetAIDs: %s", err)
 	}
-	return smap(aids, func(v int64) AID { return AID(v) }), nil
+	return smap(aids, func(v int64) sqlc.AID { return sqlc.AID(v) }), nil
 }
 
 // GetAnime gets the anime from the database.
-func GetAnime(db sqlc.DBTX, aid AID) (*Anime, error) {
+func GetAnime(db sqlc.DBTX, aid sqlc.AID) (*Anime, error) {
 	ctx := context.Background()
 	a, err := sqlc.New(db).GetAnime(ctx, int64(aid))
 	if err != nil {
@@ -128,16 +128,16 @@ func InsertAnime(db *sql.DB, a *anidb.Anime) error {
 	if err := sqlc.New(t).InsertAnime(ctx, p); err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
-	em, err := GetEpisodesMap(t, AID(a.AID))
+	em, err := GetEpisodesMap(t, sqlc.AID(a.AID))
 	if err != nil {
 		return fmt.Errorf("failed to insert anime %d: %w", a.AID, err)
 	}
 	for _, e := range a.Episodes {
-		if err := insertEpisode(t, AID(a.AID), e); err != nil {
+		if err := insertEpisode(t, sqlc.AID(a.AID), e); err != nil {
 			return fmt.Errorf("failed to insert episode %s for anime %d: %w",
 				e.EpNo, a.AID, err)
 		}
-		delete(em, EID(e.EID))
+		delete(em, sqlc.EID(e.EID))
 	}
 	for eid := range em {
 		if err := DeleteEpisode(t, eid); err != nil {
@@ -157,7 +157,7 @@ func mainTitle(ts []anidb.Title) string {
 	return ts[0].Name
 }
 
-func insertEpisode(t *sql.Tx, aid AID, e anidb.Episode) error {
+func insertEpisode(t *sql.Tx, aid sqlc.AID, e anidb.Episode) error {
 	title := mainEpTitle(e.Titles)
 	typ, num := parseEpNo(e.EpNo)
 	slog.Debug("insert episode",
@@ -199,7 +199,7 @@ func mainEpTitle(ts []anidb.EpTitle) string {
 
 func convertAnime(a sqlc.Anime) Anime {
 	return Anime{
-		AID:           AID(a.Aid),
+		AID:           sqlc.AID(a.Aid),
 		Title:         a.Title,
 		Type:          AnimeType(a.Type),
 		EpisodeCount:  int(a.Episodecount),

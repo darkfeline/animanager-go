@@ -26,6 +26,7 @@ import (
 	"go.felesatra.moe/animanager/cmd/animanager/vars"
 	"go.felesatra.moe/animanager/internal/afmt"
 	"go.felesatra.moe/animanager/internal/query"
+	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
 var watchableCmd = command{
@@ -80,7 +81,7 @@ func showWatchable(db *sql.DB, o afmt.PrintWatchableOption) error {
 	return nil
 }
 
-func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid query.AID, o afmt.PrintWatchableOption) error {
+func showWatchableSingle(db *sql.DB, bw *bufio.Writer, aid sqlc.AID, o afmt.PrintWatchableOption) error {
 	a, err := query.GetAnime(db, aid)
 	if err != nil {
 		return err

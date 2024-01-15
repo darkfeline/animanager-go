@@ -22,7 +22,7 @@ import (
 )
 
 // GetAnimeFiles gets the episode files for all of the anime's episodes.
-func GetAnimeFiles(db sqlc.DBTX, aid AID) ([]EpisodeFiles, error) {
+func GetAnimeFiles(db sqlc.DBTX, aid sqlc.AID) ([]EpisodeFiles, error) {
 	eps, err := GetEpisodes(db, aid)
 	if err != nil {
 		return nil, fmt.Errorf("get anime %d files: %w", aid, err)
@@ -48,7 +48,7 @@ type EpisodeFiles struct {
 }
 
 // DeleteAnimeFiles deletes episode files for the given anime.
-func DeleteAnimeFiles(db sqlc.DBTX, aid AID) error {
+func DeleteAnimeFiles(db sqlc.DBTX, aid sqlc.AID) error {
 	ctx := context.Background()
 	err := sqlc.New(db).DeleteAnimeFiles(ctx, int64(aid))
 	if err != nil {

@@ -40,8 +40,8 @@ type FileHash struct {
 	_table   struct{} `sql:"filehash"`
 	Size     int64    `sql:"size"`
 	Hash     Hash     `sql:"hash"`
-	EID      EID      `sql:"eid"`
-	AID      AID      `sql:"aid"`
+	EID      sqlc.EID `sql:"eid"`
+	AID      sqlc.AID `sql:"aid"`
 	Filename string   `sql:"filename"`
 }
 
@@ -84,8 +84,8 @@ func convertFileHash(v sqlc.Filehash) FileHash {
 	return FileHash{
 		Size:     v.Size,
 		Hash:     Hash(v.Hash),
-		EID:      EID(v.Eid.Int64),
-		AID:      AID(v.Aid.Int64),
+		EID:      sqlc.EID(v.Eid.Int64),
+		AID:      sqlc.AID(v.Aid.Int64),
 		Filename: string(v.Filename.String),
 	}
 }

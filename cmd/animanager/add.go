@@ -80,7 +80,7 @@ var client = &anidb.Client{
 	Limiter: rate.NewLimiter(rate.Every(2*time.Second), 1),
 }
 
-func addAnime(db *sql.DB, aid query.AID) error {
+func addAnime(db *sql.DB, aid sqlc.AID) error {
 	slog.Info("add anime", "aid", aid)
 	c, err := client.RequestAnime(int(aid))
 	if err != nil {
