@@ -109,12 +109,14 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
 	fh.Filename = filepath.Base(file)
-	m.l.Debug("lookup file hash completed", "FileHash", fh)
+	m.l = m.l.With("FileHash", fh)
+	m.l.Debug("lookup file hash completed")
 
 	// Add to cache
 	if err := query.InsertFileHash(m.db, fh); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
+	m.l.Debug("added file hash to cache")
 	return fh, nil
 }
 
