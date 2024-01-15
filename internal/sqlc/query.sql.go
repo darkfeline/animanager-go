@@ -402,7 +402,7 @@ WHERE eid=excluded.eid
 type InsertEpisodeParams struct {
 	Eid    EID
 	Aid    AID
-	Type   int64
+	Type   EpisodeType
 	Number int64
 	Title  string
 	Length int64

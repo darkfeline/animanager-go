@@ -175,7 +175,7 @@ func insertEpisode(t *sql.Tx, aid sqlc.AID, e anidb.Episode) error {
 	p := sqlc.InsertEpisodeParams{
 		Eid:    sqlc.EID(e.EID),
 		Aid:    sqlc.AID(aid),
-		Type:   int64(typ),
+		Type:   typ,
 		Number: int64(num),
 		Title:  title,
 		Length: int64(e.Length),

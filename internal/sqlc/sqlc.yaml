@@ -38,6 +38,8 @@ sql:
         go_type: {"type": "EID"}
       - column: episode.aid
         go_type: {"type": "AID"}
+      - column: episode.type
+        go_type: {"type": "EpisodeType"}
       - column: episode_file.eid
         go_type: {"type": "EID"}
       - column: filehash.hash
