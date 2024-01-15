@@ -35,22 +35,6 @@ type Episode struct {
 	UserWatched bool        `sql:"user_watched"`
 }
 
-func (e Episode) Key() EpisodeKey {
-	return EpisodeKey{
-		AID:    e.AID,
-		Type:   e.Type,
-		Number: e.Number,
-	}
-}
-
-// EpisodeKey represents the unique key for an Episode.  This is
-// separate from ID because SQLite treats numeric row IDs specially.
-type EpisodeKey struct {
-	AID    sqlc.AID
-	Type   EpisodeType
-	Number int
-}
-
 // GetEpisodeCount returns the number of episode rows.
 func GetEpisodeCount(db sqlc.DBTX) (int, error) {
 	ctx := context.Background()
