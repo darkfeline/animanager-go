@@ -26,7 +26,6 @@ import (
 type EpisodeType = sqlc.EpisodeType
 
 const (
-	EpUnknown EpisodeType = 0
 	EpRegular EpisodeType = 1
 	EpSpecial EpisodeType = 2
 	EpCredit  EpisodeType = 3

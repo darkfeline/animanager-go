@@ -168,7 +168,7 @@ func insertEpisode(t *sql.Tx, aid sqlc.AID, e anidb.Episode) error {
 		"title", title,
 		"length", e.Length,
 	)
-	if typ == EpUnknown {
+	if !typ.Valid() {
 		return fmt.Errorf("failed to insert anime %d: invalid epno %s", aid, e.EpNo)
 	}
 	ctx := context.Background()
