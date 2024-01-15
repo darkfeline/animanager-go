@@ -18,9 +18,7 @@
 package query
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
 
 	"go.felesatra.moe/animanager/internal/sqlc"
 )
@@ -37,31 +35,33 @@ const (
 	EpOther
 )
 
-type prefixPair struct {
-	Prefix string
-	Type   EpisodeType
-}
-
-var epnoPrefixes = []prefixPair{
-	{"S", EpSpecial},
-	{"C", EpCredit},
-	{"T", EpTrailer},
-	{"P", EpParody},
-	{"O", EpOther},
-	{"", EpRegular},
-}
-
 // parseEpNo parses episode number information from the AniDB format.
 // If parse fails, EpUnknown is returned for the episode type.
 func parseEpNo(epno string) (EpisodeType, int) {
-	for _, p := range epnoPrefixes {
-		if strings.HasPrefix(epno, p.Prefix) {
-			n, err := strconv.Atoi(epno[len(p.Prefix):])
-			if err != nil {
-				return EpUnknown, 0
-			}
-			return p.Type, n
-		}
+	if len(epno) < 1 {
+		return 0, 0
 	}
-	panic(fmt.Sprintf("ParseEpNo %s unreachable code", epno))
+	t := EpRegular
+	switch epno[:1] {
+	case EpSpecial.Prefix():
+		t = EpSpecial
+		epno = epno[1:]
+	case EpCredit.Prefix():
+		t = EpCredit
+		epno = epno[1:]
+	case EpTrailer.Prefix():
+		t = EpTrailer
+		epno = epno[1:]
+	case EpParody.Prefix():
+		t = EpParody
+		epno = epno[1:]
+	case EpOther.Prefix():
+		t = EpOther
+		epno = epno[1:]
+	}
+	n, err := strconv.Atoi(epno)
+	if err != nil {
+		return 0, 0
+	}
+	return t, n
 }
