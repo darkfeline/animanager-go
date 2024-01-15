@@ -33,26 +33,18 @@ sql:
 
       # Custom types
       - column: anime.aid
-        go_type:
-          type: AID
+        go_type: {"type": "AID"}
       - column: episode.eid
-        go_type:
-          type: EID
+        go_type: {"type": "EID"}
       - column: episode.aid
-        go_type:
-          type: AID
+        go_type: {"type": "AID"}
       - column: episode_file.eid
-        go_type:
-          type: EID
+        go_type: {"type": "EID"}
       - column: filehash.hash
-        go_type:
-          type: Hash
+        go_type: {"type": "Hash"}
       - column: filehash.eid
-        go_type:
-          type: EID
+        go_type: {"type": "EID"}
       - column: filehash.aid
-        go_type:
-          type: AID
+        go_type: {"type": "AID"}
       - column: watching.aid
-        go_type:
-          type: AID
+        go_type: {"type": "AID"}
