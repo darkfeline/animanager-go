@@ -65,7 +65,7 @@ func NewMatcher(l *slog.Logger, db *sql.DB, c UDPClient) Matcher {
 func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 	// Safe because method has value receiver
 	m.l = m.l.With("file", file)
-	fh, err := m.matchFileToEpisode(ctx, file)
+	fh, err := m.findFileHash(ctx, file)
 	if err != nil {
 		return fmt.Errorf("match episode: %s", err)
 	}
@@ -82,9 +82,9 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 	return nil
 }
 
-// matchFileToEpisodes finds episode matches for the given file.
+// findFileHash finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
-func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.FileHash, error) {
+func (m Matcher) findFileHash(ctx context.Context, file string) (*query.FileHash, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -96,7 +96,7 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	}
 
 	// Try getting from cache by size first, since hashing is slow.
-	fh, err := m.matchFileToEpisodeBySize(ctx, fk)
+	fh, err := m.findFileHashBySize(ctx, fk)
 	if err == nil {
 		m.l.Debug("got file hash from cache by size", "FileHash", fh)
 		return fh, nil
@@ -120,7 +120,7 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	m.l.Debug("error getting file hash from cache", "error", err)
 
 	// Get from AniDB
-	fh, err = m.lookupFileHash(ctx, fk)
+	fh, err = m.requestFileHash(ctx, fk)
 	if err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -136,13 +136,13 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	return fh, nil
 }
 
-func (m Matcher) matchFileToEpisodeBySize(ctx context.Context, fk fileKey) (*query.FileHash, error) {
+func (m Matcher) findFileHashBySize(ctx context.Context, fk fileKey) (*query.FileHash, error) {
 	fhs, err := query.GetFileHashBySize(m.db, fk.Size)
 	if err != nil {
-		return nil, fmt.Errorf("matchFileToEpisodeBySize: %s", err)
+		return nil, fmt.Errorf("findFileHashBySize: %s", err)
 	}
 	if len(fhs) == 0 {
-		return nil, errors.New("matchFileToEpisodeBySize: no matches by size")
+		return nil, errors.New("findFileHashBySize: no matches by size")
 	}
 	if len(fhs) == 1 {
 		fh := fhs[0]
@@ -156,13 +156,13 @@ func (m Matcher) matchFileToEpisodeBySize(ctx context.Context, fk fileKey) (*que
 			return &fh, nil
 		}
 	}
-	return nil, fmt.Errorf("matchFileToEpisodeBySize: no matches by name for %d resultss", len(fhs))
+	return nil, fmt.Errorf("findFileHashBySize: no matches by name for %d resultss", len(fhs))
 }
 
-// lookupFileHash returns a [FileHash] that is looked up with the [UDPClient].
-// If the lookup does not find a file, then the returned FileHash will
+// requestFileHash requests a [FileHash] with the [UDPClient].
+// If the request does not find a file, then the returned FileHash will
 // have zero EID and AID values.
-func (m Matcher) lookupFileHash(ctx context.Context, fk fileKey) (*query.FileHash, error) {
+func (m Matcher) requestFileHash(ctx context.Context, fk fileKey) (*query.FileHash, error) {
 	fh := query.FileHash{
 		Size: fk.Size,
 		Hash: fk.Hash,
