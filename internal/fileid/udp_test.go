@@ -26,22 +26,26 @@ import (
 	"go.felesatra.moe/animanager/internal/sqlc"
 )
 
-func TestCalculateFileKey(t *testing.T) {
+func TestFileKey(t *testing.T) {
 	t.Parallel()
 	d := t.TempDir()
 	p := filepath.Join(d, "testfile")
 	if err := os.WriteFile(p, []byte("message digest"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	got, err := calculateFileKey(p)
-	if err != nil {
+	fk := fileKey{Path: p}
+	if err := fk.populateSize(); err != nil {
+		t.Fatal(err)
+	}
+	if err := fk.populateHash(); err != nil {
 		t.Fatal(err)
 	}
 	want := fileKey{
+		Path: p,
 		Size: 14,
 		Hash: sqlc.Hash("d9130a8164549fe818874806e1c7014b"),
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("calculateFileKey() mismatch (-want +got):\n%s", diff)
+	if diff := cmp.Diff(want, fk); diff != "" {
+		t.Errorf("fileKey (-want +got):\n%s", diff)
 	}
 }

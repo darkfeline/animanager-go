@@ -85,14 +85,19 @@ func (m Matcher) MatchEpisode(ctx context.Context, file string) error {
 // matchFileToEpisodes finds episode matches for the given file.
 // Episode matching is done via AniDB UDP API.
 func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.FileHash, error) {
-	// Check the context first, because calculateFileKey is slow.
 	if err := ctx.Err(); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
-	fk, err := calculateFileKey(file)
-	if err != nil {
+	fk := fileKey{
+		Path: file,
+	}
+	if err := fk.populateSize(); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
+	if err := fk.populateHash(); err != nil {
+		return nil, fmt.Errorf("match file to episode: %s", err)
+	}
+
 	// Safe because method has value receiver
 	m.l = m.l.With("fileKey", fk)
 	m.l.Debug("got file key")
@@ -163,8 +168,39 @@ func parseFileHashRow(fh *query.FileHash, row []string) error {
 }
 
 type fileKey struct {
+	Path string
 	Size int64
 	Hash sqlc.Hash
+}
+
+func (k *fileKey) populateSize() error {
+	f, err := os.Open(k.Path)
+	if err != nil {
+		return fmt.Errorf("populate size: %s", err)
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil {
+		return fmt.Errorf("populate size: %s", err)
+	}
+	k.Size = fi.Size()
+	return nil
+
+}
+
+func (k *fileKey) populateHash() error {
+	f, err := os.Open(k.Path)
+	if err != nil {
+		return fmt.Errorf("populate hash: %s", err)
+	}
+	defer f.Close()
+	h := ed2k.New()
+	if _, err := io.CopyBuffer(h, f, copyBuf()); err != nil {
+		return fmt.Errorf("populate hash: %s", err)
+	}
+	sum := h.Sum(nil)
+	k.Hash = formatHash(sum)
+	return nil
 }
 
 // getCopyBuf returns a large copy buffer for [getFileKey].
@@ -172,29 +208,6 @@ type fileKey struct {
 // Allocate lazily so most commands don't do this.
 // Use 3D2k chunk size for this as that's the hash that is used.
 var copyBuf = sync.OnceValue(func() []byte { return make([]byte, 9728000) })
-
-// calculateFileKey calculates the fileKey for the file.
-// This is SLOW, because hashing the file is slow.
-func calculateFileKey(file string) (fileKey, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return fileKey{}, fmt.Errorf("get file key: %s", err)
-	}
-	defer f.Close()
-	fi, err := f.Stat()
-	if err != nil {
-		return fileKey{}, fmt.Errorf("get file key: %s", err)
-	}
-	h := ed2k.New()
-	if _, err := io.CopyBuffer(h, f, copyBuf()); err != nil {
-		return fileKey{}, fmt.Errorf("get file key: %s", err)
-	}
-	sum := h.Sum(nil)
-	return fileKey{
-		Size: fi.Size(),
-		Hash: formatHash(sum),
-	}, nil
-}
 
 func formatHash(sum []byte) sqlc.Hash {
 	return sqlc.Hash(fmt.Sprintf("%x", sum))
