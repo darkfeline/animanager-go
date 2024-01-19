@@ -76,6 +76,9 @@ WHERE size=excluded.size AND hash=excluded.hash;
 -- name: GetFileHash :one
 SELECT * FROM filehash WHERE size=? AND hash=?;
 
+-- name: GetFileHashBySize :many
+SELECT * FROM filehash WHERE size=?;
+
 -- name: InsertWatching :exec
 INSERT INTO watching (aid, regexp, offset) VALUES (?, ?, ?)
 ON CONFLICT (aid) DO UPDATE

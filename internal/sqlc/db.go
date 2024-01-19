@@ -69,6 +69,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getFileHashStmt, err = db.PrepareContext(ctx, getFileHash); err != nil {
 		return nil, fmt.Errorf("error preparing query GetFileHash: %w", err)
 	}
+	if q.getFileHashBySizeStmt, err = db.PrepareContext(ctx, getFileHashBySize); err != nil {
+		return nil, fmt.Errorf("error preparing query GetFileHashBySize: %w", err)
+	}
 	if q.getWatchedEpisodeCountStmt, err = db.PrepareContext(ctx, getWatchedEpisodeCount); err != nil {
 		return nil, fmt.Errorf("error preparing query GetWatchedEpisodeCount: %w", err)
 	}
@@ -179,6 +182,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getFileHashStmt: %w", cerr)
 		}
 	}
+	if q.getFileHashBySizeStmt != nil {
+		if cerr := q.getFileHashBySizeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getFileHashBySizeStmt: %w", cerr)
+		}
+	}
 	if q.getWatchedEpisodeCountStmt != nil {
 		if cerr := q.getWatchedEpisodeCountStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getWatchedEpisodeCountStmt: %w", cerr)
@@ -283,6 +291,7 @@ type Queries struct {
 	getEpisodeFilesStmt        *sql.Stmt
 	getEpisodesStmt            *sql.Stmt
 	getFileHashStmt            *sql.Stmt
+	getFileHashBySizeStmt      *sql.Stmt
 	getWatchedEpisodeCountStmt *sql.Stmt
 	getWatchedMinutesStmt      *sql.Stmt
 	getWatchingStmt            *sql.Stmt
@@ -415,6 +424,14 @@ func (q *Queries) PrepareGetFileHash(ctx context.Context) error {
 	return nil
 }
 
+func (q *Queries) PrepareGetFileHashBySize(ctx context.Context) error {
+	var err error
+	if q.getFileHashBySizeStmt, err = q.db.PrepareContext(ctx, getFileHashBySize); err != nil {
+		return fmt.Errorf("error preparing query GetFileHashBySize: %w", err)
+	}
+	return nil
+}
+
 func (q *Queries) PrepareGetWatchedEpisodeCount(ctx context.Context) error {
 	var err error
 	if q.getWatchedEpisodeCountStmt, err = q.db.PrepareContext(ctx, getWatchedEpisodeCount); err != nil {
@@ -514,6 +531,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getEpisodeFilesStmt:        q.getEpisodeFilesStmt,
 		getEpisodesStmt:            q.getEpisodesStmt,
 		getFileHashStmt:            q.getFileHashStmt,
+		getFileHashBySizeStmt:      q.getFileHashBySizeStmt,
 		getWatchedEpisodeCountStmt: q.getWatchedEpisodeCountStmt,
 		getWatchedMinutesStmt:      q.getWatchedMinutesStmt,
 		getWatchingStmt:            q.getWatchingStmt,

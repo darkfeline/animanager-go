@@ -59,6 +59,15 @@ func GetFileHash(db sqlc.DBTX, size int64, hash sqlc.Hash) (*FileHash, error) {
 	return &fh2, nil
 }
 
+func GetFileHashBySize(db sqlc.DBTX, size int64) ([]FileHash, error) {
+	ctx := context.Background()
+	fh, err := sqlc.New(db).GetFileHashBySize(ctx, size)
+	if err != nil {
+		return nil, fmt.Errorf("GetFileHashBySize %d: %s", size, err)
+	}
+	return smap(fh, convertFileHash), nil
+}
+
 func convertFileHash(v sqlc.Filehash) FileHash {
 	return FileHash{
 		Size:     v.Size,

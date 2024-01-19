@@ -94,6 +94,15 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	if err := fk.populateSize(); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
+
+	// Try getting from cache by size first, since hashing is slow.
+	fh, err := m.matchFileToEpisodeBySize(ctx, fk)
+	if err == nil {
+		m.l.Debug("got file hash from cache by size", "FileHash", fh)
+		return fh, nil
+	}
+	m.l.Debug("error getting file hash from cache by size", "error", err)
+
 	if err := fk.populateHash(); err != nil {
 		return nil, fmt.Errorf("match file to episode: %s", err)
 	}
@@ -103,7 +112,7 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	m.l.Debug("got file key")
 
 	// Try getting from cache
-	fh, err := query.GetFileHash(m.db, fk.Size, fk.Hash)
+	fh, err = query.GetFileHash(m.db, fk.Size, fk.Hash)
 	if err == nil {
 		m.l.Debug("got file hash from cache", "FileHash", fh)
 		return fh, nil
@@ -125,6 +134,29 @@ func (m Matcher) matchFileToEpisode(ctx context.Context, file string) (*query.Fi
 	}
 	m.l.Debug("added file hash to cache")
 	return fh, nil
+}
+
+func (m Matcher) matchFileToEpisodeBySize(ctx context.Context, fk fileKey) (*query.FileHash, error) {
+	fhs, err := query.GetFileHashBySize(m.db, fk.Size)
+	if err != nil {
+		return nil, fmt.Errorf("matchFileToEpisodeBySize: %s", err)
+	}
+	if len(fhs) == 0 {
+		return nil, errors.New("matchFileToEpisodeBySize: no matches by size")
+	}
+	if len(fhs) == 1 {
+		fh := fhs[0]
+		m.l.Debug("got single file hash from cache by size", "FileHash", fh)
+		return &fh, nil
+	}
+	// Try to match by filename.
+	name := filepath.Base(fk.Path)
+	for _, fh := range fhs {
+		if fh.Filename == name {
+			return &fh, nil
+		}
+	}
+	return nil, fmt.Errorf("matchFileToEpisodeBySize: no matches by name for %d resultss", len(fhs))
 }
 
 // lookupFileHash returns a [FileHash] that is looked up with the [UDPClient].

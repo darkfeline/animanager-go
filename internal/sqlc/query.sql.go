@@ -316,6 +316,39 @@ func (q *Queries) GetFileHash(ctx context.Context, arg GetFileHashParams) (Fileh
 	return i, err
 }
 
+const getFileHashBySize = `-- name: GetFileHashBySize :many
+SELECT size, hash, eid, aid, filename FROM filehash WHERE size=?
+`
+
+func (q *Queries) GetFileHashBySize(ctx context.Context, size int64) ([]Filehash, error) {
+	rows, err := q.query(ctx, q.getFileHashBySizeStmt, getFileHashBySize, size)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Filehash
+	for rows.Next() {
+		var i Filehash
+		if err := rows.Scan(
+			&i.Size,
+			&i.Hash,
+			&i.Eid,
+			&i.Aid,
+			&i.Filename,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWatchedEpisodeCount = `-- name: GetWatchedEpisodeCount :one
 SELECT COUNT(*) FROM episode WHERE user_watched=1
 `
