@@ -199,7 +199,7 @@ func mainEpTitle(ts []anidb.EpTitle) string {
 
 func convertAnime(a sqlc.Anime) Anime {
 	return Anime{
-		AID:           sqlc.AID(a.Aid),
+		AID:           a.Aid,
 		Title:         a.Title,
 		Type:          AnimeType(a.Type),
 		EpisodeCount:  int(a.Episodecount),
