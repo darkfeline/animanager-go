@@ -46,12 +46,15 @@ type UDPClient interface {
 	FileByHash(context.Context, int64, string, udpapi.FileFmask, udpapi.FileAmask) ([]string, error)
 }
 
+// A Matcher uses AniDB UDP API to match files to episodes and update
+// the database.
 type Matcher struct {
 	l  *slog.Logger
 	db *sql.DB
 	c  UDPClient
 }
 
+// NewMatcher creates a new [Matcher].
 func NewMatcher(l *slog.Logger, db *sql.DB, c UDPClient) Matcher {
 	return Matcher{
 		l:  l,
