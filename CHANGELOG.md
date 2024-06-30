@@ -1,14 +1,14 @@
 # Changelog
 
-## 0.23.0
+## 0.23.0 - 2024-06-30
 
 ### Added
 
-* Added `findfilesudp` command, which matches episode files using the
-  AniDB UDP API.
-* Added `file_patterns` option to config, which filters the files to be
-  matched by the `findfilesudp` command.
-* Added `anidb` section to config, with the options
+* EXPERIMENTAL: Added `findfilesudp` command, which matches episode
+  files using the AniDB UDP API.
+* EXPERIMENTAL: Added `file_patterns` option to config, which filters
+  the files to be matched by the `findfilesudp` command.
+* EXPERIMENTAL: Added `anidb` section to config, with the options
   `udp_server_address`, `username`, `password`, and `api_key` to
   configure the AniDB UDP API.
 
