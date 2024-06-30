@@ -72,8 +72,8 @@ func convertFileHash(v sqlc.Filehash) FileHash {
 	return FileHash{
 		Size:     v.Size,
 		Hash:     v.Hash,
-		EID:      sqlc.EID(v.Eid),
-		AID:      sqlc.AID(v.Aid),
+		EID:      v.Eid,
+		AID:      v.Aid,
 		Filename: v.Filename,
 	}
 }
